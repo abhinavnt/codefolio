@@ -34,3 +34,25 @@ export const updateProfile = async (formData: FormData, dispatch: AppDispatch) =
         console.log(error);
     }
 };
+
+
+
+export const mentorReq=async(formData:FormData)=>{
+try {
+     console.log('going the request to backend');
+     
+    const response = await axiosInstance.post('/api/user/mentor-request', formData, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+
+    console.log(response,'from the userService mentor request');
+    return response
+
+} catch (error) {
+    console.log(error);
+    
+}
+}

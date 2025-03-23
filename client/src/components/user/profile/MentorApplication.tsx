@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CalendarIcon, Upload, Linkedin, Github, Twitter, Instagram } from "lucide-react";
 
-// UI Components (assuming these are custom components from your project)
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +17,10 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { mentorReq } from "@/services/userService";
+import { toast } from "sonner";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 // Mock tech skills data
 const TECH_SKILLS = [
@@ -73,78 +76,33 @@ const LANGUAGES = [
 ] as const;
 
 const formSchema = z.object({
-  username: z.string().min(3, {
-    message: "Username must be at least 3 characters.",
-  }),
-  phoneNumber: z.string().min(10, {
-    message: "Phone number must be at least 10 digits.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  dateOfBirth: z.date({
-    required_error: "Please select your date of birth.",
-  }),
-  age: z.string().min(1, {
-    message: "Please enter your age.",
-  }),
-  experience: z.string().min(1, {
-    message: "Please enter your years of experience.",
-  }),
-  companyName: z.string().min(1, {
-    message: "Please enter your company name.",
-  }),
-  companyRole: z.string().min(1, {
-    message: "Please enter your role at the company.",
-  }),
-  companyDuration: z.string().min(1, {
-    message: "Please enter how long you've been with the company.",
-  }),
-  skills: z.array(z.string()).min(1, {
-    message: "Please select at least one skill.",
-  }),
-  language: z.string({
-    required_error: "Please select a primary language.",
-  }),
-  bio: z.string().min(50, {
-    message: "Bio must be at least 50 characters.",
-  }),
-  linkedinUrl: z
-    .string()
-    .url({
-      message: "Please enter a valid LinkedIn URL.",
-    })
-    .optional()
-    .or(z.literal("")),
-  githubUrl: z
-    .string()
-    .url({
-      message: "Please enter a valid GitHub URL.",
-    })
-    .optional()
-    .or(z.literal("")),
-  twitterUrl: z
-    .string()
-    .url({
-      message: "Please enter a valid Twitter URL.",
-    })
-    .optional()
-    .or(z.literal("")),
-  instagramUrl: z
-    .string()
-    .url({
-      message: "Please enter a valid Instagram URL.",
-    })
-    .optional()
-    .or(z.literal("")),
+  username: z.string().min(3, { message: "Username must be at least 3 characters." }),
+  phoneNumber: z.string().min(10, { message: "Phone number must be at least 10 digits." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  dateOfBirth: z.date({ required_error: "Please select your date of birth." }),
+  yearsOfExperience: z.string().min(1, { message: "Please enter your years of experience." }),
+  currentCompany: z.string().min(1, { message: "Please enter your current company name." }),
+  currentRole: z.string().min(1, { message: "Please enter your current role." }),
+  durationAtCompany: z.string().min(1, { message: "Please enter how long you've been with the company." }),
+  technicalSkills: z.array(z.string()).min(1, { message: "Please select at least one skill." }),
+  primaryLanguage: z.string({ required_error: "Please select a primary language." }),
+  bio: z.string().min(50, { message: "Bio must be at least 50 characters." }),
+  linkedin: z.string().url({ message: "Please enter a valid LinkedIn URL." }).optional().or(z.literal("")),
+  github: z.string().url({ message: "Please enter a valid GitHub URL." }).optional().or(z.literal("")),
+  twitter: z.string().url({ message: "Please enter a valid Twitter URL." }).optional().or(z.literal("")),
+  instagram: z.string().url({ message: "Please enter a valid Instagram URL." }).optional().or(z.literal("")),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const MentorApplicationPage: React.FC = () => {
+
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(null);
   const [resume, setResume] = useState<File | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const navigate = useNavigate()
+  const user = useSelector((state: any) => state.auth.user)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -153,33 +111,77 @@ const MentorApplicationPage: React.FC = () => {
       phoneNumber: "",
       email: "",
       dateOfBirth: undefined as any, // TypeScript workaround for initial null date
-      age: "",
-      experience: "",
-      companyName: "",
-      companyRole: "",
-      companyDuration: "",
-      skills: [],
-      language: "",
+      yearsOfExperience: "",
+      currentCompany: "",
+      currentRole: "",
+      durationAtCompany: "",
+      technicalSkills: [],
+      primaryLanguage: "",
       bio: "",
-      linkedinUrl: "",
-      githubUrl: "",
-      twitterUrl: "",
-      instagramUrl: "",
+      linkedin: "",
+      github: "",
+      twitter: "",
+      instagram: "",
     },
   });
 
-  function onSubmit(values: FormValues) {
-    console.log(values);
-    console.log("Profile Image:", profileImage);
-    console.log("Resume:", resume);
 
-    alert("Application submitted successfully!");
-    window.location.href = "/dashboard";
+ async function onSubmit(values: FormValues) {
+    const formData = new FormData();
+
+    // Append all text fields
+    formData.append('name',user.name)
+    formData.append("username", values.username);
+    formData.append("phoneNumber", values.phoneNumber);
+    formData.append("email", values.email);
+    formData.append("dateOfBirth", values.dateOfBirth.toISOString());
+    formData.append("yearsOfExperience", values.yearsOfExperience);
+    formData.append("currentCompany", values.currentCompany);
+    formData.append("currentRole", values.currentRole);
+    formData.append("durationAtCompany", values.durationAtCompany);
+    values.technicalSkills.forEach((skill) => formData.append("technicalSkills[]", skill)); // Array handling
+    formData.append("primaryLanguage", values.primaryLanguage);
+    formData.append("bio", values.bio);
+    if (values.linkedin) formData.append("linkedin", values.linkedin);
+    if (values.github) formData.append("github", values.github);
+    if (values.twitter) formData.append("twitter", values.twitter);
+    if (values.instagram) formData.append("instagram", values.instagram);
+
+    // Append files if they exist
+    if (selectedProfileImage) formData.append("profileImage", selectedProfileImage);
+    if (resume) formData.append("resume", resume);
+
+    // Log FormData for debugging (you can't console.log FormData directly, so we iterate)
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
+    // Here you would typically send the formData to your backend API
+    try {
+    const response=  await mentorReq(formData)
+    console.log(response,'from frontend apllicatoin');
+      if(response?.status===201){
+
+        toast.success('request submited done')
+        setTimeout(() => {
+          navigate("/profile");
+        }, 1500); 
+
+      }else{
+        toast.error('somthing went wrong when submiting')
+      }
+    } catch (error) {
+      
+    }
+
+    
+    
   }
 
   const handleProfileImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      setSelectedProfileImage(file);
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
@@ -200,11 +202,11 @@ const MentorApplicationPage: React.FC = () => {
     if (selectedSkills.includes(skill)) {
       const newSkills = selectedSkills.filter((s) => s !== skill);
       setSelectedSkills(newSkills);
-      form.setValue("skills", newSkills);
+      form.setValue("technicalSkills", newSkills);
     } else {
       const newSkills = [...selectedSkills, skill];
       setSelectedSkills(newSkills);
-      form.setValue("skills", newSkills);
+      form.setValue("technicalSkills", newSkills);
     }
   };
 
@@ -345,20 +347,6 @@ const MentorApplicationPage: React.FC = () => {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="age"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* Professional Information */}
                 <div className="space-y-4 md:col-span-2">
                   <h3 className="text-lg font-semibold text-emerald-700">Professional Information</h3>
@@ -367,7 +355,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="experience"
+                  name="yearsOfExperience"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Years of Experience</FormLabel>
@@ -381,7 +369,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="companyName"
+                  name="currentCompany"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Current Company</FormLabel>
@@ -395,7 +383,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="companyRole"
+                  name="currentRole"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Current Role</FormLabel>
@@ -409,7 +397,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="companyDuration"
+                  name="durationAtCompany"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Duration at Current Company</FormLabel>
@@ -452,7 +440,7 @@ const MentorApplicationPage: React.FC = () => {
                 <div className="md:col-span-2">
                   <FormField
                     control={form.control}
-                    name="skills"
+                    name="technicalSkills"
                     render={() => (
                       <FormItem>
                         <FormLabel>Technical Skills</FormLabel>
@@ -498,7 +486,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="language"
+                  name="primaryLanguage"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Primary Language</FormLabel>
@@ -551,7 +539,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="linkedinUrl"
+                  name="linkedin"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>LinkedIn</FormLabel>
@@ -570,7 +558,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="githubUrl"
+                  name="github"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>GitHub</FormLabel>
@@ -589,7 +577,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="twitterUrl"
+                  name="twitter"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Twitter</FormLabel>
@@ -608,7 +596,7 @@ const MentorApplicationPage: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="instagramUrl"
+                  name="instagram"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Instagram</FormLabel>

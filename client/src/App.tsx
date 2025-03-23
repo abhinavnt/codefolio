@@ -13,7 +13,7 @@ import { DotLoading } from "./components/user/common/Loading";
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
 const LazyUserProfile = lazy(() => import("./pages/user/Profile"));
 const LazyCourseDisplay = lazy(() => import("./pages/user/CourseDisplay"));
-const LazyMentorApplicationPage = lazy(() => import("./components/user/profile/MentorApplication"));
+const LazyMentorApplicationPage = lazy(() => import("./pages/user/MentorApplication"));
 
 
 

@@ -4,10 +4,12 @@ import { UserRepository } from "../../repositories/user.repository";
 import { IUserService } from "../../core/interfaces/service/IUserService";
 
 
+
 const userRepository = new UserRepository();
 
 
 export class userService implements IUserService{
+
     async getUserProfile(userId: string): Promise<IUser> {
         try {
             const user=await userRepository.findUserById(userId)
@@ -38,8 +40,5 @@ export class userService implements IUserService{
         }
     }
 
-
-
-
-
+    
 }

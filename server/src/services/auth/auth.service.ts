@@ -20,7 +20,6 @@ export class AuthService implements IAuthService{
     async register(name: string, email: string, password: string): Promise<void> {
         console.log(name);
         
-        console.log('hai register ullil kayri');    
         const existingUser=await authRepository.findUserByEmail(email)
         
         if(existingUser) throw new Error("Email is alredy taken")
@@ -31,7 +30,6 @@ export class AuthService implements IAuthService{
 
              await sendOtpEmail(email,otp)
            
-             console.log('otp poyitundlloo');
              
              await RedisClient.setex(`otp:${email}`, 150, JSON.stringify({ otp }))
 
