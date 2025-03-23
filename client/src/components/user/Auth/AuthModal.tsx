@@ -6,6 +6,7 @@ import { login, registerUser, verifyOtp } from "@/services/authService";
 import OTPModal from "./OTPModal";
 import ForgotPasswordModal from "./ForgotPasswordModal"; // Import the new component
 import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -116,6 +117,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
       const response: AxiosResponse = await registerUser(name, email, password);
       if (response.status === 200) {
         setIsOtpOpen(true);
+       
       }
     } else {
       const { signinEmail, signinPassword } = formData;
@@ -123,8 +125,10 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
       const response: AxiosResponse = await login(signinEmail, signinPassword, role, dispatch);
       if (response.status === 200) {
         onClose();
+        toast.success('Login successfull')
       } else {
         console.log("some error occurred");
+        toast.error('an error occured when Login')
       }
     }
     setIsSubmitting(false);
@@ -144,9 +148,11 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
     if (response && response.status === 200) {
       setIsOtpOpen(false);
       onClose();
+      toast.success('OTP verified, user registered')
       return true;
     } else {
       return false;
+      toast.error('somthing went wrong please try again')
     }
   };
 

@@ -1,57 +1,81 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Home from "./pages/user/Home"
-import { ThemeProvider } from "./context/Theme-provider"
-import CourseDisplay from "./pages/user/CourseDisplay"
-import { useEffect, useState } from "react"
-import { useDispatch } from "react-redux"
-import { refreshToken } from "./services/authService"
-import { useAppSelector } from "./redux/store"
-import UserProfile from "./pages/user/Profile"
-import ResetPasswordPage from "./components/user/Auth/ResetPasswordPage"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/user/Home"; // Eagerly loaded
+import { ThemeProvider } from "./context/Theme-provider";
+import { useEffect, useState, lazy, Suspense } from "react";
+import { useDispatch } from "react-redux";
+import { refreshToken } from "./services/authService";
+import { useAppSelector } from "./redux/store";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import CustomErrorBoundary from "./components/error/CustomErrorBoundary";
+import { DotLoading } from "./components/user/common/Loading";
+
+
+const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
+const LazyUserProfile = lazy(() => import("./pages/user/Profile"));
+const LazyCourseDisplay = lazy(() => import("./pages/user/CourseDisplay"));
+const LazyMentorApplicationPage = lazy(() => import("./components/user/profile/MentorApplication"));
+
+
 
 function App() {
-
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(true);
-
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  useEffect(()=>{
-    const fetchUser= async()=>{
-      console.log('user fetch chyunnuuu');
+  useEffect(() => {
+    const fetchUser = async () => {
+      console.log("user fetch chyunnuuu");
       
-      const isAuthenticated = localStorage.getItem("isAuthenticated");
-      if(isAuthenticated){
+      const storedAuth = localStorage.getItem("isAuthenticated");
+      if (storedAuth) {
         try {
-          await refreshToken(dispatch)
+          await refreshToken(dispatch);
         } catch (error) {
           console.log("Error during token refresh", error);
-        }finally{
-          setLoading(false)
-
+        } finally {
+          setTimeout(() => {
+            setLoading(false);
+          }, 2000);
         }
-      }else{
-        setLoading(false)
+      } else {
+        setLoading(false);
       }
-    }
-    fetchUser()
-  },[dispatch,isAuthenticated])
+    };
+    fetchUser();
+  }, [dispatch, isAuthenticated]);
 
   if (loading) {
-    return <div>loading</div>;
+    return <DotLoading text="Loading..."/>
   }
+
   return (
     <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-   <BrowserRouter>
-   <Routes>
-    <Route path="/" element={<Home/>} />
-    <Route path="/courses" element={<CourseDisplay/>}/>
-    <Route path="/profile" element={<UserProfile/>}/>
-    <Route path="/reset-password" element={<ResetPasswordPage/>} />
-   </Routes>
-   </BrowserRouter>
-   </ThemeProvider>
-  )
+      <BrowserRouter>
+        <CustomErrorBoundary>
+          <Suspense fallback={<DotLoading text="Loading..." />}>
+            <Routes>
+
+              
+              <Route path="/" element={<Home />} />
+              <Route path="/reset-password" element={<LazyResetPasswordPage />} />
+
+
+
+              {/* Protected routes of users */}
+              <Route element={<ProtectedRoute role="user" />}>
+                <Route path="/profile" element={<LazyUserProfile />} />
+                <Route path="/courses" element={<LazyCourseDisplay />} />
+                <Route path="/mentor-application" element={<LazyMentorApplicationPage />} />
+              </Route>
+
+
+
+            </Routes>
+          </Suspense>
+        </CustomErrorBoundary>
+      </BrowserRouter>
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;

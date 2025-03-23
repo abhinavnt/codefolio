@@ -4,17 +4,20 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Menu, User } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import AuthModal from "../Auth/AuthModal"
 import { useSelector, useDispatch } from "react-redux"
 import { userLogout } from "@/services/authService"
+import { LogoutConfirmationDialog } from "./LogoutConformation"
+import { toast } from "sonner"
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false)
   const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signup")
   const [showDropdown, setShowDropdown] = useState<boolean>(false)
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState<boolean>(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const user = useSelector((state: any) => state.auth.user)
   const dispatch = useDispatch()
@@ -24,12 +27,18 @@ const Navbar: React.FC = () => {
     setShowAuthModal(true)
   }
 
+  const handleLogoutClick = () => {
+    setShowLogoutConfirmation(true)
+  }
+
   const handleLogout = async () => {
     const response = await userLogout(dispatch)
     if (response.status === 200) {
       localStorage.clear()
+      toast.success('logout sucess')
     }
     setShowDropdown(false)
+    setShowLogoutConfirmation(false)
   }
 
   // Close dropdown when clicking outside
@@ -81,11 +90,13 @@ const Navbar: React.FC = () => {
           <div className="hidden items-center space-x-3 md:flex mr-20">
             {user ? (
               <div className="relative" ref={dropdownRef}>
-
                 <div className="flex gap-3">
                   <div className="w-8 h-8 rounded-full overflow-hidden">
                     <img
-                      src={user.profileImageUrl || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"}
+                      src={
+                        user.profileImageUrl ||
+                        "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"
+                      }
                       alt="Profile"
                       className="object-cover w-full h-full"
                       width={30}
@@ -112,14 +123,13 @@ const Navbar: React.FC = () => {
                       <button
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#20B486]"
                         role="menuitem"
-                        onClick={handleLogout}
+                        onClick={handleLogoutClick}
                       >
                         Logout
                       </button>
                     </div>
                   </div>
                 )}
-
               </div>
             ) : (
               <>
@@ -198,7 +208,7 @@ const Navbar: React.FC = () => {
                         className="block py-2 text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
                         onClick={() => {
                           setIsOpen(false)
-                          handleLogout()
+                          handleLogoutClick()
                         }}
                       >
                         Logout
@@ -234,6 +244,13 @@ const Navbar: React.FC = () => {
       </header>
 
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} initialTab={authModalTab} />
+
+      {/* Logout Confirmation Dialog */}
+      <LogoutConfirmationDialog
+        isOpen={showLogoutConfirmation}
+        onClose={() => setShowLogoutConfirmation(false)}
+        onConfirm={handleLogout}
+      />
     </>
   )
 }

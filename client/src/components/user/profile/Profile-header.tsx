@@ -37,7 +37,7 @@ export function ProfileHeader() {
           to="/become-instructor"
           className="flex items-center gap-2 text-sm font-medium text-emerald-500 bg-green-50 px-4 py-2 rounded-md"
         >
-          Become Instructor
+          Become Mentor
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
