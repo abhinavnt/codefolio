@@ -67,8 +67,8 @@ export class AuthController implements IAuthController{
            res.status(200).json(user)
            console.log('login response poyi');
            
-        } catch (error) {
-            
+        } catch (error:any) {
+            res.status(400).json({ message: error.message });
         }
     }
 

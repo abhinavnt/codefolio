@@ -21,6 +21,7 @@ import { mentorReq } from "@/services/userService";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { DotLoading } from "../common/Loading";
 
 // Mock tech skills data
 const TECH_SKILLS = [
@@ -101,6 +102,7 @@ const MentorApplicationPage: React.FC = () => {
   const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(null);
   const [resume, setResume] = useState<File | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [loading,setLoading]=useState(false)
   const navigate = useNavigate()
   const user = useSelector((state: any) => state.auth.user)
 
@@ -158,16 +160,18 @@ const MentorApplicationPage: React.FC = () => {
 
     // Here you would typically send the formData to your backend API
     try {
+      setLoading(true)
     const response=  await mentorReq(formData)
     console.log(response,'from frontend apllicatoin');
       if(response?.status===201){
-
+        setLoading(false)
         toast.success('request submited done')
         setTimeout(() => {
           navigate("/profile");
         }, 1500); 
 
       }else{
+        setLoading(false)
         toast.error('somthing went wrong when submiting')
       }
     } catch (error) {
@@ -213,6 +217,8 @@ const MentorApplicationPage: React.FC = () => {
   const handleCancel = () => {
     window.history.back();
   };
+
+    
 
   return (
     <div className="container mx-auto py-10 px-4 md:px-6">

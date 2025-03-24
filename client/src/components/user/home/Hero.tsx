@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, BookOpen, Users,BrainCircuit } from "lucide-react";
 import img from '../../../../public/business-woman-holding-laptop-isolated-portrait-Photoroom.png'
+import { motion } from "framer-motion"
 
 const Hero = () => {
   return (
@@ -10,53 +11,69 @@ const Hero = () => {
       <div className="grid items-center gap-8 md:grid-cols-2 lg:gap-12">
         {/* Left column - Text content */}
         <div className="space-y-8 z-10 order-2 md:order-1">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl leading-tight">
-              Up Your <span className="text-emerald-500">Skills</span> <br />
-              To <span className="text-emerald-500">Advance</span> Your <br />
-              <span className="text-emerald-500">Career</span> Path
-            </h1>
-            <p className="mt-6 max-w-lg text-base text-slate-600">
-              Learn UI-UX Design skills with weekend UX. The latest online learning system and material that help your
-              knowledge growing.
-            </p>
-          </div>
+            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl leading-tight">
+                Up Your <span className="text-emerald-500">Skills</span> <br />
+                To <span className="text-emerald-500">Advance</span> Your <br />
+                <span className="text-emerald-500">Career</span> Path
+              </h1>
+              <motion.p
+                className="mt-6 max-w-lg text-base text-slate-600"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                Learn UI-UX Design skills with weekend UX. The latest online learning system and material that help your
+                knowledge growing.
+              </motion.p>
+            </motion.div>
 
-          <div className="flex flex-wrap gap-4">
-            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 h-12 rounded-md">
-              Get Started
-            </Button>
-            <Button
-              variant="outline"
-              className="border-emerald-500 text-emerald-500 hover:bg-emerald-50 px-6 py-2 h-12 rounded-md"
+            <motion.div
+              className="flex flex-wrap gap-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
             >
-              Get free trial
-            </Button>
+              <Button className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 h-12 rounded-md">
+                Get Started
+              </Button>
+              <Button
+                variant="outline"
+                className="border-emerald-500 text-emerald-500 hover:bg-emerald-50 px-6 py-2 h-12 rounded-md"
+              >
+                Get free trial
+              </Button>
+            </motion.div>
+
+            <div className="flex flex-wrap gap-6 md:gap-8">
+              {[
+                {
+                  icon: <LightbulbIcon className="h-5 w-5 text-amber-500" />,
+                  text: "Public Speaking",
+                  bgColor: "bg-amber-100",
+                },
+                { icon: <BookOpen className="h-5 w-5 text-red-500" />, text: "Career-Oriented", bgColor: "bg-red-100" },
+                {
+                  icon: <BrainCircuit className="h-5 w-5 text-purple-500" />,
+                  text: "Creative Thinking",
+                  bgColor: "bg-purple-100",
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  className="flex items-center gap-3"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
+                >
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-full ${item.bgColor}`}>
+                    {item.icon}
+                  </div>
+                  <span className="text-sm font-medium text-slate-700">{item.text}</span>
+                </motion.div>
+              ))}
+            </div>
           </div>
-
-          <div className="flex flex-wrap gap-6 md:gap-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-                <LightbulbIcon className="h-5 w-5 text-amber-500" />
-              </div>
-              <span className="text-sm font-medium text-slate-700">Public Speaking</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                <BookOpen className="h-5 w-5 text-red-500" />
-              </div>
-              <span className="text-sm font-medium text-slate-700">Career-Oriented</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-                <BrainCircuit className="h-5 w-5 text-purple-500" />
-              </div>
-              <span className="text-sm font-medium text-slate-700">Creative Thinking</span>
-            </div>
-          </div>
-        </div>
 
         {/* Right column - Image and stats */}
         <div className="relative  h-[400px] md:h-[500px] lg:h-[550px] order-1 md:order-2">

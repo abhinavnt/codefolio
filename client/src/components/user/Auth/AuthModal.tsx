@@ -31,6 +31,19 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpOpen, setIsOtpOpen] = useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false); // New state for forgot password modal
+  const [apiError,setApiError]=useState("")
+
+  useEffect(() => {
+    if (apiError) {
+      const timer = setTimeout(() => {
+        setApiError("");
+      }, 3000);
+
+      return () => clearTimeout(timer); 
+    }
+  }, [apiError]);
+
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -117,7 +130,10 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
       const response: AxiosResponse = await registerUser(name, email, password);
       if (response.status === 200) {
         setIsOtpOpen(true);
-       
+        setApiError(" ")
+      }else{
+        toast.error(response.data.message)
+        setApiError(response.data.message)
       }
     } else {
       const { signinEmail, signinPassword } = formData;
@@ -127,8 +143,8 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
         onClose();
         toast.success('Login successfull')
       } else {
-        console.log("some error occurred");
-        toast.error('an error occured when Login')
+        toast.error(response.data.message)
+        setApiError(response.data.message)
       }
     }
     setIsSubmitting(false);
@@ -212,6 +228,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
                   <span>Google</span>
                 </button>
               </div>
+              <p className="font-bold text-sm text-red-600 ml-25">{apiError}</p>
               {activeTab === "signup" && (
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-4">
