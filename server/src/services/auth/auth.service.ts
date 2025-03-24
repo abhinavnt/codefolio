@@ -102,19 +102,21 @@ export class AuthService implements IAuthService{
         console.log('login servicel kayri 1',role,user);
         
         if (!user) throw new Error("Invalid email address");
-        console.log('login servicel kayri 2');
+
         if ("status" in user && user.status === "blocked") {
           throw new Error("you have been blocked");
         }
-        console.log('login servicel kayri 3');
+
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) throw new Error("Incorrect password");
-        console.log('login servicel kayri 4');
+        
         const userId = user._id;
+
         const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {
           expiresIn: "15m",
         });
+        
         const refreshToken = jwt.sign(
           { userId },
           process.env.REFRESH_TOKEN_SECRET!,
@@ -124,6 +126,7 @@ export class AuthService implements IAuthService{
         );
 
         console.log('hei last und login servicesl');
+        console.log(user,'user from ath login service');
         
         return { accessToken, refreshToken, user: user as IUser};
       }
@@ -139,7 +142,7 @@ export class AuthService implements IAuthService{
 
             let user
             if(role==='admin'){
-                console.log('admin here');
+                user= await authRepository.findAdminById(decoded.userId)
             }else{
                 user = await authRepository.findUserById(decoded.userId)
             }

@@ -81,10 +81,17 @@ export const refreshToken = async (dispatch: AppDispatch) => {
             
             const response= await axiosInstance.post('/api/auth/login',{email,password,role},{withCredentials:true})
 
+           console.log(response,'when loging time geting response')
+           
             dispatch(setCredentials({
                 accessToken:response.data.accessToken,
-                User:response.data.user
+                user:response.data.user
             }))
+          
+            console.log(response.data.accessToken,"response.data.accessToken")
+            console.log(response.data.user,"response.data.user")
+            
+            
             console.log('dispatch chythuu');
             
             localStorage.clear()

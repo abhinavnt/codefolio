@@ -21,6 +21,8 @@ const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const user = useSelector((state: any) => state.auth.user)
   const dispatch = useDispatch()
+  
+  const isAdmin=localStorage.getItem('adminLoggedIn')
 
   const openAuthModal = (tab: "signin" | "signup") => {
     setAuthModalTab(tab)
@@ -88,7 +90,7 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Auth/Profile Section */}
           <div className="hidden items-center space-x-3 md:flex mr-20">
-            {user ? (
+            {user && !isAdmin ? (
               <div className="relative" ref={dropdownRef}>
                 <div className="flex gap-3">
                   <div className="w-8 h-8 rounded-full overflow-hidden">

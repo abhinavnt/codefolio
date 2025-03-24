@@ -57,7 +57,8 @@ export class AuthController implements IAuthController{
             console.log('yes login request backil ethi');
             
             const {email,password,role}= req.body
-
+            console.log(req.body);
+            
             console.log(email,'from controller');
             
             const {refreshToken,...user}= await authService.login(email,password,role)
@@ -75,7 +76,11 @@ export class AuthController implements IAuthController{
     
    async refreshToken(req: Request, res: Response): Promise<void> {
         try {
+            console.log('refreshcontrolleril vannitundllo');
+            
             const refreshToken = req.cookies.refreshToken
+            console.log(refreshToken,'refresh token');
+            
             if (!refreshToken) res.status(403).json({ error: "Refresh tokekn required" });
             const {role}=req.body
             const { accessToken, user } = await authService.refreshAccessToken(refreshToken,role);

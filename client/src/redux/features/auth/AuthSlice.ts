@@ -59,16 +59,17 @@ export interface AuthState {
             state.user=action.payload.user
             state.accessToken=action.payload.accessToken
             state.isAuthenticated=true
-            localStorage.setItem('sessionActive','true')
-            console.log('locaal storagil vechitundd')
+            // localStorage.setItem('sessionActive','true')
+            console.log(state.user,'locaal storagil vechitundd')
         },
         updateUser: (state, action:PayloadAction<{user:any}>) =>{
             state.user = action.payload.user
           },
         clearUser: state => {
             console.log('clearing user');
-            localStorage.removeItem('sessionActive');
+            // localStorage.removeItem('sessionActive');
             localStorage.removeItem('isAuthenticated')
+            localStorage.clear()
             state.isAuthenticated = false;
             state.user = null;
             state.accessToken = null;

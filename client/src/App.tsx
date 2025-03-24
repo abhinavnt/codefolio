@@ -8,6 +8,9 @@ import { useAppSelector } from "./redux/store";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CustomErrorBoundary from "./components/error/CustomErrorBoundary";
 import { DotLoading } from "./components/user/common/Loading";
+import AdminLogin from "./pages/admin/AdminLogin";
+import NotFound from "./pages/error/NotFound";
+import { AdminRoutes } from "./routes/AdminRoutes";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -56,10 +59,10 @@ function App() {
             <Routes>
 
               
-              <Route path="/" element={<Home />} />
               <Route path="/reset-password" element={<LazyResetPasswordPage />} />
 
 
+               <Route path="/" element={<Home />} />
 
               {/* Protected routes of users */}
               <Route element={<ProtectedRoute role="user" />}>
@@ -68,8 +71,11 @@ function App() {
                 <Route path="/mentor-application" element={<LazyMentorApplicationPage />} />
               </Route>
 
+               
+               {/* <Route path="/admin/login" element={<AdminLogin/>}/> */}
+               <Route path="/admin/*" element={<AdminRoutes/>}/>
 
-
+              <Route path="*" element={<NotFound/>}/>
             </Routes>
           </Suspense>
         </CustomErrorBoundary>
