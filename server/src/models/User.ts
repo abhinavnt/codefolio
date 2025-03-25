@@ -14,7 +14,7 @@ export interface IUser extends Document {
   savedMentors:Types.ObjectId[];
   skills:string[];
   DOB:Date;
-  reviewerRequestStatus: "pending" | "approved" | "rejected"[];
+  reviewerRequestStatus: ("pending" | "approved" | "rejected")[];
 }
 
 const UserSchema = new Schema<IUser>(
@@ -30,7 +30,7 @@ const UserSchema = new Schema<IUser>(
     wishlist: [{ type: Schema.Types.ObjectId, ref: "Course" }],
     savedMentors:[{type:Schema.Types.ObjectId,ref:"Mentor"}],
     DOB:{type:Date},
-    reviewerRequestStatus:{type:[{type:String,enum:["pending","approved","rejected"]}]}
+    reviewerRequestStatus:{type:[{type:String,enum:["pending","approved","rejected"]}],default:[]}
   },
   { timestamps: true }
 );

@@ -8,6 +8,7 @@ import connectDB  from "./config/db";
 import morgan from 'morgan';
 import authRoutes from './routes/auth.routes'
 import userRoutes from './routes/user.routes'
+import adminRoutes from './routes/admin.routes'
 
 dotenv.config()
 connectDB()
@@ -34,6 +35,7 @@ console.log('serveril vannu');
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user",userRoutes)
+app.use("/api/admin",adminRoutes)
 
 
 
