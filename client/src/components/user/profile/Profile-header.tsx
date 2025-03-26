@@ -42,6 +42,7 @@ export function ProfileHeader() {
             <ArrowRight className="w-4 h-4" />
           </Link>
         ) : (
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -60,7 +61,7 @@ export function ProfileHeader() {
                   </Link>
                 </span>
               </TooltipTrigger>
-              {isDisabled && <TooltipContent>Already Applied</TooltipContent>}
+              {isDisabled && <TooltipContent >Already Applied</TooltipContent>}
             </Tooltip>
           </TooltipProvider>
         )}

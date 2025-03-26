@@ -1,6 +1,7 @@
 import { Request, response, Response } from "express";
 import { AuthService } from "../../services/auth/auth.service";
 import { IAuthController } from "../../core/interfaces/controller/IAuthController";
+import { Profile } from "passport-google-oauth20";
 
 const authService=new AuthService()
 
@@ -136,6 +137,35 @@ export class AuthController implements IAuthController{
         } catch (error:any) {
             res.status(500).json({ message: error.message });
         }
+    }
+
+
+    async handleGoogleUser(req: Request, res: Response): Promise<void> {
+
+        if(!req.user){
+            return res.redirect('http://localhost:5173');
+        }
+
+        const googleProfile = req.user as unknown as Profile
+
+        if(!googleProfile.emails || googleProfile.emails.length===0){
+            throw new Error('No email provided by Google');
+        }
+        
+        const response=await authService.handleGoogleUser({
+            googleId:googleProfile.id,
+            email:googleProfile.emails[0].value,
+            name:googleProfile.displayName,
+            profilepic: googleProfile._json.picture as string})
+          
+            const {refreshToken,...newUser} =response
+
+            res.cookie("refreshToken",refreshToken,{httpOnly:true,secure:process.env.NODE_ENV=== "production", sameSite: "strict"})
+            
+            console.log('response povunnu');
+           
+            
+            res.redirect('http://localhost:5173/')
     }
 
 

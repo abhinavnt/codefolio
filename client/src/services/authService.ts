@@ -150,3 +150,9 @@ export const resetPassword = async (token:string, newPassword:string) => {
     
   }
 }
+
+
+export const googleAuth = async ()=>{
+  window.open('http://localhost:5000/api/auth/google',"_self")
+}
+

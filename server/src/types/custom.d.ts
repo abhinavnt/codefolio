@@ -4,5 +4,5 @@ export interface AuthRequest extends Request {
   user?: {
     id: string;
   },
-  file?:Express.Multer.file
+  file?:Express.Multer.File
 }

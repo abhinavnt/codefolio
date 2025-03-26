@@ -7,6 +7,14 @@ export class UserRepository implements IUserRepository{
     async findUserById(userId: string):Promise<IUser| null> {
         return await User.findById(userId)
       }
+
+      async findByGoogleId(googleId: string): Promise<IUser | null> {
+        return await User.findOne({ googleId });
+      }
+
+      async findByEmail(email: string): Promise<IUser | null> {
+        return User.findOne({ email });
+      }
     
     async updateById(userId: string, updateData: Partial<IUser>): Promise<IUser | null> {
       return await User.findByIdAndUpdate(userId, updateData, { new: true });

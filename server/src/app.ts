@@ -9,6 +9,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.routes'
 import userRoutes from './routes/user.routes'
 import adminRoutes from './routes/admin.routes'
+import passport from "./config/passport";
 
 dotenv.config()
 connectDB()
@@ -17,11 +18,13 @@ connectDB()
 const app=express()
 const CLIENT_URL = process.env.CLIENT_URL
 
-
+app.use(passport.initialize())
 
 app.use(express.json())
 app.use(cookieParser())
 app.use(morgan('dev'));
+
+
 
 app.use(cors({
     origin: CLIENT_URL, 

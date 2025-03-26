@@ -4,12 +4,38 @@ import { Button } from "@/components/ui/button"
 import {DropdownMenu,DropdownMenuContent,DropdownMenuItem,DropdownMenuLabel,DropdownMenuSeparator,DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { userLogout } from "@/services/authService"
+import { useDispatch } from "react-redux"
+import { toast } from "sonner"
+import { LogoutConfirmationDialog } from "@/components/user/common/LogoutConformation"
+import { useState } from "react"
 
 interface NavbarProps {
   onMenuButtonClick: () => void
 }
 
 export function Navbar({ onMenuButtonClick }: NavbarProps) {
+
+  const dispatch=useDispatch()
+const [isOpen, setIsOpen] = useState<boolean>(false)
+ const [showLogoutConfirmation, setShowLogoutConfirmation] = useState<boolean>(false)
+
+ const handleLogoutClick = () => {
+  setShowLogoutConfirmation(true)
+}
+
+const handleLogout= async ()=>{
+
+  const response= await userLogout(dispatch)
+  if (response.status === 200) {
+    localStorage.clear()
+    toast.success('logout sucess')
+  }
+  setShowLogoutConfirmation(false)
+}
+ 
+
+
   return (
     <header className="border-b bg-white">
       <div className="flex h-16 items-center justify-between px-4">
@@ -48,11 +74,17 @@ export function Navbar({ onMenuButtonClick }: NavbarProps) {
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Log out</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogoutClick}>Log out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+       {/* Logout Confirmation Dialog */}
+            <LogoutConfirmationDialog
+              isOpen={showLogoutConfirmation}
+              onClose={() => setShowLogoutConfirmation(false)}
+              onConfirm={handleLogout}
+            />
     </header>
   )
 }

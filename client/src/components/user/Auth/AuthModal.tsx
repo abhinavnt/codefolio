@@ -2,7 +2,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { X, Eye, EyeOff } from "lucide-react";
 import { AxiosResponse } from "axios";
-import { login, registerUser, verifyOtp } from "@/services/authService";
+import { googleAuth, login, registerUser, verifyOtp } from "@/services/authService";
 import OTPModal from "./OTPModal";
 import ForgotPasswordModal from "./ForgotPasswordModal"; // Import the new component
 import { useDispatch } from "react-redux";
@@ -206,7 +206,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
                 <p className="text-center text-gray-500 mb-2">
                   Sign {activeTab === "signin" ? "In" : "Up"} via
                 </p>
-                <button className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 px-4 text-gray-700 hover:bg-gray-50 transition-colors">
+                <button onClick={googleAuth} className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md py-2 px-4 text-gray-700 hover:bg-gray-50 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                     <path
                       fill="#EA4335"

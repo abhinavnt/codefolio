@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs'
+import bcrypt, { hash } from 'bcryptjs'
 import jwt   from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import { AuthRepository } from '../../repositories/auth.repository'
@@ -10,10 +10,12 @@ import { IAuthService } from '../../core/interfaces/service/IAuthService'
 import { sendForgotPasswordMail, sendOtpEmail } from '../../utils/email.services'
 import { IAdmin } from '../../models/Admin'
 import { verifyResetToken } from '../../utils/token.services'
+import { UserRepository } from '../../repositories/user.repository'
 
 dotenv.config()
 
 const authRepository=new AuthRepository()
+const userRepository=new UserRepository()
 
 export class AuthService implements IAuthService{
 
@@ -60,8 +62,7 @@ export class AuthService implements IAuthService{
         if (!user) throw new Error("Cannot create user please register again");
 
         const userId = user._id;
-        console.log('before access toke');
-        console.log(process.env.ACCESS_TOKEN_SECRET,'secret key from env');
+       
         
         const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {expiresIn: "15m",});
         console.log('after access toke');
@@ -202,6 +203,37 @@ export class AuthService implements IAuthService{
         } catch (error:any) {
           throw new Error(error.message);
         }
+    }
+
+    async handleGoogleUser(googleData: { googleId: string; email: string; name: string; profilepic: string; }): Promise<verifiedUer> {
+
+        let user= await userRepository.findByGoogleId(googleData.googleId)
+
+        if(!user){
+          user= await userRepository.findByEmail(googleData.email)
+
+          if(!user){
+
+            const dummyPassword= Math.random().toString(36).slice(-8);
+            const hashedPassword = await hash(dummyPassword, 10);
+
+            user = await authRepository.createGoogleUser(googleData.googleId,googleData.name,hashedPassword,googleData.email,googleData.profilepic)
+
+          }else{
+            user.googleId=googleData.googleId
+            await user.save()
+          }
+        }
+
+        if (!user) throw new Error("Cannot create user please register again");
+
+        const userId = user._id;
+
+        const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {expiresIn: "15m",});
+         console.log('after access toke');
+        const refreshToken = jwt.sign({ userId },process.env.REFRESH_TOKEN_SECRET!,{expiresIn: "7d",});
+
+        return { accessToken, refreshToken, user };
     }
 
 

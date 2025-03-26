@@ -1,3 +1,4 @@
+import { IUser } from "../../../models/User"
 import { refreshedUser, verifiedUer } from "../../types/userTypes"
 
 export interface IAuthService {
@@ -8,4 +9,5 @@ export interface IAuthService {
     refreshAccessToken(refreshToken: string, role: string):Promise<refreshedUser>
     sendMagicLink(email: string):Promise<void>
     resetPassword(token: string, newPassword: string):Promise<void>
+    handleGoogleUser(googleData: {googleId: string;email: string;name: string;profilepic: string;}): Promise<verifiedUer>;
 }

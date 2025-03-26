@@ -8,7 +8,7 @@ import { useAppSelector } from "./redux/store";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CustomErrorBoundary from "./components/error/CustomErrorBoundary";
 import { DotLoading } from "./components/user/common/Loading";
-import AdminLogin from "./pages/admin/AdminLogin";
+// import AdminLogin from "./pages/admin/AdminLogin";
 import NotFound from "./pages/error/NotFound";
 import { AdminRoutes } from "./routes/AdminRoutes";
 

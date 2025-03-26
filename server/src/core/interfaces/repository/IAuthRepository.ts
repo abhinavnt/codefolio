@@ -8,4 +8,5 @@ export interface IAuthRepository {
     findUserById(id:string):Promise<IUser|null>
     // findAdminById(id:string):Promise<IAdmin|null>
     updateUserPassword(id:string, password:string):Promise<IUser|null>
+    createGoogleUser(googleId:string,name:string,password:string,email:string,profileImageUrl:string):Promise<IUser|null>
 }

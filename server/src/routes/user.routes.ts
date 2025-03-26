@@ -15,7 +15,7 @@ router.use(authMiddleware);
 
 router.get("/profile",userController.getUserProfile)
 
-router.put('/profile',upload.single("profileImage"),userController.updateProfile)
+router.put('/profile',upload.fields([{name:"profileImage",maxCount:1}]),userController.updateProfile)
 
 router.post('/mentor-request',upload.fields([{ name: "profileImage", maxCount: 1 },{ name: "resume", maxCount: 1 },]),mentorReqController.addMentorReq)
 
