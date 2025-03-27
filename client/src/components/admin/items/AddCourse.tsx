@@ -1,3 +1,4 @@
+"use client"
 
 import type React from "react"
 
@@ -10,7 +11,44 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, Upload } from "lucide-react"
+import { addNewCourse } from "@/services/adminService"
+import { toast } from "sonner"
+
+type Lesson = {
+  title: string
+  duration: string
+  video: string
+}
+
+type Module = {
+  title: string
+  description: string
+  video: string
+  lessons: Lesson[]
+}
+
+type LessonError = {
+  title?: string
+  duration?: string
+}
+
+type ModuleError = {
+  title?: string
+  description?: string
+  lessons?: LessonError[]
+}
+
+type FormErrors = {
+  courseTitle?: string
+  courseDescription?: string
+  courseCategory?: string
+  courseLevel?: string
+  coursePrice?: string
+  courseDuration?: string
+  courseImage?: string
+  modules?: ModuleError[]
+}
 
 export function AddCourse() {
   const [courseTitle, setCourseTitle] = useState("")
@@ -19,13 +57,206 @@ export function AddCourse() {
   const [courseLevel, setCourseLevel] = useState("")
   const [coursePrice, setCoursePrice] = useState("")
   const [courseDuration, setCourseDuration] = useState("")
-  const [courseImage, setCourseImage] = useState("")
-  const [courseModules, setCourseModules] = useState([
-    { title: "", description: "", lessons: [{ title: "", duration: "" }] },
+  const [courseImage, setCourseImage] = useState<File | null>(null)
+  const [courseModules, setCourseModules] = useState<Module[]>([
+    { title: "", description: "", video: "", lessons: [{ title: "", duration: "", video: "" }] },
   ])
 
+  const [errors, setErrors] = useState<FormErrors>({})
+
+  const validateField = (field: string, value: string | File | null, required = true): string => {
+    // Handle courseImage (File | null)
+    if (field === "courseImage") {
+      if (required && !value) {
+        return "Course image is required";
+      }
+      if (value instanceof File) {
+        // Add file-specific validation (e.g., size, type)
+        if (value.size > 5 * 1024 * 1024) { // 5MB limit
+          return "Image size must be less than 5MB";
+        }
+        if (!value.type.startsWith("image/")) {
+          return "Only image files are allowed";
+        }
+      }
+      return "";
+    }
+
+    // Handle other fields (strings)
+    if (required && (!value || (typeof value === "string" && value.trim() === ""))) {
+      return "This field is required";
+    }
+
+    if (field === "coursePrice" && typeof value === "string" && value) {
+      const price = Number.parseFloat(value);
+      if (isNaN(price) || price < 0) {
+        return "Price must be a valid positive number";
+      }
+    }
+
+    if (field === "courseDuration" && typeof value === "string" && value) {
+      const duration = Number.parseFloat(value);
+      if (isNaN(duration) || duration <= 0) {
+        return "Duration must be a valid positive number";
+      }
+    }
+
+    return "";
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Validate all fields
+    const newErrors: FormErrors = {}
+
+    // Basic tab validation
+    newErrors.courseTitle = validateField("courseTitle", courseTitle)
+    newErrors.courseDescription = validateField("courseDescription", courseDescription)
+    newErrors.courseCategory = validateField("courseCategory", courseCategory)
+    newErrors.courseLevel = validateField("courseLevel", courseLevel)
+    newErrors.coursePrice = validateField("coursePrice", coursePrice)
+    newErrors.courseDuration = validateField("courseDuration", courseDuration)
+    newErrors.courseImage = validateField("courseImage", courseImage)
+
+    // Content tab validation
+    newErrors.modules = courseModules.map((module, index) => {
+      const moduleError: ModuleError = {
+        title: validateField(`module-${index}-title`, module.title),
+        description: validateField(`module-${index}-description`, module.description),
+        lessons: module.lessons.map((lesson, lessonIndex) => ({
+          title: validateField(`lesson-${index}-${lessonIndex}-title`, lesson.title),
+          duration: validateField(`lesson-${index}-${lessonIndex}-duration`, lesson.duration),
+        })),
+      }
+      return moduleError
+    })
+
+    setErrors(newErrors)
+
+    const hasErrors = Object.values(newErrors).some((error) => {
+      if (typeof error === "string" && error !== "") return true
+      if (Array.isArray(error)) {
+        return error.some(
+          (moduleError) =>
+            (moduleError.title && moduleError.title !== "") ||
+            (moduleError.description && moduleError.description !== "") ||
+            (moduleError.lessons &&
+              moduleError.lessons.some(
+                (lessonError) =>
+                  (lessonError.title && lessonError.title !== "") ||
+                  (lessonError.duration && lessonError.duration !== ""),
+              )),
+        )
+      }
+      return false
+    })
+
+    if (!hasErrors) {
+      try {
+        const formData = new FormData();
+
+        formData.append("title", courseTitle);
+        formData.append("description", courseDescription);
+        formData.append("category", courseCategory);
+        formData.append("level", courseLevel);
+        formData.append("price", coursePrice);
+        formData.append("duration", courseDuration);
+
+        console.log(courseImage, 'courseImage');
+        if (courseImage) {
+          console.log('course image appended to formdata');
+          formData.append("image", courseImage);
+        }
+
+        formData.append("modules", JSON.stringify(courseModules));
+
+        for (const [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
+
+        const response = await addNewCourse(formData)
+
+        if (response) {
+          console.log("Course submission response:", response.data);
+          toast.success("course add success")
+        }
+        return response;
+      } catch (error) {
+        console.error("Error submitting course:", error);
+        throw error; 
+      }
+    } else {
+      console.log("Form has validation errors")
+    }
+  }
+
+  const handleCourseTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setCourseTitle(value)
+    setErrors((prev) => ({
+      ...prev,
+      courseTitle: validateField("courseTitle", value),
+    }))
+  }
+
+  const handleCourseDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    setCourseDescription(value)
+    setErrors((prev) => ({
+      ...prev,
+      courseDescription: validateField("courseDescription", value),
+    }))
+  }
+
+  const handleCourseCategoryChange = (value: string) => {
+    setCourseCategory(value)
+    setErrors((prev) => ({
+      ...prev,
+      courseCategory: validateField("courseCategory", value),
+    }))
+  }
+
+  const handleCourseLevelChange = (value: string) => {
+    setCourseLevel(value)
+    setErrors((prev) => ({
+      ...prev,
+      courseLevel: validateField("courseLevel", value),
+    }))
+  }
+
+  const handleCoursePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setCoursePrice(value)
+    setErrors((prev) => ({
+      ...prev,
+      coursePrice: validateField("coursePrice", value),
+    }))
+  }
+
+  const handleCourseDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setCourseDuration(value)
+    setErrors((prev) => ({
+      ...prev,
+      courseDuration: validateField("courseDuration", value),
+    }))
+  }
+
+  const handleCourseImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    setCourseImage(file);
+    setErrors((prev) => ({
+      ...prev,
+      courseImage: validateField("courseImage", file),
+    }));
+  };
+
   const handleAddModule = () => {
-    setCourseModules([...courseModules, { title: "", description: "", lessons: [{ title: "", duration: "" }] }])
+    setCourseModules([
+      ...courseModules,
+      { title: "", description: "", video: "", lessons: [{ title: "", duration: "", video: "" }] },
+    ])
   }
 
   const handleRemoveModule = (index: number) => {
@@ -41,11 +272,36 @@ export function AddCourse() {
       [field]: value,
     }
     setCourseModules(updatedModules)
+
+ 
+    setErrors((prev) => {
+      const newModuleErrors = [...(prev.modules || [])]
+      if (!newModuleErrors[index]) {
+        newModuleErrors[index] = {}
+      }
+
+      newModuleErrors[index] = {
+        ...newModuleErrors[index],
+        [field === "title" ? "title" : "description"]: validateField(`module-${index}-${field}`, value),
+      }
+
+      return {
+        ...prev,
+        modules: newModuleErrors,
+      }
+    })
   }
+
+  // const handleVideoChange = (moduleIndex: number, file: File) => {
+  //   const updatedModules = [...courseModules]
+    
+  //   updatedModules[moduleIndex].video = file.name
+  //   setCourseModules(updatedModules)
+  // }
 
   const handleAddLesson = (moduleIndex: number) => {
     const updatedModules = [...courseModules]
-    updatedModules[moduleIndex].lessons.push({ title: "", duration: "" })
+    updatedModules[moduleIndex].lessons.push({ title: "", duration: "", video: "" })
     setCourseModules(updatedModules)
   }
 
@@ -62,22 +318,39 @@ export function AddCourse() {
       [field]: value,
     }
     setCourseModules(updatedModules)
-  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In a real app, you would submit the course data to your backend
-    console.log({
-      title: courseTitle,
-      description: courseDescription,
-      category: courseCategory,
-      level: courseLevel,
-      price: coursePrice,
-      duration: courseDuration,
-      image: courseImage,
-      modules: courseModules,
+    setErrors((prev) => {
+      const newModuleErrors = [...(prev.modules || [])]
+      if (!newModuleErrors[moduleIndex]) {
+        newModuleErrors[moduleIndex] = { lessons: [] }
+      }
+
+      if (!newModuleErrors[moduleIndex].lessons) {
+        newModuleErrors[moduleIndex].lessons = []
+      }
+
+      if (!newModuleErrors[moduleIndex].lessons![lessonIndex]) {
+        newModuleErrors[moduleIndex].lessons![lessonIndex] = {}
+      }
+
+      newModuleErrors[moduleIndex].lessons![lessonIndex] = {
+        ...newModuleErrors[moduleIndex].lessons![lessonIndex],
+        [field]: validateField(`lesson-${moduleIndex}-${lessonIndex}-${field}`, value),
+      }
+
+      return {
+        ...prev,
+        modules: newModuleErrors,
+      }
     })
   }
+
+  // const handleLessonVideoChange = (moduleIndex: number, lessonIndex: number, file: File) => {
+  //   const updatedModules = [...courseModules]
+  //   // In a real app, you would upload the file to your server/storage
+  //   updatedModules[moduleIndex].lessons[lessonIndex].video = file.name
+  //   setCourseModules(updatedModules)
+  // }
 
   return (
     <div className="space-y-6">
@@ -104,8 +377,10 @@ export function AddCourse() {
                   id="title"
                   placeholder="Enter course title"
                   value={courseTitle}
-                  onChange={(e) => setCourseTitle(e.target.value)}
+                  onChange={handleCourseTitleChange}
+                  className={errors.courseTitle ? "border-red-500" : ""}
                 />
+                {errors.courseTitle && <p className="text-sm text-red-500">{errors.courseTitle}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Course Description</Label>
@@ -114,14 +389,16 @@ export function AddCourse() {
                   placeholder="Enter course description"
                   rows={5}
                   value={courseDescription}
-                  onChange={(e) => setCourseDescription(e.target.value)}
+                  onChange={handleCourseDescriptionChange}
+                  className={errors.courseDescription ? "border-red-500" : ""}
                 />
+                {errors.courseDescription && <p className="text-sm text-red-500">{errors.courseDescription}</p>}
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Select value={courseCategory} onValueChange={setCourseCategory}>
-                    <SelectTrigger id="category">
+                  <Select value={courseCategory} onValueChange={handleCourseCategoryChange}>
+                    <SelectTrigger id="category" className={errors.courseCategory ? "border-red-500" : ""}>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -133,11 +410,12 @@ export function AddCourse() {
                       <SelectItem value="cybersecurity">Cybersecurity</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.courseCategory && <p className="text-sm text-red-500">{errors.courseCategory}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="level">Level</Label>
-                  <Select value={courseLevel} onValueChange={setCourseLevel}>
-                    <SelectTrigger id="level">
+                  <Select value={courseLevel} onValueChange={handleCourseLevelChange}>
+                    <SelectTrigger id="level" className={errors.courseLevel ? "border-red-500" : ""}>
                       <SelectValue placeholder="Select level" />
                     </SelectTrigger>
                     <SelectContent>
@@ -146,16 +424,19 @@ export function AddCourse() {
                       <SelectItem value="advanced">Advanced</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.courseLevel && <p className="text-sm text-red-500">{errors.courseLevel}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price ($)</Label>
+                  <Label htmlFor="price">Price (₹)</Label>
                   <Input
                     id="price"
                     type="number"
                     placeholder="Enter price"
                     value={coursePrice}
-                    onChange={(e) => setCoursePrice(e.target.value)}
+                    onChange={handleCoursePriceChange}
+                    className={errors.coursePrice ? "border-red-500" : ""}
                   />
+                  {errors.coursePrice && <p className="text-sm text-red-500">{errors.coursePrice}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="duration">Duration (hours)</Label>
@@ -164,104 +445,212 @@ export function AddCourse() {
                     type="number"
                     placeholder="Enter duration"
                     value={courseDuration}
-                    onChange={(e) => setCourseDuration(e.target.value)}
+                    onChange={handleCourseDurationChange}
+                    className={errors.courseDuration ? "border-red-500" : ""}
                   />
+                  {errors.courseDuration && <p className="text-sm text-red-500">{errors.courseDuration}</p>}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="image">Course Image URL</Label>
-                <Input
-                  id="image"
-                  placeholder="Enter image URL"
-                  value={courseImage}
-                  onChange={(e) => setCourseImage(e.target.value)}
-                />
+                <Label htmlFor="image">Course Image</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    className={`flex-1 ${errors.courseImage ? "border-red-500" : ""}`}
+                    onChange={handleCourseImageChange}
+                  />
+                  <Button variant="outline" size="sm">
+                    <Upload className="h-4 w-4 mr-2" /> Upload
+                  </Button>
+                </div>
+                {errors.courseImage && <p className="text-sm text-red-500">{errors.courseImage}</p>}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="content">
-          <Card>
+
+        <TabsContent value="content" className="min-h-[500px]">
+          <Card className="h-full flex flex-col">
             <CardHeader>
               <CardTitle>Course Content</CardTitle>
-              <CardDescription>Add modules and lessons to your course.</CardDescription>
+              <CardDescription>Add weekly modules and lessons to your course.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {courseModules.map((module, moduleIndex) => (
-                <div key={moduleIndex} className="space-y-4 border p-4 rounded-md">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium">Module {moduleIndex + 1}</h3>
-                    <Button variant="ghost" size="sm" onClick={() => handleRemoveModule(moduleIndex)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`module-title-${moduleIndex}`}>Module Title</Label>
-                    <Input
-                      id={`module-title-${moduleIndex}`}
-                      placeholder="Enter module title"
-                      value={module.title}
-                      onChange={(e) => handleModuleChange(moduleIndex, "title", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`module-description-${moduleIndex}`}>Module Description</Label>
-                    <Textarea
-                      id={`module-description-${moduleIndex}`}
-                      placeholder="Enter module description"
-                      rows={3}
-                      value={module.description}
-                      onChange={(e) => handleModuleChange(moduleIndex, "description", e.target.value)}
-                    />
-                  </div>
-                  <Separator className="my-4" />
-                  <h4 className="text-md font-medium">Lessons</h4>
-                  <div className="space-y-4">
-                    {module.lessons.map((lesson, lessonIndex) => (
-                      <div key={lessonIndex} className="grid gap-4 md:grid-cols-5 items-center">
-                        <div className="md:col-span-3">
-                          <Label htmlFor={`lesson-title-${moduleIndex}-${lessonIndex}`} className="sr-only">
-                            Lesson Title
-                          </Label>
-                          <Input
-                            id={`lesson-title-${moduleIndex}-${lessonIndex}`}
-                            placeholder="Lesson title"
-                            value={lesson.title}
-                            onChange={(e) => handleLessonChange(moduleIndex, lessonIndex, "title", e.target.value)}
-                          />
+            <CardContent className="flex-1 flex flex-col">
+              <div className="space-y-6 flex-1">
+                {courseModules.map((module, moduleIndex) => (
+                  <div key={moduleIndex} className="space-y-4 border p-4 rounded-md">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-medium">Week {moduleIndex + 1}</h3>
+                      <Button variant="ghost" size="sm" onClick={() => handleRemoveModule(moduleIndex)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor={`module-title-${moduleIndex}`}>Week Title</Label>
+                      <Input
+                        id={`module-title-${moduleIndex}`}
+                        placeholder="Enter week title"
+                        value={module.title}
+                        onChange={(e) => handleModuleChange(moduleIndex, "title", e.target.value)}
+                        className={errors.modules?.[moduleIndex]?.title ? "border-red-500" : ""}
+                      />
+                      {errors.modules?.[moduleIndex]?.title && (
+                        <p className="text-sm text-red-500">{errors.modules[moduleIndex].title}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor={`module-description-${moduleIndex}`}>Week Description</Label>
+                      <Textarea
+                        id={`module-description-${moduleIndex}`}
+                        placeholder="Enter week description"
+                        rows={3}
+                        value={module.description}
+                        onChange={(e) => handleModuleChange(moduleIndex, "description", e.target.value)}
+                        className={errors.modules?.[moduleIndex]?.description ? "border-red-500" : ""}
+                      />
+                      {errors.modules?.[moduleIndex]?.description && (
+                        <p className="text-sm text-red-500">{errors.modules[moduleIndex].description}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      {/* <Label htmlFor={`module-video-${moduleIndex}`}>Upload Week Video</Label>
+                      <div
+                        className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+                        onDragOver={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                            handleVideoChange(moduleIndex, e.dataTransfer.files[0])
+                          }
+                        }}
+                        onClick={() => document.getElementById(`module-video-${moduleIndex}`)?.click()}
+                      >
+                        <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Drag and drop your video here or click to browse
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {module.video ? `Selected: ${module.video}` : "MP4, MOV, or WebM formats (max 500MB)"}
+                        </p>
+                        <Input
+                          id={`module-video-${moduleIndex}`}
+                          type="file"
+                          accept="video/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              handleVideoChange(moduleIndex, e.target.files[0])
+                            }
+                          }}
+                        />
+                      </div> */}
+                    </div>
+                    <Separator className="my-4" />
+                    <h4 className="text-md font-medium">Lessons</h4>
+                    <div className="space-y-4">
+                      {module.lessons.map((lesson, lessonIndex) => (
+                        <div key={lessonIndex} className="space-y-3 border border-muted p-3 rounded-md">
+                          <div className="grid gap-4 md:grid-cols-5 items-center">
+                            <div className="md:col-span-3">
+                              <Label htmlFor={`lesson-title-${moduleIndex}-${lessonIndex}`}>Lesson Title</Label>
+                              <Input
+                                id={`lesson-title-${moduleIndex}-${lessonIndex}`}
+                                placeholder="Lesson title"
+                                value={lesson.title}
+                                onChange={(e) => handleLessonChange(moduleIndex, lessonIndex, "title", e.target.value)}
+                                className={`mt-1 ${errors.modules?.[moduleIndex]?.lessons?.[lessonIndex]?.title ? "border-red-500" : ""}`}
+                              />
+                              {errors.modules?.[moduleIndex]?.lessons?.[lessonIndex]?.title && (
+                                <p className="text-sm text-red-500">
+                                  {errors.modules[moduleIndex].lessons![lessonIndex].title}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <Label htmlFor={`lesson-duration-${moduleIndex}-${lessonIndex}`}>Duration (min)</Label>
+                              <Input
+                                id={`lesson-duration-${moduleIndex}-${lessonIndex}`}
+                                placeholder="Duration"
+                                type="number"
+                                value={lesson.duration}
+                                onChange={(e) =>
+                                  handleLessonChange(moduleIndex, lessonIndex, "duration", e.target.value)
+                                }
+                                className={`mt-1 ${errors.modules?.[moduleIndex]?.lessons?.[lessonIndex]?.duration ? "border-red-500" : ""}`}
+                              />
+                              {errors.modules?.[moduleIndex]?.lessons?.[lessonIndex]?.duration && (
+                                <p className="text-sm text-red-500">
+                                  {errors.modules[moduleIndex].lessons![lessonIndex].duration}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-end justify-end h-full">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveLesson(moduleIndex, lessonIndex)}
+                                disabled={module.lessons.length === 1}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            {/* <Label htmlFor={`lesson-video-${moduleIndex}-${lessonIndex}`}>Upload Lesson Video</Label>
+                            <div
+                              className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+                              onDragOver={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                              }}
+                              onDrop={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                  handleLessonVideoChange(moduleIndex, lessonIndex, e.dataTransfer.files[0])
+                                }
+                              }}
+                              onClick={() =>
+                                document.getElementById(`lesson-video-${moduleIndex}-${lessonIndex}`)?.click()
+                              }
+                            >
+                              <Upload className="h-6 w-6 mx-auto mb-1 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground mb-1">
+                                Drag and drop video or click to browse
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {lesson.video ? `Selected: ${lesson.video}` : "MP4, MOV, or WebM formats"}
+                              </p>
+                              <Input
+                                id={`lesson-video-${moduleIndex}-${lessonIndex}`}
+                                type="file"
+                                accept="video/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    handleLessonVideoChange(moduleIndex, lessonIndex, e.target.files[0])
+                                  }
+                                }}
+                              />
+                            </div> */}
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor={`lesson-duration-${moduleIndex}-${lessonIndex}`} className="sr-only">
-                            Duration (minutes)
-                          </Label>
-                          <Input
-                            id={`lesson-duration-${moduleIndex}-${lessonIndex}`}
-                            placeholder="Duration (min)"
-                            type="number"
-                            value={lesson.duration}
-                            onChange={(e) => handleLessonChange(moduleIndex, lessonIndex, "duration", e.target.value)}
-                          />
-                        </div>
-                        <div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveLesson(moduleIndex, lessonIndex)}
-                            disabled={module.lessons.length === 1}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    <Button variant="outline" size="sm" onClick={() => handleAddLesson(moduleIndex)} className="mt-2">
-                      <Plus className="h-4 w-4 mr-2" /> Add Lesson
-                    </Button>
+                      ))}
+                      <Button variant="outline" size="sm" onClick={() => handleAddLesson(moduleIndex)} className="mt-2">
+                        <Plus className="h-4 w-4 mr-2" /> Add Lesson
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
-              <Button variant="outline" onClick={handleAddModule} className="w-full">
-                <Plus className="h-4 w-4 mr-2" /> Add Module
+                ))}
+              </div>
+              <Button variant="outline" onClick={handleAddModule} className="w-full mt-6">
+                <Plus className="h-4 w-4 mr-2" /> Add Week
               </Button>
             </CardContent>
           </Card>
@@ -328,4 +717,3 @@ export function AddCourse() {
     </div>
   )
 }
-

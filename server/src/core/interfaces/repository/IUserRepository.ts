@@ -1,3 +1,4 @@
+import { ICourse } from "../../../models/Course";
 import { IUser } from "../../../models/User";
 
 export interface IUserRepository {
@@ -6,4 +7,5 @@ export interface IUserRepository {
     updateReviewerRequestStatus(userId: string, status: "pending" | "approved" | "rejected"): Promise<boolean>;
     findByGoogleId(googleId: string): Promise<IUser | null> 
     findByEmail(email: string): Promise<IUser | null> 
+    getAllCourses():Promise<ICourse[]|null>
 }

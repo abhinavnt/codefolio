@@ -109,4 +109,14 @@ export class UserController implements IUserController {
         .json({ message: 'An unexpected error occurred, please try again' });
     }
   }
+
+
+  async getAllCourse(req: Request, res: Response): Promise<void> {
+    console.log('hai from getAllcourses');
+    
+      const courses= await UserService.getAllCourse()
+
+      res.status(200).json(courses)
+  }
+
 }

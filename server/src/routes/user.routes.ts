@@ -19,5 +19,6 @@ router.put('/profile',upload.fields([{name:"profileImage",maxCount:1}]),userCont
 
 router.post('/mentor-request',upload.fields([{ name: "profileImage", maxCount: 1 },{ name: "resume", maxCount: 1 },]),mentorReqController.addMentorReq)
 
+router.get('/getAllCourses',userController.getAllCourse)
 
 export default router

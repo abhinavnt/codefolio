@@ -2,6 +2,7 @@ import { IUser } from "../../models/User";
 import bcrypt from "bcryptjs";
 import { UserRepository } from "../../repositories/user.repository";
 import { IUserService } from "../../core/interfaces/service/IUserService";
+import { ICourse } from "../../models/Course";
 
 
 
@@ -38,6 +39,11 @@ export class userService implements IUserService{
         } catch (error) {
             throw new Error("error while updating user");
         }
+    }
+
+
+    async getAllCourse(): Promise<ICourse[] | null> {
+        return await userRepository.getAllCourses()
     }
 
     

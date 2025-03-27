@@ -1,4 +1,5 @@
 import { IUserRepository } from "../core/interfaces/repository/IUserRepository";
+import { Course, ICourse } from "../models/Course";
 import { IUser, User } from "../models/User";
 
 
@@ -36,5 +37,8 @@ export class UserRepository implements IUserRepository{
     }
   }
 
+  async getAllCourses(): Promise<ICourse[] | null> {
+      return await Course.find()
+  }
       
 }

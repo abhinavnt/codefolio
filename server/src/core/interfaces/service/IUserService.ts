@@ -1,3 +1,4 @@
+import { ICourse } from "../../../models/Course";
 import { IUser } from "../../../models/User";
 
 export interface IUserService {
@@ -6,5 +7,7 @@ export interface IUserService {
 //   changePassword(userId: string,currentPassword: string,newPassword: string): Promise<IUser>;
 
   getUserProfile(userId: string): Promise<IUser>;
+
+  getAllCourse():Promise<ICourse[]|null>
 
 }

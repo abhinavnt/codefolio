@@ -27,3 +27,24 @@ export const updateMentorApplicationStatus= async (requestId:string,status:strin
       throw error;
     }
 }
+
+
+export const addNewCourse= async (formData:FormData)=>{
+    try {
+        console.log('going the request to backend');
+        
+       const response = await axiosInstance.post('/api/admin/addCourse', formData, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+       });
+   
+       console.log(response,'from the userService mentor request');
+       return response
+   
+   } catch (error) {
+       console.log(error);
+       
+   }
+}

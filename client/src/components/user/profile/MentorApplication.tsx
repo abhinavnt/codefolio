@@ -131,7 +131,6 @@ const MentorApplicationPage: React.FC = () => {
  async function onSubmit(values: FormValues) {
     const formData = new FormData();
 
-    // Append all text fields
     formData.append('name',user.name)
     formData.append("username", values.username);
     formData.append("phoneNumber", values.phoneNumber);
@@ -141,7 +140,7 @@ const MentorApplicationPage: React.FC = () => {
     formData.append("currentCompany", values.currentCompany);
     formData.append("currentRole", values.currentRole);
     formData.append("durationAtCompany", values.durationAtCompany);
-    values.technicalSkills.forEach((skill) => formData.append("technicalSkills[]", skill)); // Array handling
+    values.technicalSkills.forEach((skill) => formData.append("technicalSkills[]", skill)); 
     formData.append("primaryLanguage", values.primaryLanguage);
     formData.append("bio", values.bio);
     if (values.linkedin) formData.append("linkedin", values.linkedin);
@@ -149,16 +148,13 @@ const MentorApplicationPage: React.FC = () => {
     if (values.twitter) formData.append("twitter", values.twitter);
     if (values.instagram) formData.append("instagram", values.instagram);
 
-    // Append files if they exist
     if (selectedProfileImage) formData.append("profileImage", selectedProfileImage);
     if (resume) formData.append("resume", resume);
 
-    // Log FormData for debugging (you can't console.log FormData directly, so we iterate)
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
 
-    // Here you would typically send the formData to your backend API
     try {
       setLoading(true)
     const response=  await mentorReq(formData)
@@ -310,7 +306,7 @@ const MentorApplicationPage: React.FC = () => {
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 (555) 123-4567" {...field} />
+                        <Input placeholder="+91 XXXXX XXXXX" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

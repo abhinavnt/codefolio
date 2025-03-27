@@ -79,8 +79,8 @@ export default function CourseList() {
           <div className="text-red-500 text-center py-8">Error loading courses: {error}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+            {courses.map((course,index) => (
+              <CourseCard key={index} course={course} />
             ))}
           </div>
         )}
