@@ -1,4 +1,4 @@
-"use client"
+
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { userLogout } from "@/services/authService"
 import { LogoutConfirmationDialog } from "./LogoutConformation"
 import { toast } from "sonner"
+import { ModeToggle } from "@/components/theme/mode-toggle"
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -59,7 +60,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="w-full px-5 fixed top-0 z-40 border-b-2 border-gray-100 bg-white">
+      <header className="w-full px-5 fixed top-0 z-40 border-b-2 border-header-border bg-background">
         <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center">
@@ -71,23 +72,23 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center space-x-6 md:flex">
-            <Link to="/" className="text-1xl font-medium text-gray-900 transition-colors hover:text-[#20B486]">
+            <Link to="/" className="text-1xl font-medium  transition-colors hover:text-[#20B486]">
               Home
             </Link>
-            <Link to="/about" className="text-1xl font-medium text-gray-900 transition-colors hover:text-[#20B486]">
+            <Link to="/about" className="text-1xl font-medium  transition-colors hover:text-[#20B486]">
               About us
             </Link>
-            <Link to="/courses" className="text-1xl font-medium text-gray-900 transition-colors hover:text-[#20B486]">
+            <Link to="/courses" className="text-1xl font-medium  transition-colors hover:text-[#20B486]">
               Courses
             </Link>
-            <Link to="/mentors" className="text-1xl font-medium text-gray-900 transition-colors hover:text-[#20B486]">
+            <Link to="/mentors" className="text-1xl font-medium  transition-colors hover:text-[#20B486]">
               Mentors
             </Link>
-            <Link to="/faqs" className="text-1xl font-medium text-gray-900 transition-colors hover:text-[#20B486]">
+            <Link to="/faqs" className="text-1xl font-medium  transition-colors hover:text-[#20B486]">
               FAQ's
             </Link>
           </nav>
-
+          
           {/* Desktop Auth/Profile Section */}
           <div className="hidden items-center space-x-3 md:flex mr-20">
             {user && !isAdmin ? (
@@ -112,18 +113,18 @@ const Navbar: React.FC = () => {
                 {/* <h1>{user}</h1> */}
 
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-38 rounded-md shadow-xs bg-white ring-1  ring-opacity-1 z-50">
+                  <div className="absolute right-0 mt-2 w-38 rounded-md shadow-xs bg-background ring-1  ring-opacity-1 z-50">
                     <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                       <Link
                         to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#20B486]"
+                        className="block px-4 py-2 text-sm  hover:bg-gray-100 hover:text-[#20B486]"
                         role="menuitem"
                         onClick={() => setShowDropdown(false)}
                       >
                         Profile
                       </Link>
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#20B486]"
+                        className="block w-full text-left px-4 py-2 text-sm  hover:bg-gray-100 hover:text-[#20B486]"
                         role="menuitem"
                         onClick={handleLogoutClick}
                       >
@@ -137,7 +138,7 @@ const Navbar: React.FC = () => {
               <>
                 <button
                   onClick={() => openAuthModal("signin")}
-                  className="text-1xl font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                  className="text-1xl font-medium  transition-colors hover:text-[#20B486]"
                 >
                   Sign in
                 </button>
@@ -159,55 +160,55 @@ const Navbar: React.FC = () => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[250px] sm:w-[300px]">
-              <nav className="flex flex-col space-y-4 pt-6">
+              <nav className="flex flex-col space-y-4 pt-6 pl-4">
                 <Link
                   to="/"
-                  className="text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                  className="text-base font-medium  transition-colors hover:text-[#20B486]"
                   onClick={() => setIsOpen(false)}
                 >
                   Home
                 </Link>
                 <Link
                   to="/about"
-                  className="text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                  className="text-base font-medium  transition-colors hover:text-[#20B486]"
                   onClick={() => setIsOpen(false)}
                 >
                   About us
                 </Link>
                 <Link
                   to="/courses"
-                  className="text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                  className="text-base font-medium  transition-colors hover:text-[#20B486]"
                   onClick={() => setIsOpen(false)}
                 >
                   Courses
                 </Link>
                 <Link
                   to="/mentors"
-                  className="text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                  className="text-base font-medium  transition-colors hover:text-[#20B486]"
                   onClick={() => setIsOpen(false)}
                 >
                   Mentors
                 </Link>
                 <Link
                   to="/faqs"
-                  className="text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                  className="text-base font-medium  transition-colors hover:text-[#20B486]"
                   onClick={() => setIsOpen(false)}
                 >
                   FAQ's
                 </Link>
-
+                 <ModeToggle/>
                 <div className="pt-4">
                   {user ? (
                     <>
                       <Link
                         to="/profile"
-                        className="block py-2 text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                        className="block py-2 text-base font-medium  transition-colors hover:text-[#20B486]"
                         onClick={() => setIsOpen(false)}
                       >
                         Profile
                       </Link>
                       <button
-                        className="block py-2 text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                        className="block py-2 text-base font-medium  transition-colors hover:text-[#20B486]"
                         onClick={() => {
                           setIsOpen(false)
                           handleLogoutClick()
@@ -219,7 +220,7 @@ const Navbar: React.FC = () => {
                   ) : (
                     <>
                       <button
-                        className="block py-2 text-base font-medium text-gray-900 transition-colors hover:text-[#20B486]"
+                        className="block py-2 text-base font-medium  transition-colors hover:text-[#20B486]"
                         onClick={() => {
                           setIsOpen(false)
                           openAuthModal("signin")

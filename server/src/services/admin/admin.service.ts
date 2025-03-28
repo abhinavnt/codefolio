@@ -1,5 +1,6 @@
 import { IAdminService } from "../../core/interfaces/service/IAdminService";
 import { IMentorRequest } from "../../models/MentorRequest";
+import { IUser } from "../../models/User";
 import { adminRepository } from "../../repositories/admin.repository";
 import { mentorRepository } from "../../repositories/mentor.repository";
 
@@ -64,5 +65,19 @@ export class adminService implements IAdminService{
         throw new Error("Error updating mentor application status");
       }
   }
+
+
+  //get all users
+  async getAllUsers(page: number, limit: number): Promise<{ allUsers: IUser[]; total: number; }> {
+    try {
+      const {allUsers,total}=await AdminRepository.getallUsers(page,limit)
+
+      return {allUsers,total}
+    } catch (error) {
+      throw new Error("Error when fetching mentor applications");
+    }
+  }
+
+
     
 }

@@ -15,8 +15,17 @@ const courseController = new CourseController()
 router.get('/mentor-application',adminController.getMentorApplicationsRequest)
 router.patch('/mentor-applications/:requestId/status',adminController.updateMentorApplicationStatus)
 
+<<<<<<< Updated upstream
 router.post('/addCourse',upload.fields([{name:'image',maxCount:1}]),courseController.addCourse)
 
+=======
+<<<<<<< Updated upstream
+=======
+router.post('/addCourse',upload.fields([{name:'image',maxCount:1}]),courseController.addCourse)
+router.get('/allUsers',adminController.getAllUsers)
+
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
 
 export default router;

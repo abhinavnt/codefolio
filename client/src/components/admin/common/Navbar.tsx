@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux"
 import { toast } from "sonner"
 import { LogoutConfirmationDialog } from "@/components/user/common/LogoutConformation"
 import { useState } from "react"
+import { ModeToggle } from "@/components/theme/mode-toggle"
 
 interface NavbarProps {
   onMenuButtonClick: () => void
@@ -37,7 +38,7 @@ const handleLogout= async ()=>{
 
 
   return (
-    <header className="border-b bg-white">
+    <header className="border-b ">
       <div className="flex h-16 items-center justify-between px-4">
         <div className="flex items-center">
           <Button variant="ghost" size="icon" onClick={onMenuButtonClick} className="mr-2 md:hidden">
@@ -45,10 +46,11 @@ const handleLogout= async ()=>{
             <span className="sr-only">Toggle menu</span>
           </Button>
           <div className="hidden md:block">
-            <h1 className="text-xl font-semibold text-gray-900">Good Morning</h1>
-            <p className="text-sm text-gray-500">Welcome to Codefolio Admin</p>
+            <h1 className="text-xl font-semibold ">Good Morning</h1>
+            <p className="text-sm ">Welcome to Codefolio Admin</p>
           </div>
         </div>
+        <ModeToggle/>
         <div className="flex items-center gap-4">
           <div className="relative hidden md:block">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />

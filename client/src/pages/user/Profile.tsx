@@ -31,9 +31,9 @@ export default function UserProfile() {
   const [activeTab, setActiveTab] = useState("Settings")
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen ">
       {/* Fixed Navbar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white">
+      <div className="fixed top-0 left-0 right-0 z-50 ">
         <Navbar />
       </div>
 

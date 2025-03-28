@@ -32,14 +32,14 @@ import { getMentorApplicationRequest, updateMentorApplicationStatus } from "@/se
 import { toast } from "sonner"
 
 interface IMentorRequest {
-  _id: string // MongoDB uses _id
+  _id: string 
   userId: string
   profileImage?: string
   name: string
   username: string
   email: string
   phoneNumber: string
-  dateOfBirth: string // Will be a Date in backend, string in frontend
+  dateOfBirth: string 
   yearsOfExperience: number
   currentCompany: string
   currentRole: string
@@ -53,7 +53,7 @@ interface IMentorRequest {
   twitter?: string
   instagram?: string
   status: string
-  createdAt: string // From timestamps
+  createdAt: string 
 }
 
 export function MentorRequests() {

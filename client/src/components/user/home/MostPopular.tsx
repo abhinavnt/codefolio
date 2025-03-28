@@ -65,7 +65,7 @@ const MostPopular = () => {
     }, []);
 
     return (
-        <section className="py-12 bg-white px-16">
+        <section className="py-12 bg-background px-16">
             <div className="container">
                 <div className="text-center mb-8">
                     <h2 className="text-3xl font-bold mb-2">Our Most Popular Class</h2>
@@ -80,7 +80,7 @@ const MostPopular = () => {
                             <Skeleton key={index} className="h-[300px] w-full rounded-lg" />
                         ))
                         : courses.map((course) => (
-                            <Card key={course.id} className="overflow-hidden shadow-md rounded-lg">
+                            <Card key={course.id} className="overflow-hidden bg-background hover:bg-secondary shadow-md rounded-lg">
                                 <div className="relative">
                                     <img
                                         src={course.thumbNail}

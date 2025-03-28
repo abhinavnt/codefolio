@@ -78,7 +78,7 @@ export default function FilterSidebar() {
     }
 
     return (
-        <div className="bg-white rounded-lg border p-4">
+        <div className="bg-background rounded-lg border p-4">
             <FilterSection title="Category" defaultOpen={true}>
                 {filters.availableCategories.map((category) => (
                     <div key={category.id} className="flex items-center space-x-2">

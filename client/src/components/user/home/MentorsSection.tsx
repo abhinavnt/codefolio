@@ -78,7 +78,7 @@ const MentorsSection = () => {
                         : mentors.map((instructor, index) => (
                             <Card
                                 key={index}
-                                className="border-0 shadow-md p-3 h-[280px] flex flex-col justify-between"
+                                className="border-1 bg-background hover:bg-secondary shadow-md p-3 h-[280px] flex flex-col justify-between"
                             >
                                 <CardHeader className="text-center pb-1">
                                     <div className="mx-auto mb-2">

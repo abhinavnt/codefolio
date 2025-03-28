@@ -177,7 +177,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
   return (
     <>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg w-full max-w-md flex overflow-hidden relative">
+        <div className="bg-background rounded-lg w-full max-w-md flex overflow-hidden relative">
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-[#20B486]"></div>
           <button className="absolute right-4 top-4 text-gray-500 hover:text-gray-700" onClick={onClose}>
             <X size={20} />

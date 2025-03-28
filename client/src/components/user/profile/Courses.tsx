@@ -52,7 +52,7 @@ export function Courses() {
       {courses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <div key={course.id} className="border rounded-lg overflow-hidden">
+            <div key={course.id} className="border bg-secondary rounded-lg overflow-hidden">
               <div className="relative h-40">
               <img src={course.image || "/placeholder.svg"} alt={course.title} className="object-cover w-full h-full" />
               </div>

@@ -10,7 +10,7 @@ export function ProfileMenu({ activeTab, setActiveTab }: ProfileMenuProps) {
 
   return (
     <div className="border-b overflow-x-auto">
-      <div className="max-w-4xl mx-auto flex whitespace-nowrap">
+      <div className="max-w-4xl mx-auto cursor-pointer flex whitespace-nowrap">
         {menuItems.map((tab) => (
           <MenuItem key={tab} label={tab} isActive={activeTab === tab} onClick={() => setActiveTab(tab)} />
         ))}

@@ -47,7 +47,7 @@ export function Wishlist() {
       {wishlistItems.length > 0 ? (
         <div className="space-y-4">
           {wishlistItems.map((item) => (
-            <div key={item.id} className="border rounded-lg overflow-hidden">
+            <div key={item.id} className="border bg-secondary rounded-lg overflow-hidden">
               <div className="flex flex-col sm:flex-row">
                 <div className="sm:w-48 h-40 sm:h-auto relative">
                   <img src={item.image || "/placeholder.svg"} alt={item.title} className="object-cover w-full h-full" />

@@ -32,7 +32,7 @@ export function PurchaseHistory() {
     <div className="max-w-4xl  mx-auto py-6 sm:py-8 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-medium">Purchase History</h1>
-        <select className="border rounded-md px-3 py-1.5 text-sm">
+        <select className="border bg-secondary rounded-md px-3 py-1.5 text-sm">
           <option>All Time</option>
           <option>Last 30 Days</option>
           <option>Last 3 Months</option>
@@ -43,7 +43,7 @@ export function PurchaseHistory() {
       {purchases.length > 0 ? (
         <div className="border rounded-lg overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-secondary">
               <tr>
                 <th
                   scope="col"
@@ -83,10 +83,10 @@ export function PurchaseHistory() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-secondary divide-y divide-gray-200">
               {purchases.map((purchase) => (
                 <tr key={purchase.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{purchase.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium ">{purchase.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-16 flex-shrink-0">
@@ -99,7 +99,7 @@ export function PurchaseHistory() {
                         />
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900 line-clamp-1">{purchase.course}</div>
+                        <div className="text-sm font-medium  line-clamp-1">{purchase.course}</div>
                       </div>
                     </div>
                   </td>

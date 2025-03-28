@@ -86,4 +86,15 @@ export class adminRepository implements IAdminRepository{
     async updateMentorStatus(userId: string, status: "active" | "inactive"): Promise<IMentor | null> {
         return await Mentor.findOneAndUpdate({userId},{status},{new:true})
     }
+
+    async getallUsers(page: number, limit: number): Promise<{ allUsers: IUser[]; total: number; }> {
+        const skip=(page-1)*limit
+        const requests=await User.find().sort({createdAt:-1}).skip(skip).limit(limit).lean()
+
+        const total= await MentorRequest.countDocuments()
+        
+        return {allUsers:requests,total}
+    }
+
+
 }

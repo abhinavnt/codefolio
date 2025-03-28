@@ -49,20 +49,20 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-60">
-      <div className="bg-white rounded-lg w-full max-w-sm p-6 relative">
+      <div className="bg-background rounded-lg w-full max-w-sm p-6 relative">
         <button
-          className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+          className="absolute right-4 top-4  hover:text-gray-700"
           onClick={onClose}
           disabled={isSubmitting}
         >
           <X size={20} />
         </button>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Reset Password</h2>
-        <p className="text-gray-600 mb-6">Enter your email to receive a password reset link.</p>
+        <h2 className="text-2xl font-bold mb-2">Reset Password</h2>
+        <p className=" mb-6">Enter your email to receive a password reset link.</p>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="forgotEmail" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="forgotEmail" className="block text-sm font-medium  mb-1">
                 Email*
               </label>
               <input

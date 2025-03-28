@@ -6,13 +6,13 @@ import { motion } from "framer-motion"
 
 const Hero = () => {
   return (
-    <div className="relative overflow-hidden bg-white py-12 px-10 md:py-16 lg:py-20">
+    <div className="relative overflow-hidden  py-12 px-10 md:py-16 lg:py-20">
     <div className="container mx-auto px-4 md:px-6 lg:px-8">
       <div className="grid items-center gap-8 md:grid-cols-2 lg:gap-12">
         {/* Left column - Text content */}
         <div className="space-y-8 z-10 order-2 md:order-1">
             <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl leading-tight">
+              <h1 className="text-3xl font-bold tracking-tight  sm:text-4xl lg:text-5xl leading-tight">
                 Up Your <span className="text-emerald-500">Skills</span> <br />
                 To <span className="text-emerald-500">Advance</span> Your <br />
                 <span className="text-emerald-500">Career</span> Path

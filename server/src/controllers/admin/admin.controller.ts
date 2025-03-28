@@ -39,6 +39,22 @@ export class AdminController implements IAdminController{
         }
     }
 
+
+    //get all users
+    async getAllUsers(req: Request, res: Response): Promise<void> {
+        try {
+            const page=parseInt(req.query.page as string)||1
+            const limit = parseInt(req.query.limit as string) || 10;
+           console.log('user controller');
+           
+            const {allUsers,total}=await AdminService.getAllUsers(page,limit)
+             
+            res.status(200).json({UserData:allUsers,total,currentPage:page,totalPages:Math.ceil(total/limit)})
+  
+          } catch (error) {
+              res.status(500).json({ message: "Error when fetching mentor applications" });
+          }
+    }
     
   
 }

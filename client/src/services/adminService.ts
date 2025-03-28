@@ -26,6 +26,12 @@ export const updateMentorApplicationStatus= async (requestId:string,status:strin
         console.error("Error updating mentor application status:", error);
       throw error;
     }
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+}
+=======
+>>>>>>> Stashed changes
 }
 
 
@@ -47,4 +53,23 @@ export const addNewCourse= async (formData:FormData)=>{
        console.log(error);
        
    }
+<<<<<<< Updated upstream
 }
+=======
+}
+
+
+//get all users
+export const getAllUsers = async (page:number,limit:number)=>{
+    try {
+        const response= await axiosInstance.get(`/api/admin/allUsers?page=${page}&limit=${limit}`)
+        console.log(response.data,"user data from the getAllUsers");
+        
+        return response.data
+    } catch (error) {
+        console.error("Error fetching mentor applications:", error);
+      throw error;
+    }
+}
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes

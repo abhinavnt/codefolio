@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/user/Home"; // Eagerly loaded
-import { ThemeProvider } from "./context/Theme-provider";
+import { ThemeProvider } from "./components/theme/theme-provider";
 import { useEffect, useState, lazy, Suspense } from "react";
 import { useDispatch } from "react-redux";
 import { refreshToken } from "./services/authService";

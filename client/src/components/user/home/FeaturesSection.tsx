@@ -61,7 +61,7 @@ const FeaturesSection = () => {
                 <Skeleton key={index} className="h-[300px] w-full rounded-lg" />
               ))
             : features.map((feature) => (
-                <Card key={feature.id} className="border-green-100 hover:border-[#20B486] transition-colors">
+                <Card key={feature.id} className="border-green-100 bg-background hover:bg-secondary hover:border-[#20B486] transition-colors">
                   <CardHeader className="pb-2">
                     <div
                       className={`w-7 h-7 ${feature.iconColor} rounded-lg flex items-center justify-center mb-4`}

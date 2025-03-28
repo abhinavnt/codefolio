@@ -42,7 +42,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   }, [])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden ">
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} activePath={currentPath} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Navbar onMenuButtonClick={() => setSidebarOpen(!sidebarOpen)} />

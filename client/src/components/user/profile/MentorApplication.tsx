@@ -227,7 +227,7 @@ const MentorApplicationPage: React.FC = () => {
       </div>
 
       <Card className="w-full max-w-4xl mx-auto border-emerald-200 shadow-lg">
-        <CardHeader className="bg-emerald-50 border-b border-emerald-100">
+        <CardHeader className="bg-background border-b border-emerald-100">
           <CardTitle className="text-emerald-700">Mentor Application Form</CardTitle>
           <CardDescription>Please provide all the required information to apply as a mentor</CardDescription>
         </CardHeader>
@@ -447,7 +447,7 @@ const MentorApplicationPage: React.FC = () => {
                       <FormItem>
                         <FormLabel>Technical Skills</FormLabel>
                         <FormControl>
-                          <div className="border rounded-md p-3 bg-white">
+                          <div className="border rounded-md p-3 bg-secondary">
                             <div className="flex flex-wrap gap-2 mb-2">
                               {selectedSkills.map((skill) => (
                                 <Badge

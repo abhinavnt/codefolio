@@ -97,7 +97,7 @@ export function Settings() {
         username: user.email?.split("@")[0] || "",
         email: user.email || "",
         title: user.title || "",
-        profileImage: user.profileImageUrl || "",
+        profileImage: user.profileImageUrl || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541",
         isInstructor: user.role === "Mentor" || false,
       };
       setUserData(newUserData);
@@ -175,7 +175,7 @@ export function Settings() {
               height={300}
               className="object-cover w-full h-full"
             />
-            <label className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 flex justify-center cursor-pointer">
+            <label className="absolute bottom-0 left-0 right-0 bg-background bg-opacity-50  p-2 flex justify-center cursor-pointer">
               <input
                 type="file"
                 accept="image/*"

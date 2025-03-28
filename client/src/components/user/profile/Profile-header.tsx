@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ModeToggle } from "@/components/theme/mode-toggle";
 
 export function ProfileHeader() {
   const user = useSelector((state: any) => state.auth.user);
@@ -12,8 +13,8 @@ export function ProfileHeader() {
   const isApproved = user.reviewerRequestStatus?.includes("approved")
 
   return (
-    <div className="bg-[#f0fff7] p-4 sm:p-6">
-      <div className="max-w-4xl mx-auto bg-white rounded-md p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div className=" p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto  rounded-md p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
           <div className="w-16 h-16 rounded-full overflow-hidden">
             <img
@@ -31,8 +32,9 @@ export function ProfileHeader() {
             <h2 className="text-lg font-medium">{user.name}</h2>
             <p className="text-sm text-gray-500">{user.title}</p>
           </div>
+          
         </div>
-
+        <ModeToggle/>
         {isApproved ? (
           <Link
             to="/mentor-login"
