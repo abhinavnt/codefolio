@@ -2,59 +2,56 @@ import { Request, Response } from "express";
 import { IAdminController } from "../../core/interfaces/controller/IAdminController";
 import { IMentorRequest } from "../../models/MentorRequest";
 import { adminService } from "../../services/admin/admin.service";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../di/types";
+import { IAdminService } from "../../core/interfaces/service/IAdminService";
+import asyncHandler from "express-async-handler";
 
 
 
+// const AdminService = new adminService()
 
-const AdminService = new adminService()
-
-
+@injectable()
 export class AdminController implements IAdminController{
-  
+  constructor(@inject(TYPES.AdminService) private adminService:IAdminService){}
     //get all mentor requests
-    async getMentorApplicationsRequest(req: Request, res: Response): Promise<void> {
-        try {
+    getMentorApplicationsRequest=asyncHandler(async(req: Request, res: Response): Promise<void>=> {
+        
           const page=parseInt(req.query.page as string)||1
           const limit = parseInt(req.query.limit as string) || 10;
          
-          const {mentorRequests,total}=await AdminService.getMentorApplicationRequest(page,limit)
+          const {mentorRequests,total}=await this.adminService.getMentorApplicationRequest(page,limit)
 
           res.status(200).json({mentorApplications:mentorRequests,total,currentPage:page,totalPages:Math.ceil(total/limit)})
 
-        } catch (error) {
-            res.status(500).json({ message: "Error when fetching mentor applications" });
-        }
-    }
+       
+    })
   
     //update mentor status
-    async updateMentorApplicationStatus(req: Request, res: Response): Promise<void> {
-        try {
+     updateMentorApplicationStatus=asyncHandler(async(req: Request, res: Response): Promise<void>=> {
+    
             const {requestId}=req.params
             const {status}=req.body
 
-            const updatedRequest = await AdminService.updateMentorApplicationStatus(requestId,status)
+            const updatedRequest = await this.adminService.updateMentorApplicationStatus(requestId,status)
             res.status(200).json({ mentorApplication: updatedRequest });
-        } catch (error) {
-            res.status(500).json({ message: "Error updating mentor application status" });
-        }
-    }
+       
+    })
 
 
     //get all users
-    async getAllUsers(req: Request, res: Response): Promise<void> {
-        try {
+    getAllUsers= asyncHandler(async(req: Request, res: Response): Promise<void> =>{
+        
             const page=parseInt(req.query.page as string)||1
             const limit = parseInt(req.query.limit as string) || 10;
            console.log('user controller');
            
-            const {allUsers,total}=await AdminService.getAllUsers(page,limit)
+            const {allUsers,total}=await this.adminService.getAllUsers(page,limit)
              
             res.status(200).json({UserData:allUsers,total,currentPage:page,totalPages:Math.ceil(total/limit)})
   
-          } catch (error) {
-              res.status(500).json({ message: "Error when fetching mentor applications" });
-          }
-    }
+         
+    })
     
   
 }

@@ -1,35 +1,47 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { NextFunction, Request, Response } from "express";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
+import { IUser } from "../models/User";
+import { File } from "buffer";
+import { Multer } from "multer";
 
-interface AuthRequest extends Request {
-  user?: { id: string };
-}
+// export interface Request extends Request {
+//   user?: {
+//     id: string;
+//   };
+// }
+
+declare module "express-serve-static-core"{
+  interface Request {
+    user?: Partial<IUser>
+    file?: Express.Multer.File
+  }
+ }
 
 export const authMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+) => {
   try {
-    
-    const accessToken =req.cookies.accessToken || req.header('Authorization')?.split(' ')[1];
+    const accessToken =
+      req.cookies.accessToken || req.header("Authorization")?.split(" ")[1];
+    if (!accessToken)
+      res.status(401).json({ error: "Unauthorized: No token provided" });
 
-    if (!accessToken) {
-      res.status(401).json({ error: 'Unauthorized: No token provided' });
-      return;
-    }
 
-    const secret = process.env.ACCESS_TOKEN_SECRET;
-    if (!secret) {
-      throw new Error('ACCESS_TOKEN_SECRET is not defined');
-    }
+    const decoded = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET!
+    ) as { userId: string };
 
-    const decoded = jwt.verify(accessToken, secret) as { userId: string };
-    (req as AuthRequest).user = { id: decoded.userId };
-    console.log((req as AuthRequest).user);
+    req.user = { _id: decoded.userId };
 
     next();
   } catch (error) {
-    res.status(403).json({ error: 'Invalid token' });
+    if (error instanceof TokenExpiredError) {
+      res.status(401).json({ error: "Token has expired" });
+      return;
+    }
+    res.status(403).json({ error: "Invalid token" });
   }
-};  
+};

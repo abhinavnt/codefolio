@@ -11,18 +11,27 @@ import { sendForgotPasswordMail, sendOtpEmail } from '../../utils/email.services
 import { IAdmin } from '../../models/Admin'
 import { verifyResetToken } from '../../utils/token.services'
 import { UserRepository } from '../../repositories/user.repository'
+import { inject, injectable } from 'inversify'
+import { TYPES } from '../../di/types'
+import { IUserRepository } from '../../core/interfaces/repository/IUserRepository'
 
 dotenv.config()
 
-const authRepository=new AuthRepository()
-const userRepository=new UserRepository()
+// const authRepository=new AuthRepository()
+// const userRepository=new UserRepository()
 
+@injectable()
 export class AuthService implements IAuthService{
+
+  constructor(@inject(TYPES.AuthRepository) private authRepository: IAuthRepository,
+  @inject(TYPES.UserRepository) private userRepository:IUserRepository
+  ){}
 
     async register(name: string, email: string, password: string): Promise<void> {
         console.log(name);
+        console.log("register servicil vannuu iam here for help you");
         
-        const existingUser=await authRepository.findUserByEmail(email)
+        const existingUser=await this.authRepository.findUserByEmail(email)
         
         if(existingUser) throw new Error("Email is alredy taken")
         
@@ -57,7 +66,7 @@ export class AuthService implements IAuthService{
         
         const { name, hashedPassword } = JSON.parse(userData);
 
-        const user = await authRepository.createUser(name, email, hashedPassword);
+        const user = await this.authRepository.createUser(name, email, hashedPassword);
 
         if (!user) throw new Error("Cannot create user please register again");
 
@@ -97,8 +106,8 @@ export class AuthService implements IAuthService{
         let user: IAdmin | IUser | null;
          console.log('email',email);
          
-        if (role === "admin") user = await authRepository.findAdminByEmail(email);
-        else user = await authRepository.findUserByEmail(email);
+        if (role === "admin") user = await this.authRepository.findAdminByEmail(email)
+        else user = await this.authRepository.findUserByEmail(email);
 
         console.log('login servicel kayri 1',role,user);
         
@@ -143,9 +152,9 @@ export class AuthService implements IAuthService{
 
             let user
             if(role==='admin'){
-                user= await authRepository.findAdminById(decoded.userId)
+                user= await this.authRepository.findAdminById(decoded.userId)
             }else{
-                user = await authRepository.findUserById(decoded.userId)
+                user = await this.authRepository.findUserById(decoded.userId)
             }
 
             if (!user) {
@@ -163,7 +172,7 @@ export class AuthService implements IAuthService{
       try {
         console.log('log from sendMagicLink');
         
-        const user= await authRepository.findUserByEmail(email)
+        const user= await this.authRepository.findUserByEmail(email)
         
         console.log('user from sendmagic link',user);
         
@@ -195,7 +204,7 @@ export class AuthService implements IAuthService{
 
           const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-          await authRepository.updateUserPassword(userId, hashedPassword);
+          await this.authRepository.updateUserPassword(userId, hashedPassword);
 
           await RedisClient.del(`magicLink:${email}`);
 
@@ -207,17 +216,17 @@ export class AuthService implements IAuthService{
 
     async handleGoogleUser(googleData: { googleId: string; email: string; name: string; profilepic: string; }): Promise<verifiedUer> {
 
-        let user= await userRepository.findByGoogleId(googleData.googleId)
+        let user= await this.userRepository.findByGoogleId(googleData.googleId)
 
         if(!user){
-          user= await userRepository.findByEmail(googleData.email)
+          user= await this.userRepository.findByEmail(googleData.email)
 
           if(!user){
 
             const dummyPassword= Math.random().toString(36).slice(-8);
             const hashedPassword = await hash(dummyPassword, 10);
 
-            user = await authRepository.createGoogleUser(googleData.googleId,googleData.name,hashedPassword,googleData.email,googleData.profilepic)
+            user = await this.authRepository.createGoogleUser(googleData.googleId,googleData.name,hashedPassword,googleData.email,googleData.profilepic)
 
           }else{
             user.googleId=googleData.googleId

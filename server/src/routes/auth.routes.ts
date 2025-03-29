@@ -2,10 +2,13 @@ import express from "express";
 import { AuthController } from "../controllers/auth/auth.controller";
 import passport from "passport";
 import dotenv from 'dotenv'
+import container from "../di/container";
+import { IAuthController } from "../core/interfaces/controller/IAuthController";
+import { TYPES } from "../di/types";
 dotenv.config()
 const router = express.Router();
 
-const authController = new AuthController()
+const authController = container.get<IAuthController>(TYPES.AuthController)
 
 
 router.post("/register",authController.register)

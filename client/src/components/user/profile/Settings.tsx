@@ -216,7 +216,7 @@ export function Settings() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input {...field} type="email" placeholder="Email address" />
+                    <Input {...field} type="email" placeholder="Email address" readOnly />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

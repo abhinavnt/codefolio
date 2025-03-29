@@ -4,6 +4,7 @@ import { Admin, IAdmin } from "../models/Admin";
 import { IUser, User } from "../models/User";
 
 export class AuthRepository implements IAuthRepository {
+  
   async findUserByEmail(email: string):Promise<IUser|null> {
     return User.findOne({ email });
   }

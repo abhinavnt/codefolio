@@ -3,13 +3,17 @@ import { authMiddleware } from "../middlewares/auth.middleware";
 import { UserController } from "../controllers/user/user.controller";
 import upload from "../middlewares/upload";
 import { MentorReqController } from "../controllers/mentor/mentorReq.controller";
+import container from "../di/container";
+import { IUserController } from "../core/interfaces/controller/IUserController";
+import { TYPES } from "../di/types";
+import { IMentorReqController } from "../core/interfaces/controller/IMentorReqController";
 
 
 const router = express.Router();
 
-const userController = new UserController()
+const userController =container.get<IUserController>(TYPES.UserController)
 
-const mentorReqController=new MentorReqController()
+const mentorReqController=container.get<IMentorReqController>(TYPES.MentorReqController)
 
 router.use(authMiddleware);
 

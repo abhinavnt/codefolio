@@ -4,8 +4,11 @@ import { ICourse } from "../../models/Course"; // Adjust the path as needed
  // Adjust the path as needed
 import { courseRepository } from "../../repositories/course.repository"; // Adjust the path as needed
 import { ILesson, ITask } from "../../models/Tasks";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../di/types";
+import { ICourseRepository } from "../../core/interfaces/repository/ICourseRepository";
 
-const CourseRepository = new courseRepository();
+// const CourseRepository = new courseRepository();
 
 // Define the structure of a module from the request body
 interface IModule {
@@ -17,7 +20,12 @@ interface IModule {
   resources?: string[];
 }
 
+injectable()
 export class courseService implements ICourseService {
+   
+  constructor(@inject(TYPES.CourseRepository) private courseRepository:ICourseRepository
+){}
+
   async addCourse(courseData: any): Promise<ICourse> {
     console.log('add course service kayritund');
     
@@ -38,7 +46,7 @@ export class courseService implements ICourseService {
       }
 
       // Create the course
-      const newCourse = await CourseRepository.createCourse({
+      const newCourse = await this.courseRepository.createCourse({
         title: courseDetails.title,
         description: courseDetails.description,
         category: courseDetails.category,
@@ -46,10 +54,10 @@ export class courseService implements ICourseService {
         duration: courseDetails.duration,
         image: courseDetails.image,
         price: courseDetails.price,
-        rating: 0, // Default value
-        enrolledStudents: [], // Default empty array
-        status: "draft", // Default value
-        tags: courseDetails.tags || [], // Optional field
+        rating: 0, 
+        enrolledStudents: [], 
+        status: "draft",
+        tags: courseDetails.tags || [], 
       });
 
       console.log(modules,"modules");
@@ -65,7 +73,7 @@ export class courseService implements ICourseService {
             title: module.title || `Task ${index + 1}`,
             description: module.description || "",
             video: module.video || "",
-            lessons: module.lessons ? module.lessons.map(lesson => lesson.title) : [], // Transform to array of strings
+            lessons: module.lessons ? module.lessons.map(lesson => lesson.title) : [],
             order: index + 1,
             duration: module.duration?.toString() || newCourse.duration.toString(),
             status: "active" as "active" | "inactive",
@@ -76,7 +84,7 @@ export class courseService implements ICourseService {
         // Save all tasks
         console.log('waiting for tasks creation');
         
-        await CourseRepository.createTasks(tasks);
+        await this.courseRepository.createTasks(tasks);
       }
 
       return newCourse;

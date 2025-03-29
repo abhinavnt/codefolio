@@ -1,16 +1,20 @@
+import { inject, injectable } from "inversify";
 import cloudinary from "../../config/cloudinary";
 import { ICourseController } from "../../core/interfaces/controller/ICourseController";
 import { courseService } from "../../services/admin/course.service";
 import { Request, Response } from "express";
+import { TYPES } from "../../di/types";
+import { ICourseService } from "../../core/interfaces/service/ICourseService";
+import asyncHandler from "express-async-handler";
+// const CourseService = new courseService();
 
-const CourseService = new courseService();
-
+@injectable()
 export class CourseController implements ICourseController {
-  
-  async addCourse(req: Request, res: Response): Promise<void> {
+  constructor(@inject(TYPES.CourseServices) private courseService:ICourseService){}
+
+
+  addCourse=asyncHandler(async(req: Request, res: Response): Promise<void> =>{
     console.log('add course controller vannitund');
-    
-    try {
 
       const {
         title,
@@ -56,15 +60,12 @@ export class CourseController implements ICourseController {
 
             const courseData = {title,description,category, level, price, duration, image,modules:parsedModules,};
             
-             const newCourse = await CourseService.addCourse(courseData);
+             const newCourse = await this.courseService.addCourse(courseData);
 
       res.status(201).json({
         message: "Course and tasks created successfully",
         course: newCourse,
       });
-    } catch (error) {
-      console.error("Error in addCourse controller:", error);
-      res.status(500).json({ message: "Error creating course and tasks" });
-    }
-  }
+  
+  })
 }

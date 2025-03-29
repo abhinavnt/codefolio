@@ -3,17 +3,21 @@ import bcrypt from "bcryptjs";
 import { UserRepository } from "../../repositories/user.repository";
 import { IUserService } from "../../core/interfaces/service/IUserService";
 import { ICourse } from "../../models/Course";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../di/types";
+import { IUserRepository } from "../../core/interfaces/repository/IUserRepository";
 
 
 
-const userRepository = new UserRepository();
+// const userRepository = new UserRepository();
 
-
+injectable()
 export class userService implements IUserService{
-
+     constructor(@inject(TYPES.UserRepository) private userRepository:IUserRepository
+    ){}
     async getUserProfile(userId: string): Promise<IUser> {
         try {
-            const user=await userRepository.findUserById(userId)
+            const user=await this.userRepository.findUserById(userId)
             if(!user){
                 throw new Error("invalid userId")
             }
@@ -29,7 +33,7 @@ export class userService implements IUserService{
         try {
             console.log('update service here');
             
-            const user=await userRepository.updateById(userId,updateData)
+            const user=await this.userRepository.updateById(userId,updateData)
             console.log(user);
             
             if (!user) {
@@ -43,7 +47,7 @@ export class userService implements IUserService{
 
 
     async getAllCourse(): Promise<ICourse[] | null> {
-        return await userRepository.getAllCourses()
+        return await this.userRepository.getAllCourses()
     }
 
     

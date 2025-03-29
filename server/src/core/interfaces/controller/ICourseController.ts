@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 
 export interface ICourseController {
-  addCourse(req: Request, res: Response): Promise<void>;
+  addCourse:RequestHandler
 }

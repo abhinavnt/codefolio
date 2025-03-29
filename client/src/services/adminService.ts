@@ -26,12 +26,6 @@ export const updateMentorApplicationStatus= async (requestId:string,status:strin
         console.error("Error updating mentor application status:", error);
       throw error;
     }
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-}
-=======
->>>>>>> Stashed changes
 }
 
 
@@ -53,9 +47,6 @@ export const addNewCourse= async (formData:FormData)=>{
        console.log(error);
        
    }
-<<<<<<< Updated upstream
-}
-=======
 }
 
 
@@ -71,5 +62,3 @@ export const getAllUsers = async (page:number,limit:number)=>{
       throw error;
     }
 }
->>>>>>> Stashed changes
->>>>>>> Stashed changes
