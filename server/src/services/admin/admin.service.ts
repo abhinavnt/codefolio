@@ -8,6 +8,7 @@ import { TYPES } from "../../di/types";
 import { IAdminRepository } from "../../core/interfaces/repository/IAdminRepository";
 import { IMentorRepository } from "../../core/interfaces/repository/IMentorRepository";
 import { IUserRepository } from "../../core/interfaces/repository/IUserRepository";
+import { applicationRejectionMail } from "../../utils/email.services";
 
 
 // const AdminRepository=new adminRepository() 
@@ -69,6 +70,15 @@ export class adminService implements IAdminService{
           }
         }
 
+        const usermail= await this.userRepository.findUserById(userId)
+
+        if(usermail){
+          if(status.toLowerCase()==="rejected"){
+            await applicationRejectionMail(usermail.email,message)
+           }
+        }
+
+      
         //add a notifiation to the uer
         await this.userRepository.addNotification(userId,message)
         
