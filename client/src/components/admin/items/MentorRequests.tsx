@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useEffect, useState } from "react"
 import { Search, Calendar } from "lucide-react"
@@ -32,14 +32,14 @@ import { getMentorApplicationRequest, updateMentorApplicationStatus } from "@/se
 import { toast } from "sonner"
 
 interface IMentorRequest {
-  _id: string 
+  _id: string
   userId: string
   profileImage?: string
   name: string
   username: string
   email: string
   phoneNumber: string
-  dateOfBirth: string 
+  dateOfBirth: string
   yearsOfExperience: number
   currentCompany: string
   currentRole: string
@@ -53,7 +53,7 @@ interface IMentorRequest {
   twitter?: string
   instagram?: string
   status: string
-  createdAt: string 
+  createdAt: string
 }
 
 export function MentorRequests() {
@@ -64,7 +64,8 @@ export function MentorRequests() {
   const [mentorRequests, setMentorRequests] = useState<IMentorRequest[]>([])
   const [totalPages, setTotalPages] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
-  const itemsPerPage = 5
+  const [itemsPerPage] = useState(5)
+  const [rejectionReason, setRejectionReason] = useState("")
 
   useEffect(() => {
     const fetchMentorRequests = async () => {
@@ -78,7 +79,7 @@ export function MentorRequests() {
       }
     }
     fetchMentorRequests()
-  }, [currentPage])
+  }, [currentPage, itemsPerPage])
 
   // Filter requests based on search term and status filter
   const filteredRequests = mentorRequests.filter((request) => {
@@ -96,9 +97,9 @@ export function MentorRequests() {
     setSelectedRequest(request)
   }
 
-  const handleStatusChange = async (requestId: string, newStatus: string) => {
+  const handleStatusChange = async (requestId: string, newStatus: string, message?: string) => {
     try {
-      await updateMentorApplicationStatus(requestId, newStatus)
+      await updateMentorApplicationStatus(requestId, newStatus, message)
       setMentorRequests((prev) => prev.map((req) => (req._id === requestId ? { ...req, status: newStatus } : req)))
 
       if (selectedRequest && selectedRequest._id === requestId) {
@@ -403,21 +404,37 @@ export function MentorRequests() {
                                           <DialogHeader>
                                             <DialogTitle>Reject Application</DialogTitle>
                                             <DialogDescription>
-                                              Are you sure you want to reject this mentor application?
+                                              Please provide a reason for rejecting this mentor application.
                                             </DialogDescription>
                                           </DialogHeader>
+                                          <div className="py-4">
+                                            <Label htmlFor="rejection-reason" className="mb-2 block">
+                                              Rejection Reason
+                                            </Label>
+                                            <Input
+                                              id="rejection-reason"
+                                              placeholder="Enter reason for rejection"
+                                              value={rejectionReason}
+                                              onChange={(e) => setRejectionReason(e.target.value)}
+                                              className="mb-4"
+                                            />
+                                          </div>
                                           <div className="flex justify-end gap-2 pt-4">
                                             <DialogClose asChild>
-                                              <Button variant="outline">Cancel</Button>
-                                            </DialogClose>
-                                            <DialogClose asChild>
-                                              <Button
-                                                variant="destructive"
-                                                onClick={() => handleStatusChange(selectedRequest._id, "Rejected")}
-                                              >
-                                                Confirm Rejection
+                                              <Button variant="outline" onClick={() => setRejectionReason("")}>
+                                                Cancel
                                               </Button>
                                             </DialogClose>
+                                            <Button
+                                              variant="destructive"
+                                              onClick={() => {
+                                                handleStatusChange(selectedRequest._id, "Rejected", rejectionReason)
+                                                setRejectionReason("")
+                                              }}
+                                              disabled={!rejectionReason.trim()}
+                                            >
+                                              Confirm Rejection
+                                            </Button>
                                           </div>
                                         </DialogContent>
                                       </Dialog>
@@ -442,7 +459,13 @@ export function MentorRequests() {
                                             <DialogClose asChild>
                                               <Button
                                                 className="bg-emerald-500 hover:bg-emerald-700"
-                                                onClick={() => handleStatusChange(selectedRequest._id, "Approved")}
+                                                onClick={() =>
+                                                  handleStatusChange(
+                                                    selectedRequest._id,
+                                                    "Approved",
+                                                    "Congratulations! Your mentor application has been approved.",
+                                                  )
+                                                }
                                               >
                                                 Confirm Approval
                                               </Button>
@@ -471,7 +494,13 @@ export function MentorRequests() {
                                           <DialogClose asChild>
                                             <Button
                                               variant="default"
-                                              onClick={() => handleStatusChange(selectedRequest._id, "Pending")}
+                                              onClick={() =>
+                                                handleStatusChange(
+                                                  selectedRequest._id,
+                                                  "Pending",
+                                                  "Your application status has been reset to pending for further review.",
+                                                )
+                                              }
                                             >
                                               Confirm Reset
                                             </Button>

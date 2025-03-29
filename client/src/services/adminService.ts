@@ -18,9 +18,9 @@ export const getMentorApplicationRequest = async (page:number,limit:number)=>{
 
 
 //update application status
-export const updateMentorApplicationStatus= async (requestId:string,status:string)=>{
+export const updateMentorApplicationStatus= async (requestId:string,status:string,message?:string)=>{
     try {
-        const response= await axiosInstance.patch(`/api/admin/mentor-applications/${requestId}/status`,{status})
+        const response= await axiosInstance.patch(`/api/admin/mentor-applications/${requestId}/status`,{status,message})
         return response.data
     } catch (error) {
         console.error("Error updating mentor application status:", error);

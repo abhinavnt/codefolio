@@ -25,4 +25,6 @@ router.post('/mentor-request',upload.fields([{ name: "profileImage", maxCount: 1
 
 router.get('/getAllCourses',userController.getAllCourse)
 
+router.get('/notifications',userController.getNotifications)
+
 export default router

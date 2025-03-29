@@ -56,3 +56,21 @@ try {
     
 }
 }
+
+
+export const getNotifications=async()=>{
+    try {
+        const response=await axiosInstance.get('/api/user/notifications')
+        
+        if(response.status===200){
+            return response
+        }else{
+            console.log('some error when fetching notifications');
+            
+        }
+
+    } catch (error) {
+        console.log(error);
+        
+    }
+}

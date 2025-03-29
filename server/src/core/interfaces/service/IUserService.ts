@@ -10,4 +10,6 @@ export interface IUserService {
 
   getAllCourse():Promise<ICourse[]|null>
 
+  getNotifications(userId:string):Promise<IUser['notifications']>
+
 }

@@ -50,5 +50,11 @@ export class userService implements IUserService{
         return await this.userRepository.getAllCourses()
     }
 
+    async getNotifications(userId: string): Promise<IUser["notifications"]> {
+        console.log('from getnotificatioon service');
+        
+        return await this.userRepository.getNotification(userId)
+    }
+
     
 }

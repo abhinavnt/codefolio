@@ -7,6 +7,7 @@ import { mentorRepository } from "../../repositories/mentor.repository";
 import { TYPES } from "../../di/types";
 import { IAdminRepository } from "../../core/interfaces/repository/IAdminRepository";
 import { IMentorRepository } from "../../core/interfaces/repository/IMentorRepository";
+import { IUserRepository } from "../../core/interfaces/repository/IUserRepository";
 
 
 // const AdminRepository=new adminRepository() 
@@ -15,7 +16,8 @@ import { IMentorRepository } from "../../core/interfaces/repository/IMentorRepos
 injectable()
 export class adminService implements IAdminService{
   constructor(@inject(TYPES.AdminRepository) private adminRepository:IAdminRepository,
-              @inject(TYPES.MentorRepository) private mentorRepository:IMentorRepository
+              @inject(TYPES.MentorRepository) private mentorRepository:IMentorRepository,
+              @inject(TYPES.UserRepository) private userRepository:IUserRepository
 ){}
 
   //get all mentor application
@@ -29,7 +31,7 @@ export class adminService implements IAdminService{
   }
 
   //update status
-  async updateMentorApplicationStatus(requestId: string, status: string): Promise<IMentorRequest> {
+  async updateMentorApplicationStatus(requestId: string, status: string,message:string): Promise<IMentorRequest> {
       try {
         const { mentorRequest, userId }= await this.adminRepository.updateMentorApplicationStatus(requestId,status)
 
@@ -66,6 +68,9 @@ export class adminService implements IAdminService{
              await this.adminRepository.updateMentorStatus(userId,'active')
           }
         }
+
+        //add a notifiation to the uer
+        await this.userRepository.addNotification(userId,message)
         
         return mentorRequest
 

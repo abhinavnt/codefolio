@@ -31,9 +31,11 @@ export class AdminController implements IAdminController{
      updateMentorApplicationStatus=asyncHandler(async(req: Request, res: Response): Promise<void>=> {
     
             const {requestId}=req.params
-            const {status}=req.body
+            const {status,message}=req.body
+            console.log(message,"message from frontend");
+            
 
-            const updatedRequest = await this.adminService.updateMentorApplicationStatus(requestId,status)
+            const updatedRequest = await this.adminService.updateMentorApplicationStatus(requestId,status,message)
             res.status(200).json({ mentorApplication: updatedRequest });
        
     })

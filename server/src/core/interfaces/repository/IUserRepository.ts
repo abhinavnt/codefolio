@@ -8,4 +8,6 @@ export interface IUserRepository {
     findByGoogleId(googleId: string): Promise<IUser | null> 
     findByEmail(email: string): Promise<IUser | null> 
     getAllCourses():Promise<ICourse[]|null>
+    addNotification(userId:string,message:string):Promise<Boolean|null>
+    getNotification(userId:string):Promise<IUser['notifications']>
 }

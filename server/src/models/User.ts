@@ -16,6 +16,10 @@ export interface IUser extends Document {
   DOB:Date;
   googleId:String;
   reviewerRequestStatus: ("pending" | "approved" | "rejected")[];
+  notifications: {
+    message: string;
+    createdAt: Date;
+  }[];
 }
 
 const UserSchema = new Schema<IUser>(
@@ -32,7 +36,16 @@ const UserSchema = new Schema<IUser>(
     savedMentors:[{type:Schema.Types.ObjectId,ref:"Mentor"}],
     DOB:{type:Date},
     googleId:{type:String},
-    reviewerRequestStatus:{type:[{type:String,enum:["pending","approved","rejected"]}],default:[]}
+    reviewerRequestStatus:{type:[{type:String,enum:["pending","approved","rejected"]}],default:[]},
+    notifications: {
+      type: [
+        {
+          message: { type: String, required: true },
+          createdAt: { type: Date, default: Date.now, expires: 2592000 }
+        }
+      ],
+      default: [] 
+    }
   },
   { timestamps: true }
 );

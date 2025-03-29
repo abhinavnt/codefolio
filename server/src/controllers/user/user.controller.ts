@@ -93,4 +93,20 @@ export class UserController implements IUserController {
       res.status(200).json(courses)
   })
 
+  getNotifications=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const userId = String(req.user?._id)
+    console.log('log from getnotification controller');
+    
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+   
+    const notifications = await this.userService.getNotifications(userId)
+
+    res.status(200).json({notifications})
+   
+  }
+)
+
 }

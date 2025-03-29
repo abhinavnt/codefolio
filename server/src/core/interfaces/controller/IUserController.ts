@@ -10,4 +10,5 @@ export interface IUserController {
     updateProfile:RequestHandler
     getUserProfile:RequestHandler
     getAllCourse:RequestHandler
+    getNotifications:RequestHandler
 }

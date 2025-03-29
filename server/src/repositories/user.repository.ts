@@ -40,5 +40,26 @@ export class UserRepository implements IUserRepository{
   async getAllCourses(): Promise<ICourse[] | null> {
       return await Course.find()
   }
+
+   async addNotification(userId:string,message: string): Promise<Boolean|null> {
+    return await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: { notifications: { message, createdAt: new Date() } }
+      },
+      { new: true }
+    );
+   }
+
+   async getNotification(userId: string): Promise<IUser["notifications"]> {
+       const user= await this.findUserById(userId)
       
+       if(!user){
+        if (!user) throw new Error("User not found");
+       }
+
+       return user?.notifications.slice(0,10).reverse()
+   }
+   
+   
 }
