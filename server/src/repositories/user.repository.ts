@@ -60,6 +60,12 @@ export class UserRepository implements IUserRepository{
 
        return user?.notifications.slice(0,10).reverse()
    }
+
+   async changePassword(userId: string, newPass: string): Promise<Boolean|null> {
+    console.log('user repository ethii');
+    
+    return User.findByIdAndUpdate(userId,{password:newPass}, {new:true})
+   }
    
    
 }

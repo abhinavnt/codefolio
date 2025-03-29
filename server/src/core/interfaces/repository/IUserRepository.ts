@@ -10,4 +10,5 @@ export interface IUserRepository {
     getAllCourses():Promise<ICourse[]|null>
     addNotification(userId:string,message:string):Promise<Boolean|null>
     getNotification(userId:string):Promise<IUser['notifications']>
+    changePassword(userId:string,newPass:string):Promise<Boolean|null>
 }

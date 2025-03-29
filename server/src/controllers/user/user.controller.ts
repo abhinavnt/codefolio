@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import cloudinary from '../../config/cloudinary';
 import { AuthRequest } from '../../types/custom';
 import { userService } from '../../services/user/user.service';
@@ -7,6 +7,8 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../../di/types';
 import { IUserService } from '../../core/interfaces/service/IUserService';
 import asyncHandler from "express-async-handler";
+import { ParamsDictionary } from 'express-serve-static-core';
+import { ParsedQs } from 'qs';
 // const UserService = new userService();
 
 injectable()
@@ -108,5 +110,15 @@ export class UserController implements IUserController {
    
   }
 )
+
+   changePassword=asyncHandler(async(req:Request,res:Response)=>{
+    const userId = String(req.user?._id)
+      const {currentPassword,newPassword}=req.body
+      console.log(currentPassword,newPassword,"old and new pass form changepassword");
+      let done= await this.userService.changePassword(userId,currentPassword,newPassword)
+      // console.log(done,"this is from done");
+      
+      res.status(200).json({message:'password changed success'})
+   })
 
 }

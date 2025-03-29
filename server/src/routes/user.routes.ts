@@ -27,4 +27,6 @@ router.get('/getAllCourses',userController.getAllCourse)
 
 router.get('/notifications',userController.getNotifications)
 
+router.post('/change-password',userController.changePassword)
+
 export default router

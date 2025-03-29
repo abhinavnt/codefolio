@@ -11,5 +11,6 @@ export interface IUserService {
   getAllCourse():Promise<ICourse[]|null>
 
   getNotifications(userId:string):Promise<IUser['notifications']>
-
+  
+  changePassword(userId:string,oldPass:string,newPass:string):Promise<Boolean|null>
 }

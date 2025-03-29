@@ -29,6 +29,8 @@ export const updateProfile = async (formData: FormData, dispatch: AppDispatch) =
         console.log('response from update user', response);
 
         dispatch(updateUser({ user: response.data.user }));
+
+        return response
         
     } catch (error) {
         console.log(error);
@@ -69,6 +71,17 @@ export const getNotifications=async()=>{
             
         }
 
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+
+
+export const changePassword=async(data:object)=>{
+    try {
+        const response= await axiosInstance.post('/api/user/change-password',data)
+        return response.data
     } catch (error) {
         console.log(error);
         

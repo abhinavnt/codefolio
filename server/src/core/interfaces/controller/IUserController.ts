@@ -11,4 +11,5 @@ export interface IUserController {
     getUserProfile:RequestHandler
     getAllCourse:RequestHandler
     getNotifications:RequestHandler
+    changePassword:RequestHandler
 }

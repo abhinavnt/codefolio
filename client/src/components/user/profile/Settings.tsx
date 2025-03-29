@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
-import { updateProfile } from "@/services/userService";
+import { changePassword, updateProfile } from "@/services/userService";
 import { toast } from "sonner";
 
 // Interface for all user data
@@ -139,9 +139,12 @@ export function Settings() {
     }
 
     try {
-      await updateProfile(formData, dispatch)
+     const response= await updateProfile(formData, dispatch)
       console.log('profile updated');
-      toast.success('Profile updated successfully')
+      if(response){
+
+        toast.success('Profile updated successfully')
+      }
     } catch (error) {
       toast.error('Error updating profile. Please try again!')
     }
@@ -156,8 +159,16 @@ export function Settings() {
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
 
-  const handlePasswordChange = (data: any) => {
+  const handlePasswordChange = async(data: any) => {
     console.log("Password change requested:", data);
+    const response= await changePassword(data)
+    if(response){
+      toast.success("Password updated")
+    }else{
+      toast.error("something went wrong on password update")
+      console.log(response,"response from change pass");
+      
+    }
     setOpenPasswordDialog(false);
     passwordForm.reset();
   };
