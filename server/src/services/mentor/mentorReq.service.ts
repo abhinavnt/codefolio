@@ -74,7 +74,7 @@ export class mentorReqService implements IMentorReqService{
              await this.userRepository.updateReviewerRequestStatus(userId,'pending')
 
        } catch (error:any) {
-        throw new Error(error.message);
+        throw new Error(error instanceof Error ? error.message : String(error));
        }
    }
 

@@ -30,7 +30,8 @@ export class AuthService implements IAuthService{
     async register(name: string, email: string, password: string): Promise<void> {
         console.log(name);
         console.log("register servicil vannuu iam here for help you");
-        
+        try {
+          
         const existingUser=await this.authRepository.findUserByEmail(email)
         
         if(existingUser) throw new Error("Email is alredy taken")
@@ -49,11 +50,16 @@ export class AuthService implements IAuthService{
                 600,
                 JSON.stringify({ name, email, hashedPassword })
               );
-
+            } catch (error) {
+              throw new Error(error instanceof Error ? error.message : String(error));
+            }
+  
     }
 
 
     async verifyOtp(email: string, otp: string): Promise<verifiedUer> {
+      try {
+        
         const data=await RedisClient.get(`otp:${email}`)
         if(!data) throw new Error("OTP expired or invalid");
 
@@ -81,6 +87,11 @@ export class AuthService implements IAuthService{
         await RedisClient.del(`user_session:${email}`);
 
         return { accessToken, refreshToken, user };
+
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+
     }
 
     async resendOtp(email: string): Promise<void> {
@@ -95,14 +106,15 @@ export class AuthService implements IAuthService{
         await RedisClient.setex(`otp:${email}`, 120, JSON.stringify({ otp }));
       } catch (error: any) {
         console.error(error);
-        throw new Error(`error while resending otp:${error}`);
+        throw new Error(error instanceof Error ? error.message : String(error));
       }
     }
 
     async login(email: string,password: string,role: string): Promise<verifiedUer> {
          
         console.log('login servicel kayri');
-        
+        try {
+          
         let user: IAdmin | IUser | null;
          console.log('email',email);
          
@@ -139,6 +151,10 @@ export class AuthService implements IAuthService{
         console.log(user,'user from ath login service');
         
         return { accessToken, refreshToken, user: user as IUser};
+
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
       }
 
 
@@ -162,8 +178,8 @@ export class AuthService implements IAuthService{
               }
               return { accessToken: newAccessToken, user };
 
-        } catch (error) {
-            throw new Error("Invalid refresh token");
+        } catch (error:any) {
+          throw new Error(error instanceof Error ? error.message : String(error));
         }
     }
 
@@ -188,7 +204,7 @@ export class AuthService implements IAuthService{
         await RedisClient.setex(`magicLink:${email}`,900,JSON.stringify({ magicLink }));
 
       } catch (error:any) {
-        throw new Error(error.message);
+        throw new Error(error instanceof Error ? error.message : String(error));
       }
 
     }
@@ -210,12 +226,14 @@ export class AuthService implements IAuthService{
 
 
         } catch (error:any) {
-          throw new Error(error.message);
+          throw new Error(error instanceof Error ? error.message : String(error));
         }
     }
 
     async handleGoogleUser(googleData: { googleId: string; email: string; name: string; profilepic: string; }): Promise<verifiedUer> {
 
+      try {
+        
         let user= await this.userRepository.findByGoogleId(googleData.googleId)
 
         if(!user){
@@ -243,6 +261,10 @@ export class AuthService implements IAuthService{
         const refreshToken = jwt.sign({ userId },process.env.REFRESH_TOKEN_SECRET!,{expiresIn: "7d",});
 
         return { accessToken, refreshToken, user };
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+
     }
 
 

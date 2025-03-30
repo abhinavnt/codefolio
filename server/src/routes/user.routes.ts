@@ -10,6 +10,7 @@ import { IMentorReqController } from "../core/interfaces/controller/IMentorReqCo
 
 
 const router = express.Router();
+console.log('user routeil vannu');
 
 const userController =container.get<IUserController>(TYPES.UserController)
 

@@ -1,48 +1,37 @@
-import type React from "react";
-import { useEffect, useState } from "react";
-import { Upload } from "lucide-react";
-import { useSelector } from "react-redux";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useDispatch } from "react-redux";
-import { changePassword, updateProfile } from "@/services/userService";
-import { toast } from "sonner";
+"use client"
+
+import type React from "react"
+import { useEffect, useState } from "react"
+import { Upload } from "lucide-react"
+import { useSelector } from "react-redux"
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useDispatch } from "react-redux"
+import { changePassword, updateProfile } from "@/services/userService"
+import { toast } from "sonner"
 
 // Interface for all user data
 interface SettingsProps {
-  name: string;
-  username: string;
-  email: string;
-  title: string;
-  profileImage: string;
-  isInstructor: boolean;
+  name: string
+  username: string
+  email: string
+  title: string
+  profileImage: string
+  isInstructor: boolean
 }
 
 // Type for the form fields
 type SettingsFormData = {
-  name: string;
-  username: string;
-  email: string;
-  title?: string;
-};
+  name: string
+  username: string
+  email: string
+  title?: string
+}
 
 // Validation schema for the main settings form
 const settingsSchema = z.object({
@@ -50,9 +39,9 @@ const settingsSchema = z.object({
   username: z.string().min(1, "Username must be at least 1 character"),
   email: z.string().email("Please enter a valid email address"),
   title: z.string().max(50, "title must be 50 characters or less").optional(),
-});
+})
 
-// Password schema (unchanged)
+// Password schema 
 const passwordSchema = z
   .object({
     currentPassword: z.string().min(6, "Current password must be at least 6 characters"),
@@ -62,14 +51,15 @@ const passwordSchema = z
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+  })
 
 export function Settings() {
-  const [titleLength, settitleLength] = useState(0);
-  const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [titleLength, settitleLength] = useState(0)
+  const [openPasswordDialog, setOpenPasswordDialog] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const user = useSelector((state: any) => state.auth.user);
+  const user = useSelector((state: any) => state.auth.user)
 
   const form = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
@@ -79,7 +69,7 @@ export function Settings() {
       email: user?.email || "",
       title: user?.title || "",
     },
-  });
+  })
 
   const [userData, setUserData] = useState<SettingsProps>({
     name: user?.name || "",
@@ -88,7 +78,7 @@ export function Settings() {
     title: user?.title || "",
     profileImage: user?.profileImageUrl || "",
     isInstructor: user?.role === "tutor" || false,
-  });
+  })
 
   useEffect(() => {
     if (user) {
@@ -97,81 +87,80 @@ export function Settings() {
         username: user.email?.split("@")[0] || "",
         email: user.email || "",
         title: user.title || "",
-        profileImage: user.profileImageUrl || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541",
+        profileImage:
+          user.profileImageUrl ||
+          "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541",
         isInstructor: user.role === "Mentor" || false,
-      };
-      setUserData(newUserData);
+      }
+      setUserData(newUserData)
       form.reset({
         name: newUserData.name,
         username: newUserData.username,
         email: newUserData.email,
         title: newUserData.title,
-      });
-      settitleLength(user.title?.length || 0);
+      })
+      settitleLength(user.title?.length || 0)
     }
-  }, [user, form]);
+  }, [user, form])
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file); 
-      const previewUrl = URL.createObjectURL(file);
+      const file = e.target.files[0]
+      setSelectedFile(file)
+      const previewUrl = URL.createObjectURL(file)
       setUserData((prev) => ({
         ...prev,
-        profileImage: previewUrl, 
-      }));
+        profileImage: previewUrl,
+      }))
     }
-  };
+  }
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  // Handle form submission with file
   const handleSaveChanges = async (data: SettingsFormData) => {
-    console.log(selectedFile, 'selected');
+    setLoading(true) 
+    console.log(selectedFile, "selected")
 
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("username", data.username);
-    formData.append("email", data.email);
-    formData.append("title", data.title || "");
+    const formData = new FormData()
+    formData.append("name", data.name)
+    formData.append("username", data.username)
+    formData.append("email", data.email)
+    formData.append("title", data.title || "")
     if (selectedFile) {
-      formData.append("profileImage", selectedFile); 
+      formData.append("profileImage", selectedFile)
     }
 
     try {
-     const response= await updateProfile(formData, dispatch)
-      console.log('profile updated');
-      if(response){
-
-        toast.success('Profile updated successfully')
+      const response = await updateProfile(formData, dispatch)
+      console.log("profile updated")
+      if (response) {
+        toast.success("Profile updated successfully")
       }
     } catch (error) {
-      toast.error('Error updating profile. Please try again!')
+      toast.error("Error updating profile. Please try again!")
+    } finally {
+      setLoading(false) 
     }
-
-
-
-  };
+  }
 
   // Password form (unchanged for brevity)
   const passwordForm = useForm({
     resolver: zodResolver(passwordSchema),
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
-  });
+  })
 
-  const handlePasswordChange = async(data: any) => {
-    console.log("Password change requested:", data);
-    const response= await changePassword(data)
-    if(response){
+  const handlePasswordChange = async (data: any) => {
+    console.log("Password change requested:", data)
+    const response = await changePassword(data)
+    if (response) {
       toast.success("Password updated")
-    }else{
+    } else {
       toast.error("something went wrong on password update")
-      console.log(response,"response from change pass");
-      
+      console.log(response, "response from change pass")
     }
-    setOpenPasswordDialog(false);
-    passwordForm.reset();
-  };
+    setOpenPasswordDialog(false)
+    passwordForm.reset()
+  }
 
   return (
     <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4">
@@ -187,12 +176,7 @@ export function Settings() {
               className="object-cover w-full h-full"
             />
             <label className="absolute bottom-0 left-0 right-0 bg-background bg-opacity-50  p-2 flex justify-center cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               <Upload className="w-4 h-4 mr-2" />
               <span className="text-sm">Upload Photo</span>
             </label>
@@ -205,63 +189,103 @@ export function Settings() {
         <div className="md:col-span-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSaveChanges)} className="grid gap-6">
-              <FormField control={form.control} name="name" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full name</FormLabel>
-                  <FormControl>
-                    <Input  {...field} placeholder="Full name" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="username" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter your username" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="email" placeholder="Email address" readOnly />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <div className="relative">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full name</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value ?? ""}
-                        placeholder="Your title, profession or small titlegraphy"
-                        maxLength={50}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          settitleLength(e.target.value.length);
-                        }}
-                      />
+                      <Input {...field} placeholder="Full name" />
                     </FormControl>
-                    <span className="absolute right-3 top-2 text-xs text-gray-400">
-                      {titleLength}/50
-                    </span>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter your username" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" placeholder="Email address" readOnly />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          placeholder="Your title, profession or small titlegraphy"
+                          maxLength={50}
+                          onChange={(e) => {
+                            field.onChange(e)
+                            settitleLength(e.target.value.length)
+                          }}
+                        />
+                      </FormControl>
+                      <span className="absolute right-3 top-2 text-xs text-gray-400">{titleLength}/50</span>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="flex gap-4">
                 <Button
                   type="submit"
                   className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  disabled={!form.formState.isDirty && !selectedFile} 
+                  disabled={(!form.formState.isDirty && !selectedFile) || loading}
                 >
-                  Save Changes
+                  {loading ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </Button>
                 <Dialog open={openPasswordDialog} onOpenChange={setOpenPasswordDialog}>
                   <DialogTrigger asChild>
@@ -275,33 +299,45 @@ export function Settings() {
                     </DialogHeader>
                     <Form {...passwordForm}>
                       <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-4">
-                        <FormField control={passwordForm.control} name="currentPassword" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Current Password</FormLabel>
-                            <FormControl>
-                              <Input {...field} type="password" placeholder="Current password" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )} />
-                        <FormField control={passwordForm.control} name="newPassword" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>New Password</FormLabel>
-                            <FormControl>
-                              <Input {...field} type="password" placeholder="New password" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )} />
-                        <FormField control={passwordForm.control} name="confirmPassword" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Confirm Password</FormLabel>
-                            <FormControl>
-                              <Input {...field} type="password" placeholder="Confirm new password" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )} />
+                        <FormField
+                          control={passwordForm.control}
+                          name="currentPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Current Password</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="password" placeholder="Current password" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={passwordForm.control}
+                          name="newPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>New Password</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="password" placeholder="New password" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={passwordForm.control}
+                          name="confirmPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Confirm Password</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="password" placeholder="Confirm new password" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         <Button type="submit">Change Password</Button>
                       </form>
                     </Form>
@@ -313,5 +349,6 @@ export function Settings() {
         </div>
       </div>
     </div>
-  );
+  )
 }
+
