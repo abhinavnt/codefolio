@@ -18,11 +18,10 @@ const courseController =container.get<ICourseController>(TYPES.CourseController)
 
 router.get('/mentor-application',adminController.getMentorApplicationsRequest)
 router.patch('/mentor-applications/:requestId/status',adminController.updateMentorApplicationStatus)
-
 router.post('/addCourse',upload.fields([{name:'image',maxCount:1}]),courseController.addCourse)
-
 router.post('/addCourse',upload.fields([{name:'image',maxCount:1}]),courseController.addCourse)
 router.get('/allUsers',adminController.getAllUsers)
+router.patch('/user/:id/status',adminController.toggleUserStatus)
 
 
 

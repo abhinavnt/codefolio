@@ -8,4 +8,5 @@ export interface IAdminController{
     getMentorApplicationsRequest:RequestHandler
     updateMentorApplicationStatus:RequestHandler
     getAllUsers:RequestHandler
+    toggleUserStatus:RequestHandler
 }

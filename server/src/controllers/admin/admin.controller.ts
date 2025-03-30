@@ -6,6 +6,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IAdminService } from "../../core/interfaces/service/IAdminService";
 import asyncHandler from "express-async-handler";
+import { use } from "passport";
 
 
 
@@ -53,6 +54,14 @@ export class AdminController implements IAdminController{
             res.status(200).json({UserData:allUsers,total,currentPage:page,totalPages:Math.ceil(total/limit)})
   
          
+    })
+
+
+    //toggle user status
+    toggleUserStatus=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+        const {id}=req.params
+        const user=await this.adminService.toggleUserStatus(id)
+        res.status(200).json({ message: "user status changed successfully" })
     })
     
   

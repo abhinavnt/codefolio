@@ -83,10 +83,12 @@ export class adminRepository implements IAdminRepository{
            return newMentor;
     }
 
+    //change mentor status
     async updateMentorStatus(userId: string, status: "active" | "inactive"): Promise<IMentor | null> {
         return await Mentor.findOneAndUpdate({userId},{status},{new:true})
     }
 
+    //get all users
     async getallUsers(page: number, limit: number): Promise<{ allUsers: IUser[]; total: number; }> {
         const skip=(page-1)*limit
         const requests=await User.find().sort({createdAt:-1}).skip(skip).limit(limit).lean()
@@ -95,6 +97,26 @@ export class adminRepository implements IAdminRepository{
         
         return {allUsers:requests,total}
     }
+
+
+    //toggle user staus
+    async toggleUserStatus(userId: string): Promise<IUser | null> {
+        console.log('user repository');
+        console.log("User ID:", userId, typeof userId);
+
+        const user:IUser|null= await User.findById(userId)
+        console.log(user,"user from rpo");
+        
+        if (!user) throw new Error("user not found");
+
+        user.status = user.status === "active" ? "blocked" : "active";
+        
+        await user.save()
+
+        return user
+    }
+
+     
 
 
 }

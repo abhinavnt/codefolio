@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -6,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -25,39 +28,27 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { getAllUsers } from "@/services/adminService"
+import { getAllUsers, toggleUserStatus } from "@/services/adminService"
 import { toast } from "sonner"
 
-
-
-
-export interface IUser  {
-  name: string;
-  email: string;
-  password: string;
-  profileImageUrl: string;
-  status:string;
-  role: string;
-  title: string;
-  createdAt: Date;
-  updatedAt: Date;
-  wishlist:string[]
-  savedMentors:string[];
-  skills:string[];
-  DOB:Date;
-  googleId:String;
-  reviewerRequestStatus: ("pending" | "approved" | "rejected")[];
+export interface IUser {
+  _id: string
+  name: string
+  email: string
+  password: string
+  profileImageUrl: string
+  status: string
+  role: string
+  title: string
+  createdAt: Date
+  updatedAt: Date
+  wishlist: string[]
+  savedMentors: string[]
+  skills: string[]
+  DOB: Date
+  googleId: string
+  reviewerRequestStatus: ("pending" | "approved" | "rejected")[]
 }
-
-
-
-
-
-
-
-
-
-
 
 // Expanded dummy data for users
 // const users = [
@@ -262,9 +253,9 @@ export function AllUsers() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [roleFilter, setRoleFilter] = useState("all")
-  const [selectedUser, setSelectedUser] = useState<(typeof users)[0] | null>(null)
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [users,setUsers]= useState<IUser[]>([])
+  const [users, setUsers] = useState<IUser[]>([])
   const [totalPages, setTotalPages] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
   const itemsPerPage = 5
@@ -273,9 +264,9 @@ export function AllUsers() {
     const fetchMentorRequests = async () => {
       try {
         const { UserData, total, totalPages } = await getAllUsers(currentPage, itemsPerPage)
-        console.log(UserData,"all users");
-        
-         setUsers(UserData)
+        console.log(UserData, "all users")
+
+        setUsers(UserData)
         setTotalPages(totalPages)
         setTotalItems(total)
       } catch (error) {
@@ -284,7 +275,6 @@ export function AllUsers() {
     }
     fetchMentorRequests()
   }, [currentPage])
-  
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -301,14 +291,27 @@ export function AllUsers() {
   const indexOfFirstItem = Math.min(currentPage * itemsPerPage, totalItems)
   const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem)
 
-  
-
-  const handleViewDetails = (user: (typeof users)[0]) => {
+  const handleViewDetails = (user: IUser): void => {
     setSelectedUser(user)
   }
 
-  const handleStatusChange = (userId: number, newStatus: string) => {
-    console.log(`Changing user ${userId} status to ${newStatus}`)
+  const handleStatusChange = async (userId: string, newStatus: string): Promise<void> => {
+    try {
+      const response = await toggleUserStatus(userId)
+
+      if (response.status == 200) {
+        setUsers(users.map((user) => (user._id === userId ? { ...user, status: newStatus } : user)))
+        toast.success(`User ${newStatus === "Blocked" ? "blocked" : "unblocked"} successfully`)
+      }
+
+      // Update selected user if it's the one being modified
+      if (selectedUser && selectedUser._id === userId) {
+        setSelectedUser({ ...selectedUser, status: newStatus })
+      }
+    } catch (error) {
+      toast.error("Failed to update user status")
+      console.error(error)
+    }
   }
 
   const handlePageChange = (page: number) => {
@@ -376,10 +379,10 @@ export function AllUsers() {
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
-                  <TableHead className="hidden md:table-cell">Role</TableHead>
+                  {/* <TableHead className="hidden md:table-cell">Role</TableHead> */}
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden md:table-cell">Joined</TableHead>
-                  <TableHead className="hidden md:table-cell">Courses</TableHead>
+                  {/* <TableHead className="hidden md:table-cell">Courses</TableHead> */}
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -391,7 +394,7 @@ export function AllUsers() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredUsers.map((user,index) => (
+                  filteredUsers.map((user, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
@@ -410,22 +413,34 @@ export function AllUsers() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">{user.role}</TableCell>
+                      {/* <TableCell className="hidden md:table-cell">{user.role}</TableCell> */}
                       <TableCell>
                         <Badge
-                          variant={
-                            user.status === "Active"
-                              ? "default"
-                              : user.status === "Inactive"
-                                ? "secondary"
-                                : "destructive"
+                          className={
+                            user.status === "active"
+                              ? "bg-emerald-500 hover:bg-emerald-600"
+                              : user.status === "blocked"
+                                ? "bg-red-500 hover:bg-red-600"
+                                : ""
                           }
                         >
                           {user.status}
                         </Badge>
                       </TableCell>
-                      {/* <TableCell className="hidden md:table-cell">{user.createdAt.toLocaleDateString()}</TableCell> */}
-                      {/* <TableCell className="hidden md:table-cell">{user.coursesEnrolled}</TableCell> */}
+                      <TableCell className="hidden md:table-cell">
+                        {new Date(user.createdAt).toLocaleString("en-IN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: true,
+                          timeZone: "Asia/Kolkata",
+                        })}
+                      </TableCell>
+
+                      {/* <TableCell className="hidden md:table-cell">{user.coursesEnrolled |"N/A"}</TableCell> */}
                       <TableCell className="text-right">
                         <Dialog>
                           <DialogTrigger asChild>
@@ -465,12 +480,12 @@ export function AllUsers() {
                                     <Label>Status</Label>
                                     <p className="text-sm">
                                       <Badge
-                                        variant={
-                                          selectedUser.status === "Active"
-                                            ? "default"
-                                            : selectedUser.status === "Inactive"
-                                              ? "secondary"
-                                              : "destructive"
+                                        className={
+                                          selectedUser.status === "active"
+                                            ? "bg-emerald-500 hover:bg-emerald-600"
+                                            : selectedUser.status === "blocked"
+                                              ? "bg-red-500 hover:bg-red-600"
+                                              : ""
                                         }
                                       >
                                         {selectedUser.status}
@@ -479,11 +494,19 @@ export function AllUsers() {
                                   </div>
                                   <div>
                                     <Label>Join Date</Label>
-                                    <p className="text-sm">{selectedUser?.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : "N/A"}</p>
+                                    <p className="text-sm">
+                                      {selectedUser?.createdAt
+                                        ? new Date(selectedUser.createdAt).toLocaleDateString()
+                                        : "N/A"}
+                                    </p>
                                   </div>
                                   <div>
                                     <Label>Courses Enrolled</Label>
-                                    <p className="text-sm">{selectedUser?.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : "N/A"}</p>
+                                    <p className="text-sm">
+                                      {selectedUser?.createdAt
+                                        ? new Date(selectedUser.createdAt).toLocaleDateString()
+                                        : "N/A"}
+                                    </p>
                                   </div>
                                   <div>
                                     <Label>Location</Label>
@@ -501,17 +524,46 @@ export function AllUsers() {
                                 </div>
 
                                 <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4 border-t mt-4">
-                                  {/* <Button
-                                    variant="outline"
-                                    onClick={() =>
-                                      handleStatusChange(
-                                        selectedUser.,
-                                        selectedUser.status === "Blocked" ? "Active" : "Blocked",
-                                      )
-                                    }
-                                  >
-                                    {selectedUser.status === "Blocked" ? "Unblock User" : "Block User"}
-                                  </Button> */}
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button variant="outline">
+                                        {selectedUser.status === "blocked" ? "Unblock User" : "Block User"}
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-md">
+                                      <DialogHeader>
+                                        <DialogTitle>Confirm Action</DialogTitle>
+                                        <DialogDescription>
+                                          Are you sure you want to{" "}
+                                          {selectedUser.status === "blocked" ? "unblock" : "block"} this user?
+                                          {selectedUser.status !== "blocked" &&
+                                            " The user will no longer be able to access the platform."}
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <div className="flex justify-end gap-2 pt-4">
+                                        <DialogClose asChild>
+                                          <Button variant="outline">Cancel</Button>
+                                        </DialogClose>
+                                        <DialogClose asChild>
+                                          <Button
+                                            className={
+                                              selectedUser.status === "blocked"
+                                                ? "bg-emerald-500 hover:bg-emerald-600"
+                                                : "bg-red-500 hover:bg-red-600"
+                                            }
+                                            onClick={() => {
+                                              handleStatusChange(
+                                                selectedUser._id,
+                                                selectedUser.status === "blocked" ? "active" : "blocked",
+                                              )
+                                            }}
+                                          >
+                                            {selectedUser.status === "blocked" ? "Unblock" : "blocked"} User
+                                          </Button>
+                                        </DialogClose>
+                                      </div>
+                                    </DialogContent>
+                                  </Dialog>
                                   <Button variant="default">Edit User</Button>
                                 </div>
                               </div>

@@ -101,6 +101,20 @@ export class adminService implements IAdminService{
     }
   }
 
+ 
+  //toggle user status
+  async toggleUserStatus(userId: string): Promise<IUser | null> {
+      try {
+        console.log("toggle service");
+        console.log("User ID from service:", userId, typeof userId);
+        const user=await this.adminRepository.toggleUserStatus(userId)
+        return user
+      } catch (error:any) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+  }
+
+
 
     
 }

@@ -28,7 +28,7 @@ export const updateMentorApplicationStatus= async (requestId:string,status:strin
     }
 }
 
-
+//add new course
 export const addNewCourse= async (formData:FormData)=>{
     try {
         console.log('going the request to backend');
@@ -60,5 +60,16 @@ export const getAllUsers = async (page:number,limit:number)=>{
     } catch (error) {
         console.error("Error fetching mentor applications:", error);
       throw error;
+    }
+}
+
+
+//toggle user status
+export const toggleUserStatus=async(userId:string)=>{
+    try {
+        const response=await axiosInstance.patch(`/api/admin/user/${userId}/status`,{},{withCredentials:true})
+        return response
+    } catch (error:any) {
+        return error.response
     }
 }

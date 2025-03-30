@@ -171,11 +171,16 @@ export class AuthService implements IAuthService{
                 user= await this.authRepository.findAdminById(decoded.userId)
             }else{
                 user = await this.authRepository.findUserById(decoded.userId)
-            }
+                
+              }
+              console.log(user,"user get from refreshtoke");
 
             if (!user) {
                 throw new Error("cannot find user please try again");
               }
+
+              console.log('after the error throew');
+              
               return { accessToken: newAccessToken, user };
 
         } catch (error:any) {
