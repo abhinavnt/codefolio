@@ -4,13 +4,15 @@ import filterReducer from "./features/FilterSlice"
 import authReducer from "./features/auth/AuthSlice"
 import notificationsReduce from "./features/NotificationSlice"
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import mentorReducer from './features/MentorSlice'
 
 export const store = configureStore({
   reducer: {
     courses: courseReducer,
     filters: filterReducer,
     auth:authReducer,
-    notifications: notificationsReduce
+    notifications: notificationsReduce,
+    mentors:mentorReducer,
   },
 })
 

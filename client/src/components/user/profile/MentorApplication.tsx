@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 const TECH_SKILLS = [
   "JavaScript",
   "TypeScript",
+  "Flutter",
   "React",
   "Next.js",
   "Node.js",

@@ -7,6 +7,7 @@ import container from "../di/container";
 import { IUserController } from "../core/interfaces/controller/IUserController";
 import { TYPES } from "../di/types";
 import { IMentorReqController } from "../core/interfaces/controller/IMentorReqController";
+import { IMentorController } from "../core/interfaces/controller/IMentorController";
 
 
 const router = express.Router();
@@ -15,6 +16,8 @@ console.log('user routeil vannu');
 const userController =container.get<IUserController>(TYPES.UserController)
 
 const mentorReqController=container.get<IMentorReqController>(TYPES.MentorReqController)
+
+const MentorController=container.get<IMentorController>(TYPES.MentorController)
 
 router.use(authMiddleware);
 
@@ -29,5 +32,7 @@ router.get('/getAllCourses',userController.getAllCourse)
 router.get('/notifications',userController.getNotifications)
 
 router.post('/change-password',userController.changePassword)
+
+router.get('/getAllMentors',MentorController.getAllMentors)
 
 export default router

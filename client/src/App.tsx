@@ -11,6 +11,7 @@ import { DotLoading } from "./components/user/common/Loading";
 // import AdminLogin from "./pages/admin/AdminLogin";
 import NotFound from "./pages/error/NotFound";
 import { AdminRoutes } from "./routes/AdminRoutes";
+import Mentors from "./pages/user/Mentor";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -69,6 +70,7 @@ function App() {
                 <Route path="/profile" element={<LazyUserProfile />} />
                 <Route path="/courses" element={<LazyCourseDisplay />} />
                 <Route path="/mentor-application" element={<LazyMentorApplicationPage />} />
+                <Route path="/mentors" element={<Mentors/>}/>
               </Route>
 
                

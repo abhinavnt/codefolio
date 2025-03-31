@@ -16,6 +16,7 @@ export const TYPES={
     AuthService:Symbol.for('AuthService'),
     MentorReqService:Symbol.for('MentorReqService'),
     UserService:Symbol.for('UserService'),
+    MentorService:Symbol.for('MentorService'),
 
 
     //Controllers
@@ -23,6 +24,7 @@ export const TYPES={
     MentorReqController:Symbol.for('MentorReqController'),
     AuthController:Symbol.for('AuthController'),
     AdminController:Symbol.for('AdminController'),
-    CourseController:Symbol.for('CourseController')
+    CourseController:Symbol.for('CourseController'),
+    MentorController:Symbol.for('MentorController')
 
 }

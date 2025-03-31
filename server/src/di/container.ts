@@ -32,6 +32,10 @@ import { ICourseRepository } from "../core/interfaces/repository/ICourseReposito
 import { courseRepository } from "../repositories/course.repository";
 import { IMentorRepository } from "../core/interfaces/repository/IMentorRepository";
 import { mentorRepository } from "../repositories/mentor.repository";
+import { IMentorService } from "../core/interfaces/service/IMentorService";
+import { MentorService } from "../services/mentor/mentor.service";
+import { IMentorController } from "../core/interfaces/controller/IMentorController";
+import { MentorController } from "../controllers/mentor/mentor.controller";
 
 
 
@@ -62,7 +66,11 @@ container.bind<ICourseController>(TYPES.CourseController).to(CourseController)
 container.bind<ICourseService>(TYPES.CourseServices).to(courseService)
 container.bind<ICourseRepository>(TYPES.CourseRepository).to(courseRepository)
 
+
+container.bind<IMentorController>(TYPES.MentorController).to(MentorController)
+container.bind<IMentorService>(TYPES.MentorService).to(MentorService)
 container.bind<IMentorRepository>(TYPES.MentorRepository).to(mentorRepository)
+
 
 
 
