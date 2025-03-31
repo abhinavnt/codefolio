@@ -63,6 +63,17 @@ export class AdminController implements IAdminController{
         const user=await this.adminService.toggleUserStatus(id)
         res.status(200).json({ message: "user status changed successfully" })
     })
+
+
+    //get all mentors
+    getAllMentors=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+       const page=parseInt(req.query.page as string)||1
+       const limit=parseInt(req.query.limit as string)||10
+
+       const {allMentors,total}= await this.adminService.getAllMentors(page,limit)
+
+       res.status(200).json({MentorData:allMentors,total})
+    })
     
   
 }

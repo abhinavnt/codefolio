@@ -33,6 +33,10 @@ export interface IMentor extends Document {
   submittedAt: Date;
   updatedAt?: Date;
   availableTimeSlots?: IAvailableTimeSlot[];
+  title?: string;
+  reviewTakenCount?: number;
+  phone?: string;
+  location?: string;
 }
 
 // Interface for Mentor data (does not extend Document)
@@ -58,6 +62,10 @@ export interface IMentorData {
   instagram?: string;
   status: "active" | "inactive";
   availableTimeSlots?: IAvailableTimeSlot[];
+  title?: string;
+  reviewTakenCount?: number;
+  phone?: string;
+  location?: string;
 }
 
 const MentorSchema = new Schema<IMentor>(
@@ -92,6 +100,10 @@ const MentorSchema = new Schema<IMentor>(
       ],
       default: [],
     },
+    title: { type: String },
+    reviewTakenCount: { type: Number, default: 0 },
+    phone: { type: String },
+    location: { type: String },
   },
   { timestamps: { createdAt: "submittedAt", updatedAt: "updatedAt" } }
 );

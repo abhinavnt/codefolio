@@ -93,7 +93,7 @@ export class adminRepository implements IAdminRepository{
         const skip=(page-1)*limit
         const requests=await User.find().sort({createdAt:-1}).skip(skip).limit(limit).lean()
 
-        const total= await MentorRequest.countDocuments()
+        const total= await User.countDocuments()
         
         return {allUsers:requests,total}
     }
@@ -116,7 +116,13 @@ export class adminRepository implements IAdminRepository{
         return user
     }
 
-     
+    //get all mentors
+    async getAllMentors(page: number, limit: number): Promise<{ allMentors: IMentor[]; total: number; }> {
+        const skip=(page-1)*limit
+        const request=await Mentor.find().sort({createdAt:-1}).skip(skip).limit(limit).lean()
+        const total = await Mentor.countDocuments()
+        return {allMentors:request,total}
+    }
 
 
 }

@@ -73,3 +73,14 @@ export const toggleUserStatus=async(userId:string)=>{
         return error.response
     }
 }
+
+
+//get all mentors
+export const getAllMentors=async (page:number,limit:number)=>{
+    try {
+        const response=await axiosInstance.get(`/api/admin/allMentors?page=${page}&limit=${limit}`)
+        return response.data
+    } catch (error) {
+        
+    }
+}

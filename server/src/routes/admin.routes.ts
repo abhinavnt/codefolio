@@ -22,7 +22,7 @@ router.post('/addCourse',upload.fields([{name:'image',maxCount:1}]),courseContro
 router.post('/addCourse',upload.fields([{name:'image',maxCount:1}]),courseController.addCourse)
 router.get('/allUsers',adminController.getAllUsers)
 router.patch('/user/:id/status',adminController.toggleUserStatus)
-
+router.get('/allMentors',adminController.getAllMentors)
 
 
 export default router;

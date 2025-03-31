@@ -13,4 +13,5 @@ export interface IAdminRepository {
     updateMentorStatus(userId:string,status:"active"|"inactive"):Promise<IMentor|null>
     getallUsers(page:number,limit:number):Promise<{allUsers:IUser[],total:number}>
     toggleUserStatus(userId:string):Promise<IUser|null>
+    getAllMentors(page:number,limit:number):Promise<{allMentors:IMentor[],total:number}>
 }

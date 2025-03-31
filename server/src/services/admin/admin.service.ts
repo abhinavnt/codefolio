@@ -9,6 +9,7 @@ import { IAdminRepository } from "../../core/interfaces/repository/IAdminReposit
 import { IMentorRepository } from "../../core/interfaces/repository/IMentorRepository";
 import { IUserRepository } from "../../core/interfaces/repository/IUserRepository";
 import { applicationRejectionMail } from "../../utils/email.services";
+import { IMentor } from "../../models/Mentor";
 
 
 // const AdminRepository=new adminRepository() 
@@ -97,7 +98,7 @@ export class adminService implements IAdminService{
 
       return {allUsers,total}
     } catch (error) {
-      throw new Error("Error when fetching mentor applications");
+      throw new Error(error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -110,6 +111,16 @@ export class adminService implements IAdminService{
         const user=await this.adminRepository.toggleUserStatus(userId)
         return user
       } catch (error:any) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+  }
+
+  //get all Mentors
+  async getAllMentors(page: number, limit: number): Promise<{ allMentors: IMentor[]; total: number; }> {
+      try {
+        const {allMentors,total}=await this.adminRepository.getAllMentors(page,limit)
+        return {allMentors,total}
+      } catch (error) {
         throw new Error(error instanceof Error ? error.message : String(error));
       }
   }

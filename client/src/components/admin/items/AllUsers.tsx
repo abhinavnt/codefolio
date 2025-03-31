@@ -50,204 +50,6 @@ export interface IUser {
   reviewerRequestStatus: ("pending" | "approved" | "rejected")[]
 }
 
-// Expanded dummy data for users
-// const users = [
-//   {
-//     id: 1,
-//     name: "Alex Johnson",
-//     email: "alex.johnson@example.com",
-//     role: "Student",
-//     status: "Active",
-//     joinDate: "2023-01-15",
-//     coursesEnrolled: 3,
-//     avatar: "/placeholder.svg",
-//     bio: "Frontend developer passionate about React and UI/UX design.",
-//     location: "San Francisco, CA",
-//     phone: "+1 (555) 123-4567",
-//   },
-//   {
-//     id: 2,
-//     name: "Samantha Lee",
-//     email: "samantha.lee@example.com",
-//     role: "Student",
-//     status: "Active",
-//     joinDate: "2023-02-20",
-//     coursesEnrolled: 5,
-//     avatar: "/placeholder.svg",
-//     bio: "Full-stack developer with 3 years of experience in MERN stack.",
-//     location: "New York, NY",
-//     phone: "+1 (555) 234-5678",
-//   },
-//   {
-//     id: 3,
-//     name: "Michael Chen",
-//     email: "michael.chen@example.com",
-//     role: "Student",
-//     status: "Inactive",
-//     joinDate: "2023-03-10",
-//     coursesEnrolled: 2,
-//     avatar: "/placeholder.svg",
-//     bio: "Data scientist specializing in machine learning and AI.",
-//     location: "Boston, MA",
-//     phone: "+1 (555) 345-6789",
-//   },
-//   {
-//     id: 4,
-//     name: "Emily Rodriguez",
-//     email: "emily.rodriguez@example.com",
-//     role: "Student",
-//     status: "Active",
-//     joinDate: "2023-04-05",
-//     coursesEnrolled: 4,
-//     avatar: "/placeholder.svg",
-//     bio: "Backend developer with expertise in Node.js and Python.",
-//     location: "Austin, TX",
-//     phone: "+1 (555) 456-7890",
-//   },
-//   {
-//     id: 5,
-//     name: "David Kim",
-//     email: "david.kim@example.com",
-//     role: "Student",
-//     status: "Blocked",
-//     joinDate: "2023-05-12",
-//     coursesEnrolled: 1,
-//     avatar: "/placeholder.svg",
-//     bio: "Mobile app developer focusing on React Native and Flutter.",
-//     location: "Seattle, WA",
-//     phone: "+1 (555) 567-8901",
-//   },
-//   {
-//     id: 6,
-//     name: "Jessica Taylor",
-//     email: "jessica.taylor@example.com",
-//     role: "Student",
-//     status: "Active",
-//     joinDate: "2023-06-18",
-//     coursesEnrolled: 6,
-//     avatar: "/placeholder.svg",
-//     bio: "DevOps engineer with experience in AWS and Docker.",
-//     location: "Chicago, IL",
-//     phone: "+1 (555) 678-9012",
-//   },
-//   {
-//     id: 7,
-//     name: "Ryan Patel",
-//     email: "ryan.patel@example.com",
-//     role: "Student",
-//     status: "Active",
-//     joinDate: "2023-07-22",
-//     coursesEnrolled: 2,
-//     avatar: "/placeholder.svg",
-//     bio: "Game developer passionate about Unity and C#.",
-//     location: "Los Angeles, CA",
-//     phone: "+1 (555) 789-0123",
-//   },
-//   {
-//     id: 8,
-//     name: "Olivia Wilson",
-//     email: "olivia.wilson@example.com",
-//     role: "Student",
-//     status: "Active",
-//     joinDate: "2023-08-05",
-//     coursesEnrolled: 3,
-//     avatar: "/placeholder.svg",
-//     bio: "UX designer with a focus on user research and prototyping.",
-//     location: "Portland, OR",
-//     phone: "+1 (555) 890-1234",
-//   },
-//   {
-//     id: 9,
-//     name: "Ethan Brown",
-//     email: "ethan.brown@example.com",
-//     role: "Student",
-//     status: "Inactive",
-//     joinDate: "2023-08-15",
-//     coursesEnrolled: 1,
-//     avatar: "/placeholder.svg",
-//     bio: "Cybersecurity specialist with experience in penetration testing.",
-//     location: "Denver, CO",
-//     phone: "+1 (555) 901-2345",
-//   },
-//   {
-//     id: 10,
-//     name: "Sophia Garcia",
-//     email: "sophia.garcia@example.com",
-//     role: "Student",
-//     status: "Active",
-//     joinDate: "2023-09-01",
-//     coursesEnrolled: 4,
-//     avatar: "/placeholder.svg",
-//     bio: "Cloud architect specializing in AWS and Azure solutions.",
-//     location: "Miami, FL",
-//     phone: "+1 (555) 012-3456",
-//   },
-//   {
-//     id: 11,
-//     name: "William Martinez",
-//     email: "william.martinez@example.com",
-//     role: "Student",
-//     status: "Active",
-//     joinDate: "2023-09-10",
-//     coursesEnrolled: 2,
-//     avatar: "/placeholder.svg",
-//     bio: "Blockchain developer with experience in Ethereum and Solidity.",
-//     location: "Atlanta, GA",
-//     phone: "+1 (555) 123-4567",
-//   },
-//   {
-//     id: 12,
-//     name: "Ava Thompson",
-//     email: "ava.thompson@example.com",
-//     role: "Student",
-//     status: "Blocked",
-//     joinDate: "2023-09-20",
-//     coursesEnrolled: 1,
-//     avatar: "/placeholder.svg",
-//     bio: "Data engineer with expertise in big data technologies.",
-//     location: "Dallas, TX",
-//     phone: "+1 (555) 234-5678",
-//   },
-//   {
-//     id: 13,
-//     name: "James Wilson",
-//     email: "james.wilson@example.com",
-//     role: "Admin",
-//     status: "Active",
-//     joinDate: "2023-01-05",
-//     coursesEnrolled: 0,
-//     avatar: "/placeholder.svg",
-//     bio: "System administrator with 10+ years of experience.",
-//     location: "San Diego, CA",
-//     phone: "+1 (555) 345-6789",
-//   },
-//   {
-//     id: 14,
-//     name: "Emma Davis",
-//     email: "emma.davis@example.com",
-//     role: "Mentor",
-//     status: "Active",
-//     joinDate: "2023-02-10",
-//     coursesEnrolled: 0,
-//     avatar: "/placeholder.svg",
-//     bio: "Senior software engineer with expertise in Java and Spring Boot.",
-//     location: "Philadelphia, PA",
-//     phone: "+1 (555) 456-7890",
-//   },
-//   {
-//     id: 15,
-//     name: "Noah Johnson",
-//     email: "noah.johnson@example.com",
-//     role: "Mentor",
-//     status: "Active",
-//     joinDate: "2023-03-15",
-//     coursesEnrolled: 0,
-//     avatar: "/placeholder.svg",
-//     bio: "Machine learning engineer with experience in TensorFlow and PyTorch.",
-//     location: "Phoenix, AZ",
-//     phone: "+1 (555) 567-8901",
-//   },
-// ]
 
 export function AllUsers() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -259,7 +61,7 @@ export function AllUsers() {
   const [totalPages, setTotalPages] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
   const itemsPerPage = 5
-
+  
   useEffect(() => {
     const fetchMentorRequests = async () => {
       try {
@@ -289,7 +91,7 @@ export function AllUsers() {
   // const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
   const indexOfLastItem = (currentPage - 1) * itemsPerPage + 1
   const indexOfFirstItem = Math.min(currentPage * itemsPerPage, totalItems)
-  const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem)
+  // const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem)
 
   const handleViewDetails = (user: IUser): void => {
     setSelectedUser(user)
@@ -301,7 +103,7 @@ export function AllUsers() {
 
       if (response.status == 200) {
         setUsers(users.map((user) => (user._id === userId ? { ...user, status: newStatus } : user)))
-        toast.success(`User ${newStatus === "Blocked" ? "blocked" : "unblocked"} successfully`)
+        toast.success(`User ${newStatus === "blocked" ? "blocked" : "unblocked"} successfully`)
       }
 
       // Update selected user if it's the one being modified
