@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 import { IAdminController } from "../../core/interfaces/controller/IAdminController";
 import { IMentorRequest } from "../../models/MentorRequest";
 import { adminService } from "../../services/admin/admin.service";
@@ -7,6 +7,8 @@ import { TYPES } from "../../di/types";
 import { IAdminService } from "../../core/interfaces/service/IAdminService";
 import asyncHandler from "express-async-handler";
 import { use } from "passport";
+import { ParamsDictionary } from "express-serve-static-core";
+import { ParsedQs } from "qs";
 
 
 
@@ -73,6 +75,17 @@ export class AdminController implements IAdminController{
        const {allMentors,total}= await this.adminService.getAllMentors(page,limit)
 
        res.status(200).json({MentorData:allMentors,total})
+    })
+
+
+    //toggle mentor status
+    toggleMentorStatus=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+      const {id}=req.params
+      const status=req.query.status as string
+      console.log(status,"status from toggle mentor");
+      
+      const mentor= await this.adminService.toggleMentorStatus(id,status)
+      res.status(200).json(mentor)
     })
     
   

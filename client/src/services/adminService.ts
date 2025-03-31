@@ -1,4 +1,5 @@
 import axiosInstance from "@/utils/axiosInstance"
+import { an } from "node_modules/framer-motion/dist/types.d-B50aGbjN";
 
 
 
@@ -83,4 +84,14 @@ export const getAllMentors=async (page:number,limit:number)=>{
     } catch (error) {
         
     }
+}
+
+//toggle mentor status
+export const toggleMentorStatus=async (userId:string,status:string)=>{
+try {
+    const response=await axiosInstance.patch(`/api/admin/mentor/${userId}/status?status=${status}`,{},{withCredentials:true})
+    return response
+} catch (error:any) {
+    return error.response
+}
 }

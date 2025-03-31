@@ -50,7 +50,7 @@ const handleLogout= async ()=>{
             <p className="text-sm ">Welcome to Codefolio Admin</p>
           </div>
         </div>
-        <ModeToggle/>
+        
         <div className="flex items-center gap-4">
           <div className="relative hidden md:block">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -79,6 +79,7 @@ const handleLogout= async ()=>{
               <DropdownMenuItem onClick={handleLogoutClick}>Log out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <ModeToggle/>
         </div>
       </div>
        {/* Logout Confirmation Dialog */}

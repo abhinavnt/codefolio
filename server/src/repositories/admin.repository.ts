@@ -85,7 +85,12 @@ export class adminRepository implements IAdminRepository{
 
     //change mentor status
     async updateMentorStatus(userId: string, status: "active" | "inactive"): Promise<IMentor | null> {
-        return await Mentor.findOneAndUpdate({userId},{status},{new:true})
+        
+        return await Mentor.findOneAndUpdate(
+            { $or: [{ userId }, { _id: userId }] }, 
+            { status },
+            { new: true }
+        );
     }
 
     //get all users
@@ -124,5 +129,6 @@ export class adminRepository implements IAdminRepository{
         return {allMentors:request,total}
     }
 
+    
 
 }

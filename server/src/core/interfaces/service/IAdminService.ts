@@ -11,4 +11,5 @@ export interface IAdminService{
     getAllUsers(page:number,limit:number):Promise<{allUsers:IUser[],total:number}>
     toggleUserStatus(userId:string):Promise<IUser|null>
     getAllMentors(page:number,limit:number):Promise<{allMentors:IMentor[],total:number}>
+    toggleMentorStatus(userId:string,status:string):Promise<IMentor|null>
 }

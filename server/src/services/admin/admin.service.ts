@@ -126,6 +126,23 @@ export class adminService implements IAdminService{
   }
 
 
+  async toggleMentorStatus(userId: string, status: string): Promise<IMentor | null> {
+      try {
+        console.log(status,"fromservice");
+        
+        if (status !== "active" && status !== "inactive") {
+          throw new Error("invalid status");
+        }
+        const mentor=await this.adminRepository.updateMentorStatus(userId,status)
+        console.log(mentor,"mentor from service");
+        
+        return mentor
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+  }
+
+
 
     
 }

@@ -1,4 +1,3 @@
-"use client"
 
 import { useEffect, useState } from "react"
 import { Search } from "lucide-react"
@@ -27,40 +26,40 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { getAllMentors } from "@/services/adminService"
+import { getAllMentors, toggleMentorStatus } from "@/services/adminService"
+import { toast } from "sonner"
 
 export interface IMentorData {
   _id: string
-  userId: string;
-  profileImage?: string;
-  name: string;
-  username: string;
-  email: string;
-  phoneNumber: string;
-  dateOfBirth: Date;
-  yearsOfExperience: number;
-  currentCompany: string;
-  currentRole: string;
-  durationAtCompany: string;
-  resume: string;
-  technicalSkills: string[];
-  primaryLanguage: string;
-  bio: string;
-  linkedin?: string;
-  github?: string;
-  twitter?: string;
-  instagram?: string;
-  status: "active" | "inactive";
-  submittedAt: Date;
-  updatedAt?: Date;
+  userId: string
+  profileImage?: string
+  name: string
+  username: string
+  email: string
+  phoneNumber: string
+  dateOfBirth: Date
+  yearsOfExperience: number
+  currentCompany: string
+  currentRole: string
+  durationAtCompany: string
+  resume: string
+  technicalSkills: string[]
+  primaryLanguage: string
+  bio: string
+  linkedin?: string
+  github?: string
+  twitter?: string
+  instagram?: string
+  status: "active" | "inactive"
+  submittedAt: Date
+  updatedAt?: Date
   // availableTimeSlots?: IAvailableTimeSlot[];
-  title?: string;
-  reviewTakenCount?: number;
-  phone?: string;
-  location?: string;
+  title?: string
+  reviewTakenCount?: number
+  phone?: string
+  location?: string
   createdAt: Date
 }
-
 
 export function AllMentors() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -72,6 +71,10 @@ export function AllMentors() {
   const [totalPages, setTotalPages] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
   const itemsPerPage = 5
+  const [blockConfirmOpen, setBlockConfirmOpen] = useState(false)
+  const [pendingAction, setPendingAction] = useState<{ mentorId: string; newStatus: "active" | "inactive" } | null>(
+    null,
+  )
 
   useEffect(() => {
     const fetchMentors = async () => {
@@ -112,26 +115,37 @@ export function AllMentors() {
     setSelectedMentor(mentor)
   }
 
-  const handleStatusChange = async (mentorId: string, newStatus: "active" | "inactive") => {
+  const handleBlockAction = (mentorId: string, newStatus: "active" | "inactive") => {
+    setPendingAction({ mentorId, newStatus })
+    setBlockConfirmOpen(true)
+  }
+
+  const handleConfirmedStatusChange = async () => {
+    if (!pendingAction) return
+
     try {
-      // Replace with your actual API call to update mentor status
-      // const response = await toggleMentorStatus(mentorId);
+      const { mentorId, newStatus } = pendingAction
+      const response = await toggleMentorStatus(mentorId, newStatus)
+      if (response.status == 200) {
+        setMentors(mentors.map((mentor) => (mentor._id === mentorId ? { ...mentor, status: newStatus } : mentor)))
+        toast.success(`Mentor ${newStatus === "inactive" ? "blocked" : "unblocked"} successfully`)
+      } else {
+        toast.error("Failed to update mentor status")
+      }
 
-      // For now, just update the local state
-      setMentors(mentors.map((mentor) => (mentor._id === mentorId ? { ...mentor, status: newStatus } : mentor)))
-
-      // Update selected mentor if it's the one being modified
+      // Update selected mentor if its the one modified
       if (selectedMentor && selectedMentor._id === mentorId) {
         setSelectedMentor({ ...selectedMentor, status: newStatus })
       }
-
-      // Show success message
-      // toast.success(`Mentor ${newStatus === "inactive" ? "blocked" : "unblocked"} successfully`);
     } catch (error) {
       console.error("Failed to update mentor status:", error)
-      // toast.error("Failed to update mentor status");
+      toast.error("Failed to update mentor status")
+    } finally {
+      setBlockConfirmOpen(false)
+      setPendingAction(null)
     }
   }
+
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -243,16 +257,16 @@ export function AllMentors() {
                       <TableCell className="hidden md:table-cell">{mentor.title || "Not Available"}</TableCell>
                       <TableCell>
                         <Badge
-                          variant={
-                            mentor.status === "active"
-                              ? "default"
-                              : mentor.status === "inactive"
-                                ? "secondary"
-                                : "destructive"
-                          }
+                          className={`px-2 py-1 rounded-md text-white ${mentor.status === "active"
+                            ? "bg-emerald-500"
+                            : mentor.status === "inactive"
+                              ? "bg-red-500"
+                              : "bg-gray-500"
+                            }`}
                         >
                           {mentor.status}
                         </Badge>
+
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{mentor.reviewTakenCount || "0"}</TableCell>
                       {/* <TableCell className="hidden md:table-cell">0</TableCell> */}
@@ -290,22 +304,22 @@ export function AllMentors() {
                                 <div className="grid gap-4 md:grid-cols-2">
                                   <div>
                                     <Label>Title</Label>
-                                    <p className="text-sm">{selectedMentor.title||"no title"}</p>
+                                    <p className="text-sm">{selectedMentor.title || "no title"}</p>
                                   </div>
                                   <div>
                                     <Label>Status</Label>
                                     <p className="text-sm">
                                       <Badge
-                                        variant={
-                                          selectedMentor.status === "active"
-                                            ? "default"
-                                            : selectedMentor.status === "inactive"
-                                              ? "secondary"
-                                              : "destructive"
-                                        }
+                                        className={`px-2 py-1 rounded-md text-white ${mentor.status === "active"
+                                            ? "bg-emerald-500"
+                                            : mentor.status === "inactive"
+                                              ? "bg-red-500"
+                                              : "bg-gray-500"
+                                          }`}
                                       >
-                                        {selectedMentor.status}
+                                        {mentor.status}
                                       </Badge>
+
                                     </p>
                                   </div>
                                   <div>
@@ -330,7 +344,7 @@ export function AllMentors() {
                                     <Label>Review Taken</Label>
                                     <p className="text-sm">{mentor.reviewTakenCount}</p>
                                   </div>
-                                 
+
                                   <div>
                                     <Label>Location</Label>
                                     <p className="text-sm">india</p>
@@ -349,16 +363,16 @@ export function AllMentors() {
                                   </div>
                                 </div>
                                 <div>
-                                    <Label>bio</Label>
-                                    <p className="text-sm" style={{ maxWidth: '150px', wordWrap: 'break-word' }}>
-                                      {selectedMentor.bio}
-                                    </p>
-                                  </div>
+                                  <Label>bio</Label>
+                                  <p className="text-sm" style={{ maxWidth: "150px", wordWrap: "break-word" }}>
+                                    {selectedMentor.bio}
+                                  </p>
+                                </div>
                                 <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4 border-t mt-4">
                                   <Button
                                     variant="outline"
                                     onClick={() =>
-                                      handleStatusChange(
+                                      handleBlockAction(
                                         selectedMentor._id,
                                         selectedMentor.status === "inactive" ? "active" : "inactive",
                                       )
@@ -394,7 +408,6 @@ export function AllMentors() {
               </PaginationItem>
 
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                // Show first page, last page, and pages around current page
                 if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
                   return (
                     <PaginationItem key={page}>
@@ -405,7 +418,6 @@ export function AllMentors() {
                   )
                 }
 
-                // Show ellipsis for gaps
                 if (page === 2 && currentPage > 3) {
                   return (
                     <PaginationItem key="ellipsis-start">
@@ -435,6 +447,37 @@ export function AllMentors() {
           </Pagination>
         </CardFooter>
       </Card>
+
+      {/* Block/Unblock Confirmation Dialog */}
+      <Dialog open={blockConfirmOpen} onOpenChange={setBlockConfirmOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{pendingAction?.newStatus === "inactive" ? "Block Mentor" : "Unblock Mentor"}</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to {pendingAction?.newStatus === "inactive" ? "block" : "unblock"} this mentor?
+              {pendingAction?.newStatus === "inactive" && " They will no longer be able to access the platform."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setBlockConfirmOpen(false)}>
+              Cancel
+            </Button>
+            {pendingAction?.newStatus === "inactive" ? (
+              <Button
+                variant="destructive"
+                className="bg-red-500 hover:bg-red-600"
+                onClick={handleConfirmedStatusChange}
+              >
+                Block
+              </Button>
+            ) : (
+              <Button className="bg-emerald-500 hover:bg-emerald-600 text-white" onClick={handleConfirmedStatusChange}>
+                Unblock
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

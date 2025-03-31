@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.routes'
 import userRoutes from './routes/user.routes'
 import adminRoutes from './routes/admin.routes'
 import passport from "./config/passport";
+import { errorHandler } from "./middlewares/errorMiddleware";
 
 dotenv.config()
 connectDB()
@@ -41,6 +42,7 @@ app.use("/api/user",userRoutes)
 app.use("/api/admin",adminRoutes)
 
 
+app.use(errorHandler)
 
 
 
