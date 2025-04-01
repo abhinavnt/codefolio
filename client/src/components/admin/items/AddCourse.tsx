@@ -48,6 +48,9 @@ type FormErrors = {
   courseDuration?: string
   courseImage?: string
   modules?: ModuleError[]
+  learningPoints?: string
+  targetedAudience?: string
+  courseRequirements?: string
 }
 
 export function AddCourse() {
@@ -64,48 +67,70 @@ export function AddCourse() {
 
   const [errors, setErrors] = useState<FormErrors>({})
 
+  // Raw input strings for comma-separated fields
+  const [learningPointsRaw, setLearningPointsRaw] = useState("")
+  const [targetedAudienceRaw, setTargetedAudienceRaw] = useState("")
+  const [courseRequirementsRaw, setCourseRequirementsRaw] = useState("")
+
   const validateField = (field: string, value: string | File | null, required = true): string => {
     // Handle courseImage (File | null)
     if (field === "courseImage") {
       if (required && !value) {
-        return "Course image is required";
+        return "Course image is required"
       }
       if (value instanceof File) {
         // Add file-specific validation (e.g., size, type)
-        if (value.size > 5 * 1024 * 1024) { // 5MB limit
-          return "Image size must be less than 5MB";
+        if (value.size > 5 * 1024 * 1024) {
+          // 5MB limit
+          return "Image size must be less than 5MB"
         }
         if (!value.type.startsWith("image/")) {
-          return "Only image files are allowed";
+          return "Only image files are allowed"
         }
       }
-      return "";
+      return ""
     }
 
     // Handle other fields (strings)
     if (required && (!value || (typeof value === "string" && value.trim() === ""))) {
-      return "This field is required";
+      return "This field is required"
     }
 
     if (field === "coursePrice" && typeof value === "string" && value) {
-      const price = Number.parseFloat(value);
+      const price = Number.parseFloat(value)
       if (isNaN(price) || price < 0) {
-        return "Price must be a valid positive number";
+        return "Price must be a valid positive number"
       }
     }
 
     if (field === "courseDuration" && typeof value === "string" && value) {
-      const duration = Number.parseFloat(value);
+      const duration = Number.parseFloat(value)
       if (isNaN(duration) || duration <= 0) {
-        return "Duration must be a valid positive number";
+        return "Duration must be a valid positive number"
       }
     }
 
-    return "";
-  };
+    return ""
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Parse raw inputs into arrays
+    const learningPoints = learningPointsRaw
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "")
+
+    const targetedAudience = targetedAudienceRaw
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "")
+
+    const courseRequirements = courseRequirementsRaw
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "")
 
     // Validate all fields
     const newErrors: FormErrors = {}
@@ -118,6 +143,10 @@ export function AddCourse() {
     newErrors.coursePrice = validateField("coursePrice", coursePrice)
     newErrors.courseDuration = validateField("courseDuration", courseDuration)
     newErrors.courseImage = validateField("courseImage", courseImage)
+
+    newErrors.learningPoints = validateField("learningPoints", learningPointsRaw)
+    newErrors.targetedAudience = validateField("targetedAudience", targetedAudienceRaw)
+    newErrors.courseRequirements = validateField("courseRequirements", courseRequirementsRaw)
 
     // Content tab validation
     newErrors.modules = courseModules.map((module, index) => {
@@ -154,37 +183,41 @@ export function AddCourse() {
 
     if (!hasErrors) {
       try {
-        const formData = new FormData();
+        const formData = new FormData()
 
-        formData.append("title", courseTitle);
-        formData.append("description", courseDescription);
-        formData.append("category", courseCategory);
-        formData.append("level", courseLevel);
-        formData.append("price", coursePrice);
-        formData.append("duration", courseDuration);
+        formData.append("title", courseTitle)
+        formData.append("description", courseDescription)
+        formData.append("category", courseCategory)
+        formData.append("level", courseLevel)
+        formData.append("price", coursePrice)
+        formData.append("duration", courseDuration)
 
-        console.log(courseImage, 'courseImage');
+        console.log(courseImage, "courseImage")
         if (courseImage) {
-          console.log('course image appended to formdata');
-          formData.append("image", courseImage);
+          console.log("course image appended to formdata")
+          formData.append("image", courseImage)
         }
 
-        formData.append("modules", JSON.stringify(courseModules));
+        formData.append("modules", JSON.stringify(courseModules))
+
+        formData.append("learningPoints", JSON.stringify(learningPoints))
+        formData.append("targetedAudience", JSON.stringify(targetedAudience))
+        formData.append("courseRequirements", JSON.stringify(courseRequirements))
 
         for (const [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
+          console.log(`${key}: ${value}`)
         }
 
         const response = await addNewCourse(formData)
 
         if (response) {
-          console.log("Course submission response:", response.data);
+          console.log("Course submission response:", response.data)
           toast.success("course add success")
         }
-        return response;
+        return response
       } catch (error) {
-        console.error("Error submitting course:", error);
-        throw error; 
+        console.error("Error submitting course:", error)
+        throw error
       }
     } else {
       console.log("Form has validation errors")
@@ -244,13 +277,13 @@ export function AddCourse() {
   }
 
   const handleCourseImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files ? e.target.files[0] : null;
-    setCourseImage(file);
+    const file = e.target.files ? e.target.files[0] : null
+    setCourseImage(file)
     setErrors((prev) => ({
       ...prev,
       courseImage: validateField("courseImage", file),
-    }));
-  };
+    }))
+  }
 
   const handleAddModule = () => {
     setCourseModules([
@@ -273,7 +306,6 @@ export function AddCourse() {
     }
     setCourseModules(updatedModules)
 
- 
     setErrors((prev) => {
       const newModuleErrors = [...(prev.modules || [])]
       if (!newModuleErrors[index]) {
@@ -291,13 +323,6 @@ export function AddCourse() {
       }
     })
   }
-
-  // const handleVideoChange = (moduleIndex: number, file: File) => {
-  //   const updatedModules = [...courseModules]
-    
-  //   updatedModules[moduleIndex].video = file.name
-  //   setCourseModules(updatedModules)
-  // }
 
   const handleAddLesson = (moduleIndex: number) => {
     const updatedModules = [...courseModules]
@@ -345,12 +370,32 @@ export function AddCourse() {
     })
   }
 
-  // const handleLessonVideoChange = (moduleIndex: number, lessonIndex: number, file: File) => {
-  //   const updatedModules = [...courseModules]
-  //   // In a real app, you would upload the file to your server/storage
-  //   updatedModules[moduleIndex].lessons[lessonIndex].video = file.name
-  //   setCourseModules(updatedModules)
-  // }
+  const handleLearningPointsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    setLearningPointsRaw(value)
+    setErrors((prev) => ({
+      ...prev,
+      learningPoints: validateField("learningPoints", value),
+    }))
+  }
+
+  const handleTargetedAudienceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    setTargetedAudienceRaw(value)
+    setErrors((prev) => ({
+      ...prev,
+      targetedAudience: validateField("targetedAudience", value),
+    }))
+  }
+
+  const handleCourseRequirementsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    setCourseRequirementsRaw(value)
+    setErrors((prev) => ({
+      ...prev,
+      courseRequirements: validateField("courseRequirements", value),
+    }))
+  }
 
   return (
     <div className="space-y-6">
@@ -394,6 +439,51 @@ export function AddCourse() {
                 />
                 {errors.courseDescription && <p className="text-sm text-red-500">{errors.courseDescription}</p>}
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="learningPoints">Learning Points</Label>
+                <Textarea
+                  id="learningPoints"
+                  placeholder="Enter learning points (comma-separated)"
+                  rows={3}
+                  value={learningPointsRaw}
+                  onChange={handleLearningPointsChange}
+                  className={errors.learningPoints ? "border-red-500" : ""}
+                />
+                {errors.learningPoints && <p className="text-sm text-red-500">{errors.learningPoints}</p>}
+                <p className="text-xs text-muted-foreground">
+                  Enter comma-separated learning points (e.g., "Point 1, Point 2")
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="targetedAudience">Targeted Audience</Label>
+                <Textarea
+                  id="targetedAudience"
+                  placeholder="Enter targeted audience (comma-separated)"
+                  rows={3}
+                  value={targetedAudienceRaw}
+                  onChange={handleTargetedAudienceChange}
+                  className={errors.targetedAudience ? "border-red-500" : ""}
+                />
+                {errors.targetedAudience && <p className="text-sm text-red-500">{errors.targetedAudience}</p>}
+                <p className="text-xs text-muted-foreground">Enter comma-separated target audience groups</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="courseRequirements">Course Requirements</Label>
+                <Textarea
+                  id="courseRequirements"
+                  placeholder="Enter course requirements (comma-separated)"
+                  rows={3}
+                  value={courseRequirementsRaw}
+                  onChange={handleCourseRequirementsChange}
+                  className={errors.courseRequirements ? "border-red-500" : ""}
+                />
+                {errors.courseRequirements && <p className="text-sm text-red-500">{errors.courseRequirements}</p>}
+                <p className="text-xs text-muted-foreground">Enter comma-separated course requirements</p>
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
@@ -717,3 +807,4 @@ export function AddCourse() {
     </div>
   )
 }
+

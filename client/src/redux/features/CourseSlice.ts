@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit"
 import type { Course } from "@/types/course"
-import { dummyCourses } from "@/data/dummy-data"
+// import { dummyCourses } from "@/data/dummy-data"
 import axios from "axios"
 import axiosInstance from "@/utils/axiosInstance"
 

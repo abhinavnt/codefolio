@@ -13,6 +13,9 @@ export interface ICourse extends Document {
   enrolledStudents: Types.ObjectId[]; 
   status: "draft" | "published" | "archived"; 
   tags: string[]; 
+  learningPoints:string[];
+  targetedAudience:string[];
+  courseRequirements:string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +38,9 @@ const CourseSchema = new Schema<ICourse>(
       default: "draft",
     },
     tags: [{ type: String }], 
+    learningPoints:[{type:String}],
+    targetedAudience:[{type:String}],
+    courseRequirements:[{type:String}],
   },
   { timestamps: true } 
 );

@@ -30,7 +30,7 @@ export class courseService implements ICourseService {
     console.log('add course service kayritund');
     
     try {
-      const { modules, ...courseDetails } = courseData;
+      const { modules, targetedAudience,learningPoints,courseRequirements,...courseDetails} = courseData;
 
       // Validate required fields for the course
       if (
@@ -44,7 +44,27 @@ export class courseService implements ICourseService {
       ) {
         throw new Error("Missing required course fields");
       }
+      console.log(courseDetails,"course details");
 
+        // Parse JSON strings into arrays
+        const parsedLearningPoints = typeof learningPoints === 'string' 
+        ? JSON.parse(learningPoints) 
+        : Array.isArray(learningPoints) 
+        ? learningPoints 
+        : [];
+      
+      const parsedTargetedAudience = typeof targetedAudience === 'string'
+        ? JSON.parse(targetedAudience)
+        : Array.isArray(targetedAudience)
+        ? targetedAudience
+        : [];
+      
+      const parsedCourseRequirements = typeof courseRequirements === 'string'
+        ? JSON.parse(courseRequirements)
+        : Array.isArray(courseRequirements)
+        ? courseRequirements
+        : [];
+      
       // Create the course
       const newCourse = await this.courseRepository.createCourse({
         title: courseDetails.title,
@@ -58,6 +78,9 @@ export class courseService implements ICourseService {
         enrolledStudents: [], 
         status: "draft",
         tags: courseDetails.tags || [], 
+        targetedAudience:parsedTargetedAudience,
+        learningPoints:parsedLearningPoints,
+        courseRequirements:parsedCourseRequirements
       });
 
       console.log(modules,"modules");

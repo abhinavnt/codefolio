@@ -317,3 +317,156 @@ export const mentors = [
   },
 ]
 
+import { Clock, Video, Award, FileText, Globe, Download } from "lucide-react"
+
+export const courseData = {
+  title: "Complete Website Responsive Design: from Figma to Webflow to Website Design",
+  subtitle: "3+ hours • Learn to design websites with Figma, build with Webflow, and make a living",
+  rating: 4.8,
+  reviewCount: 2134,
+  students: 12543,
+  lastUpdated: "April 2023",
+  originalPrice: 89.99,
+  discountedPrice: 14.0,
+  discount: 84,
+  instructor: {
+    name: "John Russell",
+    title: "Web Design Expert",
+    bio: "John is a professional web designer with over 10 years of experience. He has worked with major brands and has taught thousands of students how to create beautiful, responsive websites.",
+  },
+  features: [
+    {
+      icon: <Clock className="h-5 w-5 text-gray-500" />,
+      text: "3.5 hours on-demand video",
+    },
+    {
+      icon: <FileText className="h-5 w-5 text-gray-500" />,
+      text: "25 articles and resources",
+    },
+    {
+      icon: <Download className="h-5 w-5 text-gray-500" />,
+      text: "15 downloadable resources",
+    },
+    {
+      icon: <Globe className="h-5 w-5 text-gray-500" />,
+      text: "Full lifetime access",
+    },
+    {
+      icon: <Video className="h-5 w-5 text-gray-500" />,
+      text: "Access on mobile and TV",
+    },
+    {
+      icon: <Award className="h-5 w-5 text-gray-500" />,
+      text: "Certificate of completion",
+    },
+  ],
+  learningPoints: [
+    "Create beautiful, responsive designs in Figma from scratch",
+    "Build fully-functional websites using Webflow without coding",
+    "Understand responsive design principles and best practices",
+    "Convert designs into custom websites",
+    "Optimize websites for different devices and screen sizes",
+    "Create animations and interactions to enhance user experience",
+  ],
+  targetAudience: [
+    "Web designers who want to expand their skills to include Webflow",
+    "Beginners who want to learn web design and development",
+    "Freelancers looking to offer website design services",
+    "Entrepreneurs who want to create their own websites",
+  ],
+  requirements: [
+    "Basic computer skills",
+    "No prior experience with Figma or Webflow is required",
+    "A computer with internet access (Mac or Windows)",
+    "Free Figma account and Webflow trial account (no paid software required)",
+  ],
+  curriculum: [
+    {
+      title: "Getting Started with Design",
+      duration: "45m",
+      lessons: [
+        { title: "Introduction to Web Design", duration: "5:23" },
+        { title: "Setting Up Your Figma Account", duration: "8:45" },
+        { title: "Understanding Responsive Design", duration: "12:10" },
+        { title: "Design Principles for the Web", duration: "15:30" },
+      ],
+    },
+    {
+      title: "Designing in Figma",
+      duration: "1h 15m",
+      lessons: [
+        { title: "Creating Your First Wireframe", duration: "18:20" },
+        { title: "Working with Components", duration: "14:55" },
+        { title: "Color Theory and Typography", duration: "12:30" },
+        { title: "Designing for Mobile First", duration: "16:40" },
+        { title: "Creating Responsive Layouts", duration: "22:15" },
+      ],
+    },
+    {
+      title: "Building with Webflow",
+      duration: "1h 30m",
+      lessons: [
+        { title: "Introduction to Webflow", duration: "10:15" },
+        { title: "Setting Up Your Project", duration: "8:30" },
+        { title: "Building the Navigation", duration: "15:45" },
+        { title: "Creating Responsive Sections", duration: "20:10" },
+        { title: "Adding Interactions and Animations", duration: "18:20" },
+        { title: "Publishing Your Website", duration: "12:00" },
+      ],
+    },
+  ],
+  reviews: [
+    {
+      name: "Sarah Johnson",
+      rating: 5,
+      date: "March 15, 2023",
+      comment:
+        "This course exceeded my expectations! I had no prior experience with Figma or Webflow, but the instructor made everything easy to understand. I've already built my first website and received great feedback from clients.",
+    },
+    {
+      name: "Michael Chen",
+      rating: 4,
+      date: "February 28, 2023",
+      comment:
+        "Very comprehensive course that covers all aspects of the design and development process. The only reason I'm giving 4 stars instead of 5 is that some sections could use more examples.",
+    },
+    {
+      name: "Emily Rodriguez",
+      rating: 5,
+      date: "January 10, 2023",
+      comment:
+        "As someone who has been designing websites for years but never used Webflow, this course was perfect for me. The instructor's teaching style is clear and engaging. Highly recommended!",
+    },
+  ],
+}
+
+export const relatedCoursesData = [
+  {
+    title: "Advanced Figma: Design Systems and Component Libraries",
+    instructor: "Sarah Williams",
+    rating: 4.7,
+    reviewCount: 1245,
+    price: 19.99,
+    originalPrice: 99.99,
+    image: "/placeholder.svg?height=160&width=240",
+  },
+  {
+    title: "Webflow Masterclass: Build Complex Websites Without Coding",
+    instructor: "Michael Thompson",
+    rating: 4.9,
+    reviewCount: 2356,
+    price: 24.99,
+    originalPrice: 129.99,
+    image: "/placeholder.svg?height=160&width=240",
+  },
+  {
+    title: "Responsive Web Design: Principles and Best Practices",
+    instructor: "Jennifer Lee",
+    rating: 4.6,
+    reviewCount: 987,
+    price: 16.99,
+    originalPrice: 89.99,
+    image: "/placeholder.svg?height=160&width=240",
+  },
+]
+

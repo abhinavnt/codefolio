@@ -1,4 +1,5 @@
 export interface Course {
+  _id:string;
   title: string;
   description: string;
   category: string;
@@ -10,6 +11,9 @@ export interface Course {
   enrolledStudents: string[] 
   status: "draft" | "published" | "archived"; 
   tags: string[]; 
+  learningPoints:string[];
+  targetedAudience:string[];
+  courseRequirements:string[];
   createdAt: Date;
   updatedAt: Date;
   }

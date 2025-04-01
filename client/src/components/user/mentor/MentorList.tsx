@@ -13,7 +13,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"; // Import ShadCN Pagination components
+} from "@/components/ui/pagination";
 import { FilterSidebar } from "./Filter-sidebar";
 import { MentorCard } from "./Mentor-card";
 import { fetchMentors } from "@/redux/features/MentorSlice";

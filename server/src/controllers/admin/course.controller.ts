@@ -14,7 +14,7 @@ export class CourseController implements ICourseController {
 
 
   addCourse=asyncHandler(async(req: Request, res: Response): Promise<void> =>{
-    console.log('add course controller vannitund');
+    console.log('add course controller vannitund',req.body);
 
       const {
         title,
@@ -23,7 +23,10 @@ export class CourseController implements ICourseController {
         level,
         price,
         duration,
-        modules
+        modules,
+        learningPoints,
+        targetedAudience,
+        courseRequirements
       } = req.body;
 
     console.log(req.body);
@@ -58,7 +61,7 @@ export class CourseController implements ICourseController {
 
             const parsedModules = modules ? JSON.parse(modules) : [];
 
-            const courseData = {title,description,category, level, price, duration, image,modules:parsedModules,};
+            const courseData = {title,description,category, level, price, duration, image,modules:parsedModules,learningPoints,targetedAudience,courseRequirements};
             
              const newCourse = await this.courseService.addCourse(courseData);
 

@@ -1,12 +1,20 @@
 import { Star, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Course } from "@/types/course";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface CourseCardProps {
   course: Course;
 }
 
 export default function CourseCard({ course }: CourseCardProps) {
+
+  const navigate = useNavigate(); // Hook for navigation
+
+  const handleViewDetails = () => {
+    navigate(`/courses/${course._id}`); // Navigate to details page with course ID
+  };
   return (
     <div className="group border rounded-lg overflow-hidden flex flex-col hover:shadow-md transition-shadow">
       <div className="relative h-40 w-full overflow-hidden">
@@ -37,13 +45,16 @@ export default function CourseCard({ course }: CourseCardProps) {
 
           <div className="flex items-center gap-1">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">
+            {/* <span className="text-xs text-muted-foreground">
               {course.description}
-            </span>
+            </span> */}
           </div>
         </div>
 
         <div className="mt-3 font-bold text-primary">${course.price}</div>
+        <Button className="mt-4 w-full hover:bg-emerald-500" variant="outline" onClick={handleViewDetails}>
+          View Details
+        </Button>
       </div>
     </div>
   );

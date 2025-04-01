@@ -12,6 +12,7 @@ import { DotLoading } from "./components/user/common/Loading";
 import NotFound from "./pages/error/NotFound";
 import { AdminRoutes } from "./routes/AdminRoutes";
 import Mentors from "./pages/user/Mentor";
+import CourseDetails from "./pages/user/CourseDetails";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -64,7 +65,7 @@ function App() {
 
 
                <Route path="/" element={<Home />} />
-
+               <Route path="/courses/:id" element={<CourseDetails/>}/>
               {/* Protected routes of users */}
               <Route element={<ProtectedRoute role="user" />}>
                 <Route path="/profile" element={<LazyUserProfile />} />
