@@ -8,7 +8,6 @@ import { TYPES } from '../../di/types';
 import { IUserService } from '../../core/interfaces/service/IUserService';
 import asyncHandler from "express-async-handler";
 import { ParamsDictionary } from 'express-serve-static-core';
-import { ParsedQs } from 'qs';
 // const UserService = new userService();
 
 injectable()

@@ -10,7 +10,7 @@ const CourseDetails = () => {
   return (
     <div>
         <Navbar/>
-        <div className="container mx-auto px-10 top-0 py-25">
+        <div className="container mx-auto px-10 top-0 py-15">
         <CourseDetail/>
         </div>
         <Footer/>

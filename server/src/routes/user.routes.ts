@@ -8,6 +8,8 @@ import { IUserController } from "../core/interfaces/controller/IUserController";
 import { TYPES } from "../di/types";
 import { IMentorReqController } from "../core/interfaces/controller/IMentorReqController";
 import { IMentorController } from "../core/interfaces/controller/IMentorController";
+import { ICourseController } from "../core/interfaces/controller/ICourseController";
+import { Types } from "mongoose";
 
 
 const router = express.Router();
@@ -18,6 +20,8 @@ const userController =container.get<IUserController>(TYPES.UserController)
 const mentorReqController=container.get<IMentorReqController>(TYPES.MentorReqController)
 
 const MentorController=container.get<IMentorController>(TYPES.MentorController)
+
+const courseController=container.get<ICourseController>(TYPES.CourseController)
 
 router.use(authMiddleware);
 
@@ -34,5 +38,7 @@ router.get('/notifications',userController.getNotifications)
 router.post('/change-password',userController.changePassword)
 
 router.get('/getAllMentors',MentorController.getAllMentors)
+
+router.get('/course/:id',courseController.getCourseById)
 
 export default router

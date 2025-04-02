@@ -71,4 +71,23 @@ export class CourseController implements ICourseController {
       });
   
   })
+
+  getCourseById=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    console.log('reached the course controller');
+    
+          const courseId=req.params.id
+          console.log(courseId,"course id from getcoursebyid");
+           
+          if(!courseId){
+         res.status(400).json({ message: 'course id is required'})
+          }
+
+      const course=await this.courseService.getCourseById(courseId)
+      console.log(course,"course chance und");
+      
+      res.status(200).json({course,message:"got the course"})
+
+  })
+
+
 }

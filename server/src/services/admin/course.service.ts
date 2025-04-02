@@ -115,4 +115,23 @@ export class courseService implements ICourseService {
       throw new Error(`Error creating course and tasks: ${error.message}`);
     }
   }
+
+
+
+  async getCourseById(courseId: string): Promise<ICourse | null> {
+      try {
+        console.log('get course by id serviceil ethitunf ');
+        
+        const course= await this.courseRepository.getCourseByID(courseId)
+
+        console.log(course,"course response from getcourseby id service");
+        
+        return course
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+  }
+
+
+
 }

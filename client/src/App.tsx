@@ -13,6 +13,11 @@ import NotFound from "./pages/error/NotFound";
 import { AdminRoutes } from "./routes/AdminRoutes";
 import Mentors from "./pages/user/Mentor";
 import CourseDetails from "./pages/user/CourseDetails";
+import CheckoutPage from "./pages/user/CheckOut";
+// import SuccessPage from "./pages/user/PaymentSuccess";
+import PaymentProcessingPage from "./pages/user/PaymentProccessing";
+import PaymentSuccessPage from "./pages/user/PaymentSuccess";
+import PaymentCancelPage from "./pages/user/PaymentCancellation";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -62,16 +67,18 @@ function App() {
 
               
               <Route path="/reset-password" element={<LazyResetPasswordPage />} />
-
-
                <Route path="/" element={<Home />} />
                <Route path="/courses/:id" element={<CourseDetails/>}/>
+                <Route path="/courses" element={<LazyCourseDisplay />} />
               {/* Protected routes of users */}
               <Route element={<ProtectedRoute role="user" />}>
                 <Route path="/profile" element={<LazyUserProfile />} />
-                <Route path="/courses" element={<LazyCourseDisplay />} />
                 <Route path="/mentor-application" element={<LazyMentorApplicationPage />} />
                 <Route path="/mentors" element={<Mentors/>}/>
+                <Route path="/checkout/:id" element={<CheckoutPage/>}/>
+                <Route path="/payment/success" element={<PaymentProcessingPage/>}/>
+                <Route path="/payment/successfully" element={<PaymentSuccessPage/>}/>
+                <Route path="/payment/cancel" element={<PaymentCancelPage/>}/>
               </Route>
 
                

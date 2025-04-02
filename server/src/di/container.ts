@@ -36,6 +36,14 @@ import { IMentorService } from "../core/interfaces/service/IMentorService";
 import { MentorService } from "../services/mentor/mentor.service";
 import { IMentorController } from "../core/interfaces/controller/IMentorController";
 import { MentorController } from "../controllers/mentor/mentor.controller";
+import { IPaymentRepository } from "../core/interfaces/repository/IPaymentRepository";
+import { PaymentRepository } from "../repositories/payment.repository";
+import { ITaskRepository } from "../core/interfaces/repository/ITaskRepository";
+import { TaskRepository } from "../repositories/task.repository";
+import { IPaymentService } from "../core/interfaces/service/IPaymentService";
+import { PaymentService } from "../services/user/payment.service";
+import { IPaymentController } from "../core/interfaces/controller/IPaymentController";
+import { PaymentController } from "../controllers/user/payment.controller";
 
 
 
@@ -70,6 +78,14 @@ container.bind<ICourseRepository>(TYPES.CourseRepository).to(courseRepository)
 container.bind<IMentorController>(TYPES.MentorController).to(MentorController)
 container.bind<IMentorService>(TYPES.MentorService).to(MentorService)
 container.bind<IMentorRepository>(TYPES.MentorRepository).to(mentorRepository)
+
+
+container.bind<ITaskRepository>(TYPES.TaskRepository).to(TaskRepository)
+
+
+container.bind<IPaymentController>(TYPES.PaymentController).to(PaymentController)
+container.bind<IPaymentService>(TYPES.PaymentService).to(PaymentService)
+container.bind<IPaymentRepository>(TYPES.PaymentRepository).to(PaymentRepository)
 
 
 

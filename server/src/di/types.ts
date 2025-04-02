@@ -8,6 +8,8 @@ export const TYPES={
     MentorReqRepository:Symbol.for('MentorReqRepository'),
     CourseRepository:Symbol.for('CourseRepository'),
     AdminRepository:Symbol.for('ADminRepository'),
+    PaymentRepository:Symbol.for('PaymentRepository'),
+    TaskRepository:Symbol.for('TaskRepository'),
 
 
     //services
@@ -17,6 +19,7 @@ export const TYPES={
     MentorReqService:Symbol.for('MentorReqService'),
     UserService:Symbol.for('UserService'),
     MentorService:Symbol.for('MentorService'),
+    PaymentService:Symbol.for('PaymentService'),
 
 
     //Controllers
@@ -25,6 +28,7 @@ export const TYPES={
     AuthController:Symbol.for('AuthController'),
     AdminController:Symbol.for('AdminController'),
     CourseController:Symbol.for('CourseController'),
-    MentorController:Symbol.for('MentorController')
+    MentorController:Symbol.for('MentorController'),
+    PaymentController:Symbol.for('PaymentController')
 
 }

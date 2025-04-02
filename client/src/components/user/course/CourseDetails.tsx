@@ -39,6 +39,10 @@ export default function CourseDetail() {
         )
       }
 
+      const handleEnrollNow = () => {
+        navigate(`/checkout/${course._id}`); 
+      };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Button variant="ghost" className="mb-6 flex items-center gap-2" onClick={() => navigate("/courses")}>
@@ -273,7 +277,7 @@ export default function CourseDetail() {
                   <Badge className="bg-emerald-500 hover:bg-emerald-600">10% off</Badge>
                 </div>
 
-                <Button className="w-full mb-4 bg-emerald-500 hover:bg-emerald-600">Enroll Now</Button>
+                <Button onClick={handleEnrollNow} className="w-full mb-4 bg-emerald-500 hover:bg-emerald-600">Enroll Now</Button>
 
                 <p className="text-sm text-gray-500 text-center mb-6">30-day money-back guarantee</p>
 
@@ -364,7 +368,7 @@ export default function CourseDetail() {
               </div>
             </Card>
 
-            <div className="">
+            <div className="sticky">
               <RelatedCourses />
             </div>
 
