@@ -18,6 +18,7 @@ import CheckoutPage from "./pages/user/CheckOut";
 import PaymentProcessingPage from "./pages/user/PaymentProccessing";
 import PaymentSuccessPage from "./pages/user/PaymentSuccess";
 import PaymentCancelPage from "./pages/user/PaymentCancellation";
+import MentorProfilePage from "./pages/user/MentorProfilePage";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -79,6 +80,7 @@ function App() {
                 <Route path="/payment/success" element={<PaymentProcessingPage/>}/>
                 <Route path="/payment/successfully" element={<PaymentSuccessPage/>}/>
                 <Route path="/payment/cancel" element={<PaymentCancelPage/>}/>
+                <Route path="/mentor/:username" element={<MentorProfilePage/>}/>
               </Route>
 
                

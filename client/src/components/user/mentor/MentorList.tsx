@@ -1,4 +1,3 @@
-"use client";
 
 import type React from "react";
 import { useState, useEffect } from "react";
@@ -32,6 +31,7 @@ export default function MentorListing() {
   }>({});
 
   useEffect(() => {
+    
     dispatch(fetchMentors({ page: pagination.page, search: searchQuery, filters }));
 
     const handleResize = () => {
@@ -115,6 +115,7 @@ export default function MentorListing() {
                   reviews: mentor.reviewTakenCount || 0,
                   imageUrl: mentor.profileImage || "/placeholder.svg",
                   expertise: mentor.title?.[0] || "Mentor",
+                  username:mentor.username||"mentor"
                 }}
               />
             ))}

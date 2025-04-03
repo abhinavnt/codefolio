@@ -40,6 +40,12 @@ export class mentorRepository implements IMentorRepository{
     }
 
 
+    async findByUsername(username: string): Promise<IMentor | null> {
+        return await Mentor.findOne({username}).lean()
+    }
+
+
+
 }
 
 

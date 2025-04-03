@@ -29,4 +29,16 @@ export class MentorController implements IMentorController{
 
         res.status(200).json({success:true,data:mentors,pagination:{page,limit,total,totalPage:Math.ceil(total/limit)}})
     })
+
+    getMentorProfile=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+     const {username}=req.params
+     const mentor= await this.mentorService.getMentorProfile(username)
+
+     if (!mentor) {
+        res.status(404).json({ message: 'Mentor not found' });
+        return;
+      }
+      res.status(200).json(mentor);
+    })
+
 }

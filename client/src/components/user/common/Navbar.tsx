@@ -150,6 +150,7 @@ const Navbar: React.FC = () => {
                 </Button>
               </>
             )}
+            <ModeToggle/>
           </div>
 
           {/* Mobile Menu Button */}

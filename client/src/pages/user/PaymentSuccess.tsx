@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -14,7 +14,7 @@ export default function PaymentSuccessPage() {
   const courseName = searchParams.get("course_name") || "your course";
 
   useEffect(() => {
-    // Removed confetti effect as requested
+    
   }, []);
 
   return (

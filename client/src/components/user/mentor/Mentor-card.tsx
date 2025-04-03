@@ -12,6 +12,7 @@ interface MentorCardProps {
     imageUrl: string
     backgroundColor?: string
     expertise?: string
+    username:string
   }
 }
 
@@ -53,7 +54,7 @@ export function MentorCard({ mentor }: MentorCardProps) {
             className="w-full hover:bg-emerald-500"
             asChild
           >
-            <a href={`/mentor/${mentor.id}`}>See Profile</a>
+            <a href={`/mentor/${mentor.username}`}>See Profile</a>
           </Button>
         </div>
       </div>
