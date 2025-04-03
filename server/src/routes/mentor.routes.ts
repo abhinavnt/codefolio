@@ -15,6 +15,8 @@ router.use(authMiddleware);
 
 router.get('/:username',mentorController.getMentorProfile)
 
+router.post('/verify',mentorController.verifyMentor)
+
 
 
 

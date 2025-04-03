@@ -5,6 +5,7 @@ import authReducer from "./features/auth/AuthSlice"
 import notificationsReduce from "./features/NotificationSlice"
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import mentorReducer from './features/MentorSlice'
+import mentorVerifyReducer from './features/auth/MentorVerify'
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     auth:authReducer,
     notifications: notificationsReduce,
     mentors:mentorReducer,
+    mentor:mentorVerifyReducer
   },
 })
 
