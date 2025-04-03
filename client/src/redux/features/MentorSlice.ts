@@ -1,9 +1,7 @@
 import { IMentor } from "@/types/mentor";
 import axiosInstance from "@/utils/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { stat } from "fs";
-import { act } from "react";
-import { number } from "zod";
+
 
 
 

@@ -41,4 +41,20 @@ export class MentorController implements IMentorController{
       res.status(200).json(mentor);
     })
 
+
+    verifyMentor= asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+
+      const userId = String(req.user?._id);
+
+      if (!userId) {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+        return;
+      }
+
+      const mentor= await this.mentorService.verifyMentor(userId)
+
+      res.status(200).json({success:true,message:'Mentor verified successfully',data:mentor})
+
+    })
+
 }

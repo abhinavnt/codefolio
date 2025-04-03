@@ -342,6 +342,7 @@ const MentorApplicationPage: React.FC = () => {
                             disabled={(date: Date) => date > new Date() || date < new Date("1900-01-01")}
                             initialFocus
                           />
+                          
                         </PopoverContent>
                       </Popover>
                       <FormMessage />
