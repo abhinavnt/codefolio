@@ -34,8 +34,8 @@ interface IMentor{
     twitter?: string;
     instagram?: string;
     status: "active" | "inactive";
-    submittedAt: Date;
-    updatedAt?: Date;
+    // submittedAt: Date;
+    // updatedAt?: Date;
     availableTimeSlots?: IAvailableTimeSlot[];
     title?: string;
     reviewTakenCount?: number;
@@ -65,6 +65,21 @@ export interface MentorState {
       }
     }
   );
+
+  export const updateMentorProfile = createAsyncThunk(
+    "mentor/updateProfile",
+    async (mentorData: FormData, { rejectWithValue }) => {
+      try {
+        const response = await axiosInstance.put(`api/mentor/profile`, mentorData, {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" }
+        })
+        return response.data.data
+      } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || "Failed to update mentor profile")
+      }
+    },
+  )
 
 
 

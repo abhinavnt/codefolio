@@ -6,6 +6,8 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IMentorService } from "../../core/interfaces/service/IMentorService";
 import asyncHandler from "express-async-handler";
+import cloudinary from "../../config/cloudinary";
+import { IMentor } from "../../models/Mentor";
 
 
 
@@ -56,5 +58,113 @@ export class MentorController implements IMentorController{
       res.status(200).json({success:true,message:'Mentor verified successfully',data:mentor})
 
     })
+
+    updateProfile=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+
+      const userId = String(req.user?._id);
+
+      console.log(userId,"user id from updaaaaatementor");
+      if (!userId) throw new Error("Unauthorized")
+
+        const {
+          name,
+          username,
+          email,
+          phoneNumber,
+          dateOfBirth,
+          yearsOfExperience,
+          currentCompany,
+          currentRole,
+          durationAtCompany,
+          technicalSkills,
+          primaryLanguage,
+          bio,
+          linkedin,
+          github,
+          twitter,
+          instagram,
+          status,
+          title,
+          location,
+        } = req.body
+
+        let profileImageUrl = ""
+    let resumeUrl = ""
+
+  
+    
+
+    if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).profileImage) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+      console.log("Uploading profile image to Cloudinary...")
+
+      profileImageUrl = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "mentor_profiles" }, (error, result) => {
+            if (error) {
+              console.error("Cloudinary upload error (profile image):", error)
+              reject(error)
+            } else if (result) {
+              resolve(result.secure_url)
+            }
+          })
+          .end(files.profileImage[0].buffer)
+      })
+    }
+
+    // Handle resume upload to Cloudinary
+    if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).resume) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+      console.log("Uploading resume to Cloudinary...")
+
+      resumeUrl = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "mentor_resumes" }, (error, result) => {
+            if (error) {
+              console.error("Cloudinary upload error (resume):", error)
+              reject(error)
+            } else if (result) {
+              resolve(result.secure_url)
+            }
+          })
+          .end(files.resume[0].buffer)
+      })
+    }
+
+    // Prepare mentor data
+    const mentorData: Partial<IMentor> = {
+      profileImage: profileImageUrl || undefined,
+      name,
+      username,
+      email,
+      phoneNumber,
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+      yearsOfExperience: yearsOfExperience ? Number(yearsOfExperience) : undefined,
+      currentCompany,
+      currentRole,
+      durationAtCompany,
+      resume: resumeUrl || undefined,
+      technicalSkills: technicalSkills ? JSON.parse(technicalSkills) : undefined,
+      primaryLanguage,
+      bio,
+      linkedin,
+      github,
+      twitter,
+      instagram,
+      status: status as "active" | "inactive",
+      title,
+      location,
+    }
+    console.log(mentorData,"mentor data from conatroler");
+    
+    console.log('gone to service');
+     
+        const updatedMentor = await this.mentorService.updateMentorProfile(userId,mentorData)
+      res.status(200).json({ success: true, data: updatedMentor })
+    })
+
+
+
+
 
 }

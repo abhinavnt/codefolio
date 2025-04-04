@@ -51,7 +51,7 @@ export function MentorDashboard() {
 
   return (
     <div className="min-h-screen bg-secondary">
-      <Navbar mentor={mentor} />
+      <Navbar  />
       <div className="container mx-auto px-4 pt-20 pb-10">
         <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 md:grid-cols-8 mb-8">
@@ -74,7 +74,7 @@ export function MentorDashboard() {
             <ConductedReviews />
           </TabsContent>
           <TabsContent value="profile">
-            <ProfileSettings mentor={mentor} updateMentor={updateMentor} />
+            <ProfileSettings />
           </TabsContent>
           <TabsContent value="availability">
             <Availability />

@@ -11,15 +11,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import type { IMentor } from "@/types/mentor"
+// import type { IMentor } from "@/types/mentor"
 import { ModeToggle } from "../theme/mode-toggle"
+import { RootState, useAppSelector } from "@/redux/store"
 
-interface NavbarProps {
-  mentor: IMentor
-}
+// interface NavbarProps {
+//   mentor: IMentor
+// }
 
-export function Navbar({ mentor }: NavbarProps) {
+export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+ const { mentor } = useAppSelector((state: RootState) => state.mentor);
+
+ if(!mentor){
+  return <div>no mentor found</div>
+ }
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
