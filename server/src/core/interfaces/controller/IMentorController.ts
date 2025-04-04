@@ -9,4 +9,5 @@ export interface IMentorController{
     getAllMentors:RequestHandler
     getMentorProfile:RequestHandler
     verifyMentor:RequestHandler
+    updateProfile:RequestHandler
 }
