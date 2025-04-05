@@ -37,7 +37,7 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-emerald-500">MentorHub</h1>
+            <h1 className="text-xl font-bold text-emerald-500">Codefolio</h1>
           </div>
 
           {/* Mobile menu button */}

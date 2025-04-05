@@ -14,14 +14,16 @@ const mentorController=container.get<IMentorController>(TYPES.MentorController)
 
 router.use(authMiddleware);
 
-router.get('/:username',mentorController.getMentorProfile)
+
 
 router.post('/verify',mentorController.verifyMentor)
 
 router.put("/profile",upload.fields([{ name: "profileImage", maxCount: 1 }, { name: "resume", maxCount: 1 }]),mentorController.updateProfile.bind(mentorController))
 
+router.get('/getAvailability',mentorController.getAvailability)
 
+router.put('/availability',mentorController.updateAvailability)
 
-
+router.get('/:username',mentorController.getMentorProfile)  
 
 export default router

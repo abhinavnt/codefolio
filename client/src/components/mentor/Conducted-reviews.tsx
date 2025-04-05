@@ -218,225 +218,226 @@ export function ConductedReviews() {
     activeTab === "all" ? dummyConductedReviews : dummyConductedReviews.filter((review) => review.status === activeTab)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Conducted Reviews</CardTitle>
-        <CardDescription>Past mentoring sessions and student feedback</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
-            <TabsTrigger value="no-show">No Show</TabsTrigger>
-            <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
-          </TabsList>
-        </Tabs>
+    <div>comming soon</div>
+    // <Card>
+    //   <CardHeader>
+    //     <CardTitle>Conducted Reviews</CardTitle>
+    //     <CardDescription>Past mentoring sessions and student feedback</CardDescription>
+    //   </CardHeader>
+    //   <CardContent>
+    //     <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
+    //       <TabsList>
+    //         <TabsTrigger value="all">All</TabsTrigger>
+    //         <TabsTrigger value="completed">Completed</TabsTrigger>
+    //         <TabsTrigger value="no-show">No Show</TabsTrigger>
+    //         <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
+    //       </TabsList>
+    //     </Tabs>
 
-        <div className="space-y-4">
-          {filteredReviews.map((review) => (
-            <div
-              key={review.id}
-              className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-start gap-4 mb-4 md:mb-0">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={review.student.avatar} alt={review.student.name} />
-                  <AvatarFallback>{review.student.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium">{review.student.name}</h3>
-                    {getStatusBadge(review.status)}
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {review.student.jobTitle} at {review.student.company}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
-                    <div className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>{review.date}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>
-                        {review.time} ({review.duration})
-                      </span>
-                    </div>
-                    {review.score && (
-                      <div className="flex items-center">
-                        <Star className="h-3 w-3 mr-1 text-amber-500 fill-amber-500" />
-                        <span>{review.score}/5</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+    //     <div className="space-y-4">
+    //       {filteredReviews.map((review) => (
+    //         <div
+    //           key={review.id}
+    //           className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+    //         >
+    //           <div className="flex items-start gap-4 mb-4 md:mb-0">
+    //             <Avatar className="h-10 w-10">
+    //               <AvatarImage src={review.student.avatar} alt={review.student.name} />
+    //               <AvatarFallback>{review.student.name.charAt(0)}</AvatarFallback>
+    //             </Avatar>
+    //             <div>
+    //               <div className="flex items-center gap-2">
+    //                 <h3 className="font-medium">{review.student.name}</h3>
+    //                 {getStatusBadge(review.status)}
+    //               </div>
+    //               <p className="text-sm text-gray-500">
+    //                 {review.student.jobTitle} at {review.student.company}
+    //               </p>
+    //               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
+    //                 <div className="flex items-center">
+    //                   <Calendar className="h-3 w-3 mr-1" />
+    //                   <span>{review.date}</span>
+    //                 </div>
+    //                 <div className="flex items-center">
+    //                   <Clock className="h-3 w-3 mr-1" />
+    //                   <span>
+    //                     {review.time} ({review.duration})
+    //                   </span>
+    //                 </div>
+    //                 {review.score && (
+    //                   <div className="flex items-center">
+    //                     <Star className="h-3 w-3 mr-1 text-amber-500 fill-amber-500" />
+    //                     <span>{review.score}/5</span>
+    //                   </div>
+    //                 )}
+    //               </div>
+    //             </div>
+    //           </div>
 
-              <div className="flex items-center gap-2 self-end md:self-auto">
-                <Button variant="outline" size="sm" onClick={() => handleViewDetails(review)}>
-                  Details
-                </Button>
-                {review.status === "completed" && (
-                  <Button
-                    size="sm"
-                    className="bg-emerald-500 hover:bg-emerald-600"
-                    onClick={() => handleEditFeedback(review)}
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    {review.feedback ? "Edit Feedback" : "Add Feedback"}
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
+    //           <div className="flex items-center gap-2 self-end md:self-auto">
+    //             <Button variant="outline" size="sm" onClick={() => handleViewDetails(review)}>
+    //               Details
+    //             </Button>
+    //             {review.status === "completed" && (
+    //               <Button
+    //                 size="sm"
+    //                 className="bg-emerald-500 hover:bg-emerald-600"
+    //                 onClick={() => handleEditFeedback(review)}
+    //               >
+    //                 <Edit className="h-4 w-4 mr-1" />
+    //                 {review.feedback ? "Edit Feedback" : "Add Feedback"}
+    //               </Button>
+    //             )}
+    //           </div>
+    //         </div>
+    //       ))}
+    //     </div>
+    //   </CardContent>
 
-      {/* Review Details Dialog */}
-      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Review Details</DialogTitle>
-            <DialogDescription>Information about the conducted review session</DialogDescription>
-          </DialogHeader>
+    //   {/* Review Details Dialog */}
+    //   <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+    //     <DialogContent className="sm:max-w-md">
+    //       <DialogHeader>
+    //         <DialogTitle>Review Details</DialogTitle>
+    //         <DialogDescription>Information about the conducted review session</DialogDescription>
+    //       </DialogHeader>
 
-          {selectedReview && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={selectedReview.student.avatar} alt={selectedReview.student.name} />
-                  <AvatarFallback>{selectedReview.student.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-medium">{selectedReview.student.name}</h3>
-                  <p className="text-sm text-gray-500">{selectedReview.student.email}</p>
-                  <p className="text-sm text-gray-500">
-                    {selectedReview.student.jobTitle} at {selectedReview.student.company}
-                  </p>
-                </div>
-              </div>
+    //       {selectedReview && (
+    //         <div className="space-y-4">
+    //           <div className="flex items-center gap-4">
+    //             <Avatar className="h-12 w-12">
+    //               <AvatarImage src={selectedReview.student.avatar} alt={selectedReview.student.name} />
+    //               <AvatarFallback>{selectedReview.student.name.charAt(0)}</AvatarFallback>
+    //             </Avatar>
+    //             <div>
+    //               <h3 className="font-medium">{selectedReview.student.name}</h3>
+    //               <p className="text-sm text-gray-500">{selectedReview.student.email}</p>
+    //               <p className="text-sm text-gray-500">
+    //                 {selectedReview.student.jobTitle} at {selectedReview.student.company}
+    //               </p>
+    //             </div>
+    //           </div>
 
-              <div className="space-y-2 border-t pt-4">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Date & Time:</span>
-                  <span className="text-sm">
-                    {selectedReview.date} at {selectedReview.time} ({selectedReview.duration})
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Review Type:</span>
-                  <span className="text-sm">{getTypeLabel(selectedReview.type)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Status:</span>
-                  <span className="text-sm">
-                    {selectedReview.status.charAt(0).toUpperCase() + selectedReview.status.slice(1)}
-                  </span>
-                </div>
-                <div className="pt-2">
-                  <span className="text-sm font-medium">Topic:</span>
-                  <p className="text-sm mt-1">{selectedReview.topic}</p>
-                </div>
+    //           <div className="space-y-2 border-t pt-4">
+    //             <div className="flex justify-between">
+    //               <span className="text-sm font-medium">Date & Time:</span>
+    //               <span className="text-sm">
+    //                 {selectedReview.date} at {selectedReview.time} ({selectedReview.duration})
+    //               </span>
+    //             </div>
+    //             <div className="flex justify-between">
+    //               <span className="text-sm font-medium">Review Type:</span>
+    //               <span className="text-sm">{getTypeLabel(selectedReview.type)}</span>
+    //             </div>
+    //             <div className="flex justify-between">
+    //               <span className="text-sm font-medium">Status:</span>
+    //               <span className="text-sm">
+    //                 {selectedReview.status.charAt(0).toUpperCase() + selectedReview.status.slice(1)}
+    //               </span>
+    //             </div>
+    //             <div className="pt-2">
+    //               <span className="text-sm font-medium">Topic:</span>
+    //               <p className="text-sm mt-1">{selectedReview.topic}</p>
+    //             </div>
 
-                {selectedReview.status === "completed" && (
-                  <>
-                    <div className="flex justify-between pt-2">
-                      <span className="text-sm font-medium">Score:</span>
-                      <span className="text-sm flex items-center">
-                        {selectedReview.score ? (
-                          <>
-                            {selectedReview.score}/5
-                            <Star className="h-3 w-3 ml-1 text-amber-500 fill-amber-500" />
-                          </>
-                        ) : (
-                          "Not rated"
-                        )}
-                      </span>
-                    </div>
+    //             {selectedReview.status === "completed" && (
+    //               <>
+    //                 <div className="flex justify-between pt-2">
+    //                   <span className="text-sm font-medium">Score:</span>
+    //                   <span className="text-sm flex items-center">
+    //                     {selectedReview.score ? (
+    //                       <>
+    //                         {selectedReview.score}/5
+    //                         <Star className="h-3 w-3 ml-1 text-amber-500 fill-amber-500" />
+    //                       </>
+    //                     ) : (
+    //                       "Not rated"
+    //                     )}
+    //                   </span>
+    //                 </div>
 
-                    {selectedReview.feedback && (
-                      <div className="pt-2">
-                        <span className="text-sm font-medium">Feedback:</span>
-                        <p className="text-sm mt-1 bg-gray-50 p-3 rounded-md">{selectedReview.feedback}</p>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+    //                 {selectedReview.feedback && (
+    //                   <div className="pt-2">
+    //                     <span className="text-sm font-medium">Feedback:</span>
+    //                     <p className="text-sm mt-1 bg-gray-50 p-3 rounded-md">{selectedReview.feedback}</p>
+    //                   </div>
+    //                 )}
+    //               </>
+    //             )}
+    //           </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                {selectedReview.status === "completed" && (
-                  <Button
-                    className="bg-emerald-500 hover:bg-emerald-600"
-                    onClick={() => {
-                      setIsDetailsOpen(false)
-                      handleEditFeedback(selectedReview)
-                    }}
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    {selectedReview.feedback ? "Edit Feedback" : "Add Feedback"}
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+    //           <div className="flex justify-end gap-2 pt-2">
+    //             {selectedReview.status === "completed" && (
+    //               <Button
+    //                 className="bg-emerald-500 hover:bg-emerald-600"
+    //                 onClick={() => {
+    //                   setIsDetailsOpen(false)
+    //                   handleEditFeedback(selectedReview)
+    //                 }}
+    //               >
+    //                 <Edit className="h-4 w-4 mr-1" />
+    //                 {selectedReview.feedback ? "Edit Feedback" : "Add Feedback"}
+    //               </Button>
+    //             )}
+    //           </div>
+    //         </div>
+    //       )}
+    //     </DialogContent>
+    //   </Dialog>
 
-      {/* Feedback Dialog */}
-      <Dialog open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{selectedReview?.feedback ? "Edit Feedback" : "Add Feedback"}</DialogTitle>
-            <DialogDescription>
-              {selectedReview &&
-                `For ${selectedReview.student.name}'s ${getTypeLabel(selectedReview.type).toLowerCase()} on ${selectedReview.date}`}
-            </DialogDescription>
-          </DialogHeader>
+    //   {/* Feedback Dialog */}
+    //   <Dialog open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
+    //     <DialogContent className="sm:max-w-md">
+    //       <DialogHeader>
+    //         <DialogTitle>{selectedReview?.feedback ? "Edit Feedback" : "Add Feedback"}</DialogTitle>
+    //         <DialogDescription>
+    //           {selectedReview &&
+    //             `For ${selectedReview.student.name}'s ${getTypeLabel(selectedReview.type).toLowerCase()} on ${selectedReview.date}`}
+    //         </DialogDescription>
+    //       </DialogHeader>
 
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="score">Score (1-5)</Label>
-              <div className="flex items-center gap-2">
-                {[1, 2, 3, 4, 5].map((score) => (
-                  <Button
-                    key={score}
-                    type="button"
-                    variant={editScore === score ? "default" : "outline"}
-                    size="sm"
-                    className={editScore === score ? "bg-emerald-500 hover:bg-emerald-600" : ""}
-                    onClick={() => setEditScore(score)}
-                  >
-                    {score}
-                  </Button>
-                ))}
-              </div>
-            </div>
+    //       <div className="space-y-4 py-2">
+    //         <div className="space-y-2">
+    //           <Label htmlFor="score">Score (1-5)</Label>
+    //           <div className="flex items-center gap-2">
+    //             {[1, 2, 3, 4, 5].map((score) => (
+    //               <Button
+    //                 key={score}
+    //                 type="button"
+    //                 variant={editScore === score ? "default" : "outline"}
+    //                 size="sm"
+    //                 className={editScore === score ? "bg-emerald-500 hover:bg-emerald-600" : ""}
+    //                 onClick={() => setEditScore(score)}
+    //               >
+    //                 {score}
+    //               </Button>
+    //             ))}
+    //           </div>
+    //         </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="feedback">Feedback</Label>
-              <Textarea
-                id="feedback"
-                value={editFeedback}
-                onChange={(e) => setEditFeedback(e.target.value)}
-                placeholder="Provide detailed feedback about the session..."
-                rows={6}
-              />
-            </div>
-          </div>
+    //         <div className="space-y-2">
+    //           <Label htmlFor="feedback">Feedback</Label>
+    //           <Textarea
+    //             id="feedback"
+    //             value={editFeedback}
+    //             onChange={(e) => setEditFeedback(e.target.value)}
+    //             placeholder="Provide detailed feedback about the session..."
+    //             rows={6}
+    //           />
+    //         </div>
+    //       </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsFeedbackOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveFeedback} className="bg-emerald-500 hover:bg-emerald-600">
-              Save Feedback
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
+    //       <DialogFooter>
+    //         <Button variant="outline" onClick={() => setIsFeedbackOpen(false)}>
+    //           Cancel
+    //         </Button>
+    //         <Button onClick={handleSaveFeedback} className="bg-emerald-500 hover:bg-emerald-600">
+    //           Save Feedback
+    //         </Button>
+    //       </DialogFooter>
+    //     </DialogContent>
+    //   </Dialog>
+    // </Card>
   )
 }
 

@@ -178,138 +178,139 @@ export function UpcomingReviews() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Upcoming Reviews</CardTitle>
-        <CardDescription>Your scheduled mentoring sessions and reviews</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {dummyUpcomingReviews.map((review) => (
-            <div
-              key={review.id}
-              className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-start gap-4 mb-4 md:mb-0">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={review.student.avatar} alt={review.student.name} />
-                  <AvatarFallback>{review.student.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium">{review.student.name}</h3>
-                    {getStatusBadge(review.status)}
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {review.student.jobTitle} at {review.student.company}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
-                    <div className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>{review.date}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>
-                        {review.time} ({review.duration})
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      {getTypeIcon(review.type)}
-                      <span className="ml-1">{getTypeLabel(review.type)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    <div>comming soon</div>
+    // <Card>
+    //   <CardHeader>
+    //     <CardTitle>Upcoming Reviews</CardTitle>
+    //     <CardDescription>Your scheduled mentoring sessions and reviews</CardDescription>
+    //   </CardHeader>
+    //   <CardContent>
+    //     <div className="space-y-4">
+    //       {dummyUpcomingReviews.map((review) => (
+    //         <div
+    //           key={review.id}
+    //           className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+    //         >
+    //           <div className="flex items-start gap-4 mb-4 md:mb-0">
+    //             <Avatar className="h-10 w-10">
+    //               <AvatarImage src={review.student.avatar} alt={review.student.name} />
+    //               <AvatarFallback>{review.student.name.charAt(0)}</AvatarFallback>
+    //             </Avatar>
+    //             <div>
+    //               <div className="flex items-center gap-2">
+    //                 <h3 className="font-medium">{review.student.name}</h3>
+    //                 {getStatusBadge(review.status)}
+    //               </div>
+    //               <p className="text-sm text-gray-500">
+    //                 {review.student.jobTitle} at {review.student.company}
+    //               </p>
+    //               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
+    //                 <div className="flex items-center">
+    //                   <Calendar className="h-3 w-3 mr-1" />
+    //                   <span>{review.date}</span>
+    //                 </div>
+    //                 <div className="flex items-center">
+    //                   <Clock className="h-3 w-3 mr-1" />
+    //                   <span>
+    //                     {review.time} ({review.duration})
+    //                   </span>
+    //                 </div>
+    //                 <div className="flex items-center">
+    //                   {getTypeIcon(review.type)}
+    //                   <span className="ml-1">{getTypeLabel(review.type)}</span>
+    //                 </div>
+    //               </div>
+    //             </div>
+    //           </div>
 
-              <div className="flex items-center gap-2 self-end md:self-auto">
-                <Button variant="outline" size="sm" onClick={() => handleViewDetails(review)}>
-                  Details
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-emerald-500 hover:bg-emerald-600"
-                  disabled={!review.meetingLink || review.status === "pending"}
-                  onClick={() => handleConnect(review)}
-                >
-                  Connect
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
+    //           <div className="flex items-center gap-2 self-end md:self-auto">
+    //             <Button variant="outline" size="sm" onClick={() => handleViewDetails(review)}>
+    //               Details
+    //             </Button>
+    //             <Button
+    //               size="sm"
+    //               className="bg-emerald-500 hover:bg-emerald-600"
+    //               disabled={!review.meetingLink || review.status === "pending"}
+    //               onClick={() => handleConnect(review)}
+    //             >
+    //               Connect
+    //             </Button>
+    //           </div>
+    //         </div>
+    //       ))}
+    //     </div>
+    //   </CardContent>
 
-      {/* Review Details Dialog */}
-      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Review Details</DialogTitle>
-            <DialogDescription>Information about the upcoming review session</DialogDescription>
-          </DialogHeader>
+    //   {/* Review Details Dialog */}
+    //   <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+    //     <DialogContent className="sm:max-w-md">
+    //       <DialogHeader>
+    //         <DialogTitle>Review Details</DialogTitle>
+    //         <DialogDescription>Information about the upcoming review session</DialogDescription>
+    //       </DialogHeader>
 
-          {selectedReview && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={selectedReview.student.avatar} alt={selectedReview.student.name} />
-                  <AvatarFallback>{selectedReview.student.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-medium">{selectedReview.student.name}</h3>
-                  <p className="text-sm text-gray-500">{selectedReview.student.email}</p>
-                  <p className="text-sm text-gray-500">
-                    {selectedReview.student.jobTitle} at {selectedReview.student.company}
-                  </p>
-                </div>
-              </div>
+    //       {selectedReview && (
+    //         <div className="space-y-4">
+    //           <div className="flex items-center gap-4">
+    //             <Avatar className="h-12 w-12">
+    //               <AvatarImage src={selectedReview.student.avatar} alt={selectedReview.student.name} />
+    //               <AvatarFallback>{selectedReview.student.name.charAt(0)}</AvatarFallback>
+    //             </Avatar>
+    //             <div>
+    //               <h3 className="font-medium">{selectedReview.student.name}</h3>
+    //               <p className="text-sm text-gray-500">{selectedReview.student.email}</p>
+    //               <p className="text-sm text-gray-500">
+    //                 {selectedReview.student.jobTitle} at {selectedReview.student.company}
+    //               </p>
+    //             </div>
+    //           </div>
 
-              <div className="space-y-2 border-t pt-4">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Date & Time:</span>
-                  <span className="text-sm">
-                    {selectedReview.date} at {selectedReview.time} ({selectedReview.duration})
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Review Type:</span>
-                  <span className="text-sm">{getTypeLabel(selectedReview.type)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Status:</span>
-                  <span className="text-sm">
-                    {selectedReview.status.charAt(0).toUpperCase() + selectedReview.status.slice(1)}
-                  </span>
-                </div>
-                <div className="pt-2">
-                  <span className="text-sm font-medium">Topic:</span>
-                  <p className="text-sm mt-1">{selectedReview.topic}</p>
-                </div>
-                {selectedReview.notes && (
-                  <div className="pt-2">
-                    <span className="text-sm font-medium">Notes:</span>
-                    <p className="text-sm mt-1">{selectedReview.notes}</p>
-                  </div>
-                )}
-              </div>
+    //           <div className="space-y-2 border-t pt-4">
+    //             <div className="flex justify-between">
+    //               <span className="text-sm font-medium">Date & Time:</span>
+    //               <span className="text-sm">
+    //                 {selectedReview.date} at {selectedReview.time} ({selectedReview.duration})
+    //               </span>
+    //             </div>
+    //             <div className="flex justify-between">
+    //               <span className="text-sm font-medium">Review Type:</span>
+    //               <span className="text-sm">{getTypeLabel(selectedReview.type)}</span>
+    //             </div>
+    //             <div className="flex justify-between">
+    //               <span className="text-sm font-medium">Status:</span>
+    //               <span className="text-sm">
+    //                 {selectedReview.status.charAt(0).toUpperCase() + selectedReview.status.slice(1)}
+    //               </span>
+    //             </div>
+    //             <div className="pt-2">
+    //               <span className="text-sm font-medium">Topic:</span>
+    //               <p className="text-sm mt-1">{selectedReview.topic}</p>
+    //             </div>
+    //             {selectedReview.notes && (
+    //               <div className="pt-2">
+    //                 <span className="text-sm font-medium">Notes:</span>
+    //                 <p className="text-sm mt-1">{selectedReview.notes}</p>
+    //               </div>
+    //             )}
+    //           </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                {selectedReview.status !== "pending" && (
-                  <Button variant="outline" className="text-red-500 border-red-500 hover:bg-red-50">
-                    Cancel Session
-                  </Button>
-                )}
-                {selectedReview.meetingLink && selectedReview.status === "confirmed" && (
-                  <Button className="bg-emerald-500 hover:bg-emerald-600" onClick={() => handleConnect(selectedReview)}>
-                    Join Meeting
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </Card>
+    //           <div className="flex justify-end gap-2 pt-2">
+    //             {selectedReview.status !== "pending" && (
+    //               <Button variant="outline" className="text-red-500 border-red-500 hover:bg-red-50">
+    //                 Cancel Session
+    //               </Button>
+    //             )}
+    //             {selectedReview.meetingLink && selectedReview.status === "confirmed" && (
+    //               <Button className="bg-emerald-500 hover:bg-emerald-600" onClick={() => handleConnect(selectedReview)}>
+    //                 Join Meeting
+    //               </Button>
+    //             )}
+    //           </div>
+    //         </div>
+    //       )}
+    //     </DialogContent>
+    //   </Dialog>
+    // </Card>
   )
 }
 
