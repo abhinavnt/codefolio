@@ -1101,7 +1101,7 @@ export function Availability() {
             </Button>
             <Button onClick={handleSaveAvailability} className="bg-emerald-500 hover:bg-emerald-600">
               Save
-            </Button>
+             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
