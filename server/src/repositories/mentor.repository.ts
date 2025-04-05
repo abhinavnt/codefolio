@@ -1,5 +1,5 @@
 import { IMentorRepository } from "../core/interfaces/repository/IMentorRepository";
-import { IMentor, Mentor } from "../models/Mentor";
+import { IMentor, ISpecificDateAvailability, IWeeklyAvailability, Mentor } from "../models/Mentor";
 
 
 
@@ -117,7 +117,19 @@ export class mentorRepository implements IMentorRepository{
     }
 
 
+    async updateAvailability(mentorId: string, specificDateAvailability: ISpecificDateAvailability[], weeklyAvailability: IWeeklyAvailability[]): Promise<IMentor | null> {
+        
+        const response= await Mentor.findByIdAndUpdate(mentorId,{specificDateAvailability,weeklyAvailability},{new:true})
+        console.log(response);
+        
+        return response
+    }
 
+
+
+    async getAvailability(mentorId: string): Promise<IMentor | null> {
+        return await Mentor.findById(mentorId).select("specificDateAvailability weeklyAvailability")
+    }
 
 }
 

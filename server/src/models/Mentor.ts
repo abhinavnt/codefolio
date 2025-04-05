@@ -1,5 +1,24 @@
-  // models/Mentor.ts
+
   import mongoose, { Schema, Document } from "mongoose";
+
+
+export interface ITimeSlot {
+  startTime: string; 
+  endTime: string;  
+  booked: boolean; 
+}
+
+
+export interface ISpecificDateAvailability {
+  date: Date;
+  timeSlots: ITimeSlot[];
+}
+
+
+export interface IWeeklyAvailability {
+  day: string; 
+  timeSlots: ITimeSlot[];
+}
 
   // Interface for available time slots (exported)
   export interface IAvailableTimeSlot {
@@ -32,7 +51,8 @@
     status: "active" | "inactive";
     submittedAt: Date;
     updatedAt?: Date;
-    availableTimeSlots?: IAvailableTimeSlot[];
+    specificDateAvailability: ISpecificDateAvailability[];
+    weeklyAvailability: IWeeklyAvailability[];
     title?: string;
     reviewTakenCount?: number;
     phone?: string;
@@ -68,6 +88,23 @@
     location?: string;
   }
 
+
+  const TimeSlotSchema = new Schema({
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+    booked: { type: Boolean, default: false },
+  });
+  
+  const SpecificDateAvailabilitySchema = new Schema({
+    date: { type: Date, required: true },
+    timeSlots: [TimeSlotSchema],
+  });
+  
+  const WeeklyAvailabilitySchema = new Schema({
+    day: { type: String, required: true },
+    timeSlots: [TimeSlotSchema],
+  });
+
   const MentorSchema = new Schema<IMentor>(
     {
       userId: { type: String, required: true },
@@ -90,16 +127,8 @@
       twitter: { type: String },
       instagram: { type: String },
       status: { type: String, enum: ["active", "inactive"], default: "active" },
-      availableTimeSlots: {
-        type: [
-          {
-            date: { type: Date },
-            day: { type: String },
-            availableTimes: { type: [String] },
-          },
-        ],
-        default: [],
-      },
+      specificDateAvailability: { type: [SpecificDateAvailabilitySchema], default: [] },
+      weeklyAvailability: { type: [WeeklyAvailabilitySchema], default: [] },  
       title: { type: String },
       reviewTakenCount: { type: Number, default: 0 },
       phone: { type: String },

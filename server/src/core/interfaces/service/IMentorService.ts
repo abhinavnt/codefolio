@@ -1,4 +1,4 @@
-import { IMentor } from "../../../models/Mentor";
+import { IMentor, ISpecificDateAvailability, IWeeklyAvailability } from "../../../models/Mentor";
 
 
 
@@ -12,4 +12,6 @@ export interface IMentorService{
     getMentorProfile(username: string): Promise<Partial<IMentor> | null>
     verifyMentor(userId: string):Promise<IMentor|null>
     updateMentorProfile(userId: string, mentorData: Partial<IMentor>): Promise<IMentor|null>
+    updateAvailability(mentorId: string,specificDateAvailability: ISpecificDateAvailability[],weeklyAvailability: IWeeklyAvailability[]):Promise<IMentor | null>
+    getAvailability(mentorId: string): Promise<{specificDateAvailability: ISpecificDateAvailability[];weeklyAvailability: IWeeklyAvailability[];}>
 }

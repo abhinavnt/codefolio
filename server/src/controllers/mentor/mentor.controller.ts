@@ -90,10 +90,6 @@ export class MentorController implements IMentorController{
 
         let profileImageUrl = ""
     let resumeUrl = ""
-
-  
-    
-
     if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).profileImage) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] }
       console.log("Uploading profile image to Cloudinary...")
@@ -164,7 +160,26 @@ export class MentorController implements IMentorController{
     })
 
 
+    updateAvailability=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+      const userId = String(req.user?._id);
+      const { specificDateAvailability, weeklyAvailability } = req.body;
+      console.log(specificDateAvailability,'here is the difrence',weeklyAvailability);
+      
+      const mentor=await this.mentorService.updateAvailability(userId,specificDateAvailability,weeklyAvailability)
+      res.status(200).json({ message: "Availability updated successfully", mentor });
+    })
 
 
+    getAvailability=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+      console.log('this is from mentor get availbility controller');
+      
+      const mentorId = String(req.user?._id);
+      const availability = await this.mentorService.getAvailability(mentorId);
+      res.status(200).json(availability);
+    })
+
+
+    
+ 
 
 }

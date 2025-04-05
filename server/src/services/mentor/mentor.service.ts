@@ -1,12 +1,18 @@
 import { inject, injectable } from "inversify";
 import { IMentorService } from "../../core/interfaces/service/IMentorService";
-import { IMentor } from "../../models/Mentor";
+import { IMentor, ISpecificDateAvailability, IWeeklyAvailability } from "../../models/Mentor";
 import { TYPES } from "../../di/types";
 import { IMentorRepository } from "../../core/interfaces/repository/IMentorRepository";
 
 
 
-
+function isSameDay(date1: Date, date2: Date): boolean {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  }
 
 
 
@@ -75,7 +81,6 @@ export class MentorService implements IMentorService{
                 twitter,
                 instagram,
                 status,
-                availableTimeSlots,
                 title,
                 reviewTakenCount,
                 phone,
@@ -103,7 +108,6 @@ export class MentorService implements IMentorService{
                     if (twitter !== undefined) updateData.twitter = twitter;
                     if (instagram !== undefined) updateData.instagram = instagram;
                     if (status !== undefined) updateData.status = status;
-                    if (availableTimeSlots !== undefined) updateData.availableTimeSlots = availableTimeSlots;
                     if (title !== undefined) updateData.title = title;
                     if (reviewTakenCount !== undefined) updateData.reviewTakenCount = reviewTakenCount;
                     if (phone !== undefined) updateData.phone = phone;
@@ -119,6 +123,49 @@ export class MentorService implements IMentorService{
         }
     }
 
+    async updateAvailability(mentorId: string, specificDateAvailability: ISpecificDateAvailability[], weeklyAvailability: IWeeklyAvailability[]): Promise<IMentor | null> {
+        try {
+            const ogMentorId= await this.mentorRepository.findByUserId(mentorId)
+            if(!ogMentorId){
+                throw new Error("mentor not found")
+            }
+
+            const mentor=await this.mentorRepository.updateAvailability(ogMentorId.id,specificDateAvailability,weeklyAvailability)
+            if (!mentor) {
+                throw new Error("Mentor not found");
+              }
+              return mentor;
+        } catch (error) {
+            throw new Error(error instanceof Error ? error.message : String(error));
+        }
+    }
+
+
+    async getAvailability(mentorId: string): Promise<{ specificDateAvailability: ISpecificDateAvailability[]; weeklyAvailability: IWeeklyAvailability[]; }> {
+        try {
+            const ogMentorId=await this.mentorRepository.findByUserId(mentorId)
+            console.log(ogMentorId,'orginal mentor id fromservice');
+            
+            if(!ogMentorId){
+                throw  new Error("mentor not found")
+            }
+            const mentor = await this.mentorRepository.getAvailability(ogMentorId._id as string)
+
+            if (!mentor) {
+                throw new Error("Mentor not found");
+              }
+
+            return {
+                specificDateAvailability: mentor.specificDateAvailability,
+                weeklyAvailability: mentor.weeklyAvailability,
+              };
+        } catch (error) {
+             throw new Error(error instanceof Error ? error.message : String(error));
+        }
+    }
+
+
+    
 
 }
 
