@@ -12,6 +12,7 @@ import adminRoutes from './routes/admin.routes'
 import paymentRoutes from './routes/payment.routes'
 import mentorRoutes from './routes/mentor.routes'
 import bookingRoutes from './routes/booking.routes'
+import courseRoutes from './routes/course.routes'
 import passport from "./config/passport";
 import { errorHandler } from "./middlewares/errorMiddleware";
 
@@ -46,7 +47,7 @@ app.use("/api/admin",adminRoutes)
 app.use("/api/payment",paymentRoutes)
 app.use("/api/mentor",mentorRoutes)
 app.use("/api/booking",bookingRoutes)
-
+app.use('/api/course',courseRoutes)
 app.use(errorHandler)
 
 

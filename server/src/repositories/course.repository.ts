@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
 import { Course, ICourse } from "../models/Course";
 import { ITask, Task } from "../models/Tasks";
+import { CoursePurchased, ICoursePurchased } from "../models/CoursePurchased";
 
 export class courseRepository implements ICourseRepository {
   // Create a new course
@@ -66,6 +67,11 @@ export class courseRepository implements ICourseRepository {
     });
 
     return !!course;
+  }
+
+  //get user purchased courses
+  async findCoursePurchaseByUserId(userId: string): Promise<ICoursePurchased[]> {
+      return CoursePurchased.find({userId}).exec()
   }
 
 
