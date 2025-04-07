@@ -21,6 +21,7 @@ import PaymentCancelPage from "./pages/user/PaymentCancellation";
 import MentorProfilePage from "./pages/user/MentorProfilePage";
 import MentorLoadingPage from "./pages/mentor/Mentor-verifcation";
 import MentorDashboardPage from "./pages/mentor/MentorDashboard";
+import { BookingSuccess } from "./pages/user/SlotBookingSuccess";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -89,6 +90,7 @@ function App() {
                 <Route path="/mentor-verify" element={<MentorLoadingPage />} />
                 {/* <Route path="/mentor" element={<MentorDashboardPage/>}/> */}
                 <Route path="/mentor"element={status === 'succeeded' ? (<MentorDashboardPage />) : ( <Navigate to="/mentor-verify" replace /> )}/>
+                <Route path="/booking/success" element={<BookingSuccess/>}/>
               </Route>
 
 

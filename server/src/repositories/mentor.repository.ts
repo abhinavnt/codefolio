@@ -13,6 +13,11 @@ export class mentorRepository implements IMentorRepository{
         return await Mentor.findOne({userId})
     }
 
+
+    async findById(mentorId:string):Promise<IMentor|null>{
+        return await Mentor.findById(mentorId)
+    }
+
     async getAllMentors(page: number, limit: number, search?: string, filters?: { rating?: number; technicalSkills?: string[]; priceRange?: [number, number]; }): Promise<{ mentors: IMentor[]; total: number; }> {
         const query:any={status:'active'};
 

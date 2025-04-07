@@ -232,11 +232,11 @@ export default function MentorProfile() {
                 <Card>
                   <CardContent className="p-6">
                     <h3 className="text-lg font-medium mb-4">book slots</h3>
-                    <AvailableTime />
+                    <AvailableTime mentorusername={mentor.username} />
                     <div className="mt-6 flex justify-center">
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button className="bg-emerald-500 hover:bg-emerald-600">Book Mock Interview</Button>
+                          {/* <Button className="bg-emerald-500 hover:bg-emerald-600">Book Mock Interview</Button> */}
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>

@@ -13,6 +13,7 @@ export interface IMentorRepository{
     update(userId: string, mentorData: Partial<IMentor>):Promise<IMentor|null>
     updateAvailability(mentorId: string,specificDateAvailability: ISpecificDateAvailability[],weeklyAvailability: IWeeklyAvailability[]):Promise<IMentor | null>
     getAvailability(mentorId: string): Promise<IMentor | null>
+    findById(mentorId:string):Promise<IMentor|null>
 }
 
 

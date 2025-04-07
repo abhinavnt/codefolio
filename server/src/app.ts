@@ -11,6 +11,7 @@ import userRoutes from './routes/user.routes'
 import adminRoutes from './routes/admin.routes'
 import paymentRoutes from './routes/payment.routes'
 import mentorRoutes from './routes/mentor.routes'
+import bookingRoutes from './routes/booking.routes'
 import passport from "./config/passport";
 import { errorHandler } from "./middlewares/errorMiddleware";
 
@@ -44,6 +45,7 @@ app.use("/api/user",userRoutes)
 app.use("/api/admin",adminRoutes)
 app.use("/api/payment",paymentRoutes)
 app.use("/api/mentor",mentorRoutes)
+app.use("/api/booking",bookingRoutes)
 
 app.use(errorHandler)
 

@@ -44,6 +44,12 @@ import { IPaymentService } from "../core/interfaces/service/IPaymentService";
 import { PaymentService } from "../services/user/payment.service";
 import { IPaymentController } from "../core/interfaces/controller/IPaymentController";
 import { PaymentController } from "../controllers/user/payment.controller";
+import { IBookingRepository } from "../core/interfaces/repository/IBookingRepository";
+import { BookingRepository } from "../repositories/booking.repositories";
+import { IBookingService } from "../core/interfaces/service/IBookingServie";
+import { BookingService } from "../services/mentor/booking.service";
+import { IBookingController } from "../core/interfaces/controller/IBookingController";
+import { BookingController } from "../controllers/mentor/booking.controller";
 
 
 
@@ -89,6 +95,9 @@ container.bind<IPaymentRepository>(TYPES.PaymentRepository).to(PaymentRepository
 
 
 
+container.bind<IBookingController>(TYPES.BookingController).to(BookingController)
+container.bind<IBookingService>(TYPES.BookingService).to(BookingService)
+container.bind<IBookingRepository>(TYPES.BookingRepository).to(BookingRepository)
 
 
 
