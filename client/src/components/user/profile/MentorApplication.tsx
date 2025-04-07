@@ -1,26 +1,27 @@
-import React, { useState, ChangeEvent } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { CalendarIcon, Upload, Linkedin, Github, Twitter, Instagram } from "lucide-react";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { mentorReq } from "@/services/userService";
-import { toast } from "sonner";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import type React from "react"
+import { useState, type ChangeEvent } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { Upload, Linkedin, Github, Twitter, Instagram } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { mentorReq } from "@/services/userService"
+import { toast } from "sonner"
+import { useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
 
 // Mock tech skills data
 const TECH_SKILLS = [
@@ -58,7 +59,7 @@ const TECH_SKILLS = [
   "Redis",
   "Firebase",
   "Supabase",
-] as const;
+] as const
 
 // Languages
 const LANGUAGES = [
@@ -74,7 +75,7 @@ const LANGUAGES = [
   "Portuguese",
   "Italian",
   "Korean",
-] as const;
+] as const
 
 const formSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters." }),
@@ -92,17 +93,16 @@ const formSchema = z.object({
   github: z.string().url({ message: "Please enter a valid GitHub URL." }).optional().or(z.literal("")),
   twitter: z.string().url({ message: "Please enter a valid Twitter URL." }).optional().or(z.literal("")),
   instagram: z.string().url({ message: "Please enter a valid Instagram URL." }).optional().or(z.literal("")),
-});
+})
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof formSchema>
 
 const MentorApplicationPage: React.FC = () => {
-
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(null);
-  const [resume, setResume] = useState<File | null>(null);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [loading,setLoading]=useState(false)
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(null)
+  const [resume, setResume] = useState<File | null>(null)
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const user = useSelector((state: any) => state.auth.user)
 
@@ -125,96 +125,87 @@ const MentorApplicationPage: React.FC = () => {
       twitter: "",
       instagram: "",
     },
-  });
+  })
 
+  async function onSubmit(values: FormValues) {
+    const formData = new FormData()
 
- async function onSubmit(values: FormValues) {
-    const formData = new FormData();
+    formData.append("name", user.name)
+    formData.append("username", values.username)
+    formData.append("phoneNumber", values.phoneNumber)
+    formData.append("email", values.email)
+    formData.append("dateOfBirth", values.dateOfBirth.toISOString())
+    formData.append("yearsOfExperience", values.yearsOfExperience)
+    formData.append("currentCompany", values.currentCompany)
+    formData.append("currentRole", values.currentRole)
+    formData.append("durationAtCompany", values.durationAtCompany)
+    values.technicalSkills.forEach((skill) => formData.append("technicalSkills[]", skill))
+    formData.append("primaryLanguage", values.primaryLanguage)
+    formData.append("bio", values.bio)
+    if (values.linkedin) formData.append("linkedin", values.linkedin)
+    if (values.github) formData.append("github", values.github)
+    if (values.twitter) formData.append("twitter", values.twitter)
+    if (values.instagram) formData.append("instagram", values.instagram)
 
-    formData.append('name',user.name)
-    formData.append("username", values.username);
-    formData.append("phoneNumber", values.phoneNumber);
-    formData.append("email", values.email);
-    formData.append("dateOfBirth", values.dateOfBirth.toISOString());
-    formData.append("yearsOfExperience", values.yearsOfExperience);
-    formData.append("currentCompany", values.currentCompany);
-    formData.append("currentRole", values.currentRole);
-    formData.append("durationAtCompany", values.durationAtCompany);
-    values.technicalSkills.forEach((skill) => formData.append("technicalSkills[]", skill)); 
-    formData.append("primaryLanguage", values.primaryLanguage);
-    formData.append("bio", values.bio);
-    if (values.linkedin) formData.append("linkedin", values.linkedin);
-    if (values.github) formData.append("github", values.github);
-    if (values.twitter) formData.append("twitter", values.twitter);
-    if (values.instagram) formData.append("instagram", values.instagram);
-
-    if (selectedProfileImage) formData.append("profileImage", selectedProfileImage);
-    if (resume) formData.append("resume", resume);
+    if (selectedProfileImage) formData.append("profileImage", selectedProfileImage)
+    if (resume) formData.append("resume", resume)
 
     for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
+      console.log(`${key}: ${value}`)
     }
 
     try {
       setLoading(true)
-    const response=  await mentorReq(formData)
-    console.log(response,'from frontend apllicatoin');
-      if(response?.status===201){
+      const response = await mentorReq(formData)
+      console.log(response, "from frontend apllicatoin")
+      if (response?.status === 201) {
         setLoading(false)
-        toast.success('request submited done')
+        toast.success("request submited done")
         setTimeout(() => {
-          navigate("/profile");
-        }, 1500); 
-
-      }else{
+          navigate("/profile")
+        }, 1500)
+      } else {
         setLoading(false)
-        toast.error('somthing went wrong when submiting')
+        toast.error("somthing went wrong when submiting")
       }
-    } catch (error) {
-      
-    }
-
-    
-    
+    } catch (error) {}
   }
 
   const handleProfileImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedProfileImage(file);
-      const reader = new FileReader();
+      const file = e.target.files[0]
+      setSelectedProfileImage(file)
+      const reader = new FileReader()
       reader.onload = (event) => {
         if (event.target?.result) {
-          setProfileImage(event.target.result as string);
+          setProfileImage(event.target.result as string)
         }
-      };
-      reader.readAsDataURL(file);
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const handleResumeChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setResume(e.target.files[0]);
+      setResume(e.target.files[0])
     }
-  };
+  }
 
   const handleSkillSelect = (skill: string) => {
     if (selectedSkills.includes(skill)) {
-      const newSkills = selectedSkills.filter((s) => s !== skill);
-      setSelectedSkills(newSkills);
-      form.setValue("technicalSkills", newSkills);
+      const newSkills = selectedSkills.filter((s) => s !== skill)
+      setSelectedSkills(newSkills)
+      form.setValue("technicalSkills", newSkills)
     } else {
-      const newSkills = [...selectedSkills, skill];
-      setSelectedSkills(newSkills);
-      form.setValue("technicalSkills", newSkills);
+      const newSkills = [...selectedSkills, skill]
+      setSelectedSkills(newSkills)
+      form.setValue("technicalSkills", newSkills)
     }
-  };
+  }
 
   const handleCancel = () => {
-    window.history.back();
-  };
-
-    
+    window.history.back()
+  }
 
   return (
     <div className="container mx-auto py-10 px-4 md:px-6">
@@ -317,34 +308,20 @@ const MentorApplicationPage: React.FC = () => {
                   control={form.control}
                   name="dateOfBirth"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem>
                       <FormLabel>Date of Birth</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date: Date) => date > new Date() || date < new Date("1900-01-01")}
-                            initialFocus
-                          />
-                          
-                        </PopoverContent>
-                      </Popover>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          {...field}
+                          value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                          onChange={(e) => {
+                            const date = e.target.value ? new Date(e.target.value) : null
+                            field.onChange(date)
+                          }}
+                          max={format(new Date(), "yyyy-MM-dd")}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -469,7 +446,7 @@ const MentorApplicationPage: React.FC = () => {
                                       "px-3 py-1.5 text-sm rounded-md cursor-pointer transition-colors",
                                       selectedSkills.includes(skill)
                                         ? "bg-emerald-100 text-emerald-800"
-                                        : "hover:bg-gray-100"
+                                        : "hover:bg-gray-100",
                                     )}
                                     onClick={() => handleSkillSelect(skill)}
                                   >
@@ -622,7 +599,7 @@ const MentorApplicationPage: React.FC = () => {
                   Cancel
                 </Button>
                 <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                {loading ? (
+                  {loading ? (
                     <>
                       <svg
                         className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -656,7 +633,8 @@ const MentorApplicationPage: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default MentorApplicationPage;
+export default MentorApplicationPage
+
