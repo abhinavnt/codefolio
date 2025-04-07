@@ -2,10 +2,12 @@ import { inject, injectable } from "inversify";
 import cloudinary from "../../config/cloudinary";
 import { ICourseController } from "../../core/interfaces/controller/ICourseController";
 import { courseService } from "../../services/admin/course.service";
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 import { TYPES } from "../../di/types";
 import { ICourseService } from "../../core/interfaces/service/ICourseService";
 import asyncHandler from "express-async-handler";
+import { ParamsDictionary } from "express-serve-static-core";
+import { ParsedQs } from "qs";
 // const CourseService = new courseService();
 
 @injectable()
@@ -89,5 +91,28 @@ export class CourseController implements ICourseController {
 
   })
 
+
+
+  //get user enroled courses
+  getUserEnrolledCourses=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const userId = String(req.user?._id)
+    const courses=await this.courseService.findCoursePurchaseByUserId(userId)
+    console.log(courses);
+    
+    res.status(200).json(courses)
+  })
+
+
+  //get user enrolled courses tasks
+  getUserCourseTasks=asyncHandler(async(req:Request,res:Response)=>{
+    const userId = String(req.user?._id)
+    const courseId = req.params.courseId;
+    console.log('userid courseid',userId,courseId);
+    
+    const tasks= await this.courseService.findTaskByUserIdAndCourseId(userId,courseId)
+    console.log('tasks from coursetasksgeting',tasks);
+    
+    res.status(200).json(tasks)
+  }) 
 
 }

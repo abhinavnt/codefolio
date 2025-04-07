@@ -1,21 +1,21 @@
-import { Types } from "mongoose"; // Import Types for ObjectId
-import { ICourseService } from "../../core/interfaces/service/ICourseService"; // Adjust the path as needed
-import { ICourse } from "../../models/Course"; // Adjust the path as needed
- // Adjust the path as needed
-import { courseRepository } from "../../repositories/course.repository"; // Adjust the path as needed
+import { Types } from "mongoose"; 
+import { ICourseService } from "../../core/interfaces/service/ICourseService"; 
+import { ICourse } from "../../models/Course"; 
+import { courseRepository } from "../../repositories/course.repository"; 
 import { ILesson, ITask } from "../../models/Tasks";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { ICourseRepository } from "../../core/interfaces/repository/ICourseRepository";
+import { ICoursePurchased } from "../../models/CoursePurchased";
+import { ITaskRepository } from "../../core/interfaces/repository/ITaskRepository";
+import { IPurchasedCourseTask } from "../../models/PurchasedCourseTasks";
 
-// const CourseRepository = new courseRepository();
 
-// Define the structure of a module from the request body
 interface IModule {
   title: string;
   description: string;
   video: string;
-  lessons: ILesson[]; // Use ILesson from task.model.ts
+  lessons: ILesson[]; 
   duration?: number;
   resources?: string[];
 }
@@ -23,7 +23,8 @@ interface IModule {
 injectable()
 export class courseService implements ICourseService {
    
-  constructor(@inject(TYPES.CourseRepository) private courseRepository:ICourseRepository
+  constructor(@inject(TYPES.CourseRepository) private courseRepository:ICourseRepository,
+              @inject(TYPES.TaskRepository) private taskRepositoroy:ITaskRepository
 ){}
 
   async addCourse(courseData: any): Promise<ICourse> {
@@ -32,7 +33,6 @@ export class courseService implements ICourseService {
     try {
       const { modules, targetedAudience,learningPoints,courseRequirements,...courseDetails} = courseData;
 
-      // Validate required fields for the course
       if (
         !courseDetails.title ||
         !courseDetails.description ||
@@ -46,7 +46,6 @@ export class courseService implements ICourseService {
       }
       console.log(courseDetails,"course details");
 
-        // Parse JSON strings into arrays
         const parsedLearningPoints = typeof learningPoints === 'string' 
         ? JSON.parse(learningPoints) 
         : Array.isArray(learningPoints) 
@@ -65,7 +64,6 @@ export class courseService implements ICourseService {
         ? courseRequirements
         : [];
       
-      // Create the course
       const newCourse = await this.courseRepository.createCourse({
         title: courseDetails.title,
         description: courseDetails.description,
@@ -85,7 +83,6 @@ export class courseService implements ICourseService {
 
       console.log(modules,"modules");
       
-      // If there are modules, create tasks for each module
       console.log(Array.isArray(modules),'arry ano modules');
       console.log(modules.length,'module length');
       
@@ -104,7 +101,6 @@ export class courseService implements ICourseService {
           })
         );
 
-        // Save all tasks
         console.log('waiting for tasks creation');
         
         await this.courseRepository.createTasks(tasks);
@@ -115,8 +111,6 @@ export class courseService implements ICourseService {
       throw new Error(`Error creating course and tasks: ${error.message}`);
     }
   }
-
-
 
   async getCourseById(courseId: string): Promise<ICourse | null> {
       try {
@@ -131,6 +125,28 @@ export class courseService implements ICourseService {
         throw new Error(error instanceof Error ? error.message : String(error));
       }
   }
+
+
+
+  //get purcased course for users
+  async findCoursePurchaseByUserId(userId: string): Promise<ICoursePurchased[]> {
+      return await this.courseRepository.findCoursePurchaseByUserId(userId) 
+  }
+
+
+
+  //get purchased course tasks
+  async findTaskByUserIdAndCourseId(userId: string, courseId: string): Promise<IPurchasedCourseTask[]> {
+    try {
+      
+      return await this.taskRepositoroy.findTaskByUserIdAndCourseId(userId,courseId)
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+
+
 
 
 

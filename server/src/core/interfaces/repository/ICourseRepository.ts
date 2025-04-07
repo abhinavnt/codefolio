@@ -1,4 +1,5 @@
 import { ICourse } from "../../../models/Course";
+import { ICoursePurchased } from "../../../models/CoursePurchased";
 import { ITask } from "../../../models/Tasks";
 
 
@@ -8,4 +9,5 @@ export interface ICourseRepository {
   getCourseByID(courseId:string):Promise<ICourse|null>
   addStudentToCourse(courseId:string,userId:string):Promise<ICourse|null>
   isUserEnrolled(courseId:string,userId:string):Promise<boolean>
+  findCoursePurchaseByUserId(userId: string): Promise<ICoursePurchased[]>
 }
