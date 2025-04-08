@@ -51,7 +51,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           </div>
         </div>
 
-        <div className="mt-3 font-bold text-primary">${course.price}</div>
+        <div className="mt-3 font-bold text-primary">₹{course.price}</div>
         <Button className="mt-4 w-full hover:bg-emerald-500" variant="outline" onClick={handleViewDetails}>
           View Details
         </Button>

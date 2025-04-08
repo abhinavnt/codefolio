@@ -80,6 +80,7 @@ export function CourseManagement() {
   const [editCourse, setEditCourse] = useState<{ course: Course; tasks: Task[] } | null>(null)
   const [editTask, setEditTask] = useState<Task | null>(null)
   const [viewCourse, setViewCourse] = useState<Course | null>(null)
+  const [search, setSearch] = useState('')
   const itemsPerPage = 5
 
   useEffect(() => {
@@ -94,6 +95,14 @@ export function CourseManagement() {
     }
     fetchCourses()
   }, [searchTerm, categoryFilter, statusFilter, currentPage])
+
+  useEffect(()=> {
+    const timeout = setTimeout(()=>{
+      setSearchTerm(search)
+    },500)
+    console.log('hi')
+    return ()=> clearTimeout(timeout)
+  },[search])
 
   const totalPages = Math.ceil(totalCourses / itemsPerPage)
 
@@ -157,6 +166,7 @@ export function CourseManagement() {
     setCurrentPage(page)
   }
 
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -177,8 +187,8 @@ export function CourseManagement() {
                 type="search"
                 placeholder="Search courses..."
                 className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">

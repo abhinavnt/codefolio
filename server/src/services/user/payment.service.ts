@@ -23,6 +23,8 @@ export class PaymentService implements IPaymentService{
    async createCheckoutSession({ courseId, amount, couponCode,userId }: { courseId: string; amount: number; couponCode?: string; userId:string }): Promise<{ url: string; sessionId: string; }> {
        try {
 
+        console.log(amount,"amoun from service");
+        
          const isUserAlredyEnrolled= await  this.courseRepository.isUserEnrolled(courseId,userId)
 
          if(isUserAlredyEnrolled){

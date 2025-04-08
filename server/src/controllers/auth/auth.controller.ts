@@ -182,6 +182,6 @@ export class AuthController implements IAuthController {
 
     console.log("response povunnu");
 
-    res.redirect("http://localhost:5173/");
+    res.redirect("http://localhost:5173/?auth=success");
   };
 }

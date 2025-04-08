@@ -37,9 +37,19 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const { status } = useAppSelector((state) => state.mentor);
+
+
   useEffect(() => {
     const fetchUser = async () => {
       console.log("user fetch chyunnuuu");
+
+      const urlParams = new URLSearchParams(window.location.search);
+            const authStatus = urlParams.get('auth');
+
+            if (authStatus === 'success') {
+              localStorage.setItem("isAuthenticated", "true");
+              window.history.replaceState({}, document.title, window.location.pathname);
+          }
 
       const storedAuth = localStorage.getItem("isAuthenticated");
       if (storedAuth) {
@@ -50,7 +60,7 @@ function App() {
         } finally {
           setTimeout(() => {
             setLoading(false);
-          }, 2000);
+          }, 1000);
         }
       } else {
         setLoading(false);

@@ -1,4 +1,3 @@
-"use client";
 
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
@@ -107,7 +106,7 @@ export default function OTPModal({
       await resendOtp(email)
       console.log('otp resend req sended');
       
-      setTimeLeft(60); // Reset to 60, not 30, to match initial state
+      setTimeLeft(60); 
       setCanResend(false);
       setOtp(Array(6).fill(""));
       inputRefs.current[0]?.focus();

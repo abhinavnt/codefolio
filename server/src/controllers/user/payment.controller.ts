@@ -20,7 +20,8 @@ export class PaymentController implements IPaymentController{
          console.log('create checkout payment controller');
          const userId = String(req.user?._id)
         const { courseId, amount, couponCode } = req.body;
-
+        console.log(amount,"amount from createcheckout");
+        
         if (!courseId || !amount) {
             res.status(400).json({ error: 'Missing required fields' });
             return;

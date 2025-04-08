@@ -15,6 +15,8 @@ import { IPurchasedCourseTask, PurchasedCourseTasks } from "../models/PurchasedC
 export class PaymentRepository implements IPaymentRepository{
 
     async createCheckoutSession({ courseId, amount, couponCode, }: { courseId: string; amount: number; couponCode?: string; }): Promise<Stripe.Checkout.Session> {
+        console.log(amount,"amount from repository");
+        
         return await stripe.checkout.sessions.create({
          payment_method_types:['card','amazon_pay'],
          line_items:[{
@@ -24,7 +26,7 @@ export class PaymentRepository implements IPaymentRepository{
                     name:`Course Purchase-${courseId}`,
                     metadata:{courseId}
                 },
-                unit_amount:amount,
+                unit_amount:amount*100,
             },
             quantity:1,
          }],
