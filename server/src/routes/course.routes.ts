@@ -17,6 +17,15 @@ router.get('/enrolled-courses',courseController.getUserEnrolledCourses)
 router.get('/course-tasks/:courseId',courseController.getUserCourseTasks)
 
 
+//admin
+router.get('/courses',courseController.listCoursesAdmin)
+router.get('/courses/:id',courseController.getCourseByIdAdmin)
+router.put('/courses/:id',courseController.updateCourse)
+// router.post('/tasks',courseController.)
+router.put('/tasks/:id',courseController.updateTask)
+router.delete('/tasks/:id',courseController.deleteTask)
+
+
 
 
 

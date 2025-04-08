@@ -7,7 +7,7 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Enrolled Courses</CardTitle>
@@ -88,7 +88,7 @@ export function Dashboard() {
             <p className="text-xs text-muted-foreground">+7% from last month</p>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   )
 }

@@ -177,7 +177,7 @@ export function EnrolledUsers() {
         <h2 className="text-2xl font-bold tracking-tight">Course Enrolled Users</h2>
         <Button>Export Data</Button>
       </div>
-
+{/* 
       <Card>
         <CardHeader>
           <CardTitle>Enrollment Management</CardTitle>
@@ -366,7 +366,7 @@ export function EnrolledUsers() {
             </PaginationContent>
           </Pagination>
         </CardFooter>
-      </Card>
+      </Card> */}
     </div>
   )
 }
