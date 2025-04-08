@@ -166,6 +166,32 @@ export class BookingService implements IBookingService{
    }
 
 
+   async getMentorBookings(mentorId: string): Promise<any[]> {
+    const mentor=await this.mentorRepository.findByUserId(mentorId)
+    const bookings = await this.bookingRepository.getBookingsByMentorId(mentor?._id as string);
+    return bookings.map((booking) => ({
+      id: booking._id,
+      studentName: (booking.userId as any).name, 
+      studentEmail: (booking.userId as any).email,
+      studentImage: (booking.userId as any).image || "/placeholder.svg?height=40&width=40",
+      date: booking.date.toLocaleDateString("en-US", { day: "2-digit", month: "short" }),
+      time: booking.startTime,
+      purpose: "Mentoring session", 
+      status: this.determineStatus(booking), 
+    }));
+
+
+    
+  }
+
+
+  private determineStatus(booking: IBooking): "upcoming" | "completed" | "cancelled" {
+    const now = new Date();
+    const bookingDateTime = new Date(`${booking.date.toDateString()} ${booking.startTime}`);
+    if (booking.paymentStatus === "failed") return "cancelled";
+    if (bookingDateTime < now && booking.paymentStatus === "completed") return "completed";
+    return "upcoming";
+  }
 
 
 

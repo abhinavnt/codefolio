@@ -68,6 +68,11 @@ export class BookingController implements IBookingController{
        })
 
 
+       getMentorBookings=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+        const userId = String(req.user?._id)
+        const bookings=await this.bookinService.getMentorBookings(userId)
+        res.status(200).json(bookings);
+       })
 
 
 }
