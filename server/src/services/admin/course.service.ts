@@ -148,6 +148,27 @@ export class courseService implements ICourseService {
 
 
 
+  //admin
+   async getCoursesAdmin(search: string, category: string, status: string, page: number, limit: number): Promise<{ courses: ICourse[]; total: number; }> {
+      return await this.courseRepository.getCoursesAdmin(search,category,status,page,limit)
+  }
+
+  async updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> {
+    return await this.courseRepository.updateCourse(id, data);
+  }
+
+  async updateTask(id: string, data: Partial<ITask>): Promise<ITask | null> {
+    return await this.taskRepositoroy.updateTask(id, data);
+  }
+
+  async deleteTask(id: string): Promise<void> {
+    return await this.taskRepositoroy.deleteTask(id)
+  }
+
+  async getCourseTasks(courseId: string): Promise<ITask[] | null> {
+      return await this.taskRepositoroy.getCourseTasks(courseId)
+  }
+
 
 
 }

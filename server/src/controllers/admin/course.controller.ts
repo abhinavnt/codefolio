@@ -91,10 +91,52 @@ export class CourseController implements ICourseController {
 
   })
 
+  listCoursesAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const { search = '', category = 'all', status = 'all', page = '1', limit = '5' } = req.query;
+    const result=await this.courseService.getCoursesAdmin(search as string,category as string,status as string,parseInt(page as string),parseInt(limit as string))
+    console.log('result form listcourse Controler',result);
+    
+    res.status(200).json(result)
+  })
+
+  updateCourse=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const { id } = req.params;
+    const data = req.body;
+    const updatedCourse = await this.courseService.updateCourse(id, data);
+    if (!updatedCourse) {
+       res.status(404).json({ message: 'Course not found' });
+    }
+    res.json(updatedCourse);
+  })
+
+  updateTask=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const { id } = req.params;
+    const data = req.body;
+    const updatedTask = await this.courseService.updateTask(id, data);
+    if (!updatedTask) {
+      res.status(404).json({ message: 'Task not found' });
+    }
+    res.json(updatedTask);
+  })
+
+  deleteTask=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const { id } = req.params;
+    await this.courseService.deleteTask(id);
+    res.status(204).send();
+  })
+
+  getCourseByIdAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const { id } = req.params;
+    const course=await this.courseService.getCourseById(id)
+    const task=await this.courseService.getCourseTasks(id)
+  })
+
 
 
   //get user enroled courses
   getUserEnrolledCourses=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    console.log('reached course controller');
+    
     const userId = String(req.user?._id)
     const courses=await this.courseService.findCoursePurchaseByUserId(userId)
     console.log(courses);
@@ -114,5 +156,9 @@ export class CourseController implements ICourseController {
     
     res.status(200).json(tasks)
   }) 
+
+
+
+
 
 }

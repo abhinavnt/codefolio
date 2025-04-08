@@ -16,6 +16,14 @@ export class TaskRepository implements ITaskRepository{
      return PurchasedCourseTasks.find({userId,courseId}).sort({order:1}).exec()
  }
 
+ async updateTask(id: string, data: Partial<ITask>): Promise<ITask | null> {
+    return await Task.findByIdAndUpdate(id, data, { new: true });
+  }
+
+  async deleteTask(id: string): Promise<void> {
+    await Task.findByIdAndDelete(id);
+  }
+
 }
 
 

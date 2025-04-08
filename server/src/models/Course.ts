@@ -35,7 +35,7 @@ const CourseSchema = new Schema<ICourse>(
     status: {
       type: String,
       enum: ["draft", "published", "archived"],
-      default: "draft",
+      default: "published",
     },
     tags: [{ type: String }], 
     learningPoints:[{type:String}],

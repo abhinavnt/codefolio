@@ -1,6 +1,9 @@
+"use client"
 
-import { useState } from "react"
-import { Search, Edit, Trash2, Eye, MoreHorizontal } from "lucide-react"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+
+import { useState, useEffect } from "react"
+import { Search, Edit, Trash2, Eye, MoreHorizontal, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -12,11 +15,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Pagination,
   PaginationContent,
@@ -26,189 +36,121 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import axiosInstance from "@/utils/axiosInstance"
 
-// Dummy data for courses
-const courses = [
-  {
-    id: 1,
-    title: "Web Development Fundamentals",
-    category: "Web Development",
-    instructor: "Dr. James Wilson",
-    price: 49.99,
-    status: "Published",
-    enrollments: 245,
-    rating: 4.7,
-    createdAt: "2023-05-15",
-    thumbnail: "/placeholder.svg",
-    description: "Learn the fundamentals of web development including HTML, CSS, and JavaScript.",
-    duration: "8 weeks",
-    level: "Beginner",
-  },
-  {
-    id: 2,
-    title: "Advanced React Patterns",
-    category: "Web Development",
-    instructor: "Prof. Sarah Martinez",
-    price: 79.99,
-    status: "Published",
-    enrollments: 189,
-    rating: 4.9,
-    createdAt: "2023-06-10",
-    thumbnail: "/placeholder.svg",
-    description: "Master advanced React patterns and techniques for building scalable applications.",
-    duration: "6 weeks",
-    level: "Advanced",
-  },
-  {
-    id: 3,
-    title: "Data Science Essentials",
-    category: "Data Science",
-    instructor: "Dr. Robert Chen",
-    price: 59.99,
-    status: "Published",
-    enrollments: 312,
-    rating: 4.8,
-    createdAt: "2023-04-20",
-    thumbnail: "/placeholder.svg",
-    description: "Learn the fundamentals of data science including statistics, Python, and data visualization.",
-    duration: "10 weeks",
-    level: "Intermediate",
-  },
-  {
-    id: 4,
-    title: "UI/UX Design Principles",
-    category: "Design",
-    instructor: "Prof. Lisa Johnson",
-    price: 69.99,
-    status: "Published",
-    enrollments: 178,
-    rating: 4.6,
-    createdAt: "2023-07-05",
-    thumbnail: "/placeholder.svg",
-    description: "Master the principles of UI/UX design and create user-centered interfaces.",
-    duration: "8 weeks",
-    level: "Beginner",
-  },
-  {
-    id: 5,
-    title: "Mobile App Development",
-    category: "Mobile Development",
-    instructor: "Dr. Michael Park",
-    price: 89.99,
-    status: "Draft",
-    enrollments: 0,
-    rating: 0,
-    createdAt: "2023-08-01",
-    thumbnail: "/placeholder.svg",
-    description: "Learn to build mobile applications for iOS and Android using React Native.",
-    duration: "12 weeks",
-    level: "Intermediate",
-  },
-  {
-    id: 6,
-    title: "DevOps for Beginners",
-    category: "DevOps",
-    instructor: "Prof. Emily Rodriguez",
-    price: 54.99,
-    status: "Published",
-    enrollments: 156,
-    rating: 4.5,
-    createdAt: "2023-06-25",
-    thumbnail: "/placeholder.svg",
-    description: "Learn the fundamentals of DevOps including CI/CD, Docker, and Kubernetes.",
-    duration: "6 weeks",
-    level: "Beginner",
-  },
-  {
-    id: 7,
-    title: "Cybersecurity Fundamentals",
-    category: "Cybersecurity",
-    instructor: "Dr. Thomas Wright",
-    price: 64.99,
-    status: "Published",
-    enrollments: 201,
-    rating: 4.7,
-    createdAt: "2023-05-30",
-    thumbnail: "/placeholder.svg",
-    description: "Learn the fundamentals of cybersecurity including network security and ethical hacking.",
-    duration: "8 weeks",
-    level: "Beginner",
-  },
-  {
-    id: 8,
-    title: "Game Development with Unity",
-    category: "Game Development",
-    instructor: "Prof. Olivia Kim",
-    price: 74.99,
-    status: "Published",
-    enrollments: 167,
-    rating: 4.8,
-    createdAt: "2023-07-15",
-    thumbnail: "/placeholder.svg",
-    description: "Learn to build 2D and 3D games using Unity and C#.",
-    duration: "10 weeks",
-    level: "Intermediate",
-  },
-  {
-    id: 9,
-    title: "Blockchain Development",
-    category: "Blockchain",
-    instructor: "Dr. Benjamin Taylor",
-    price: 84.99,
-    status: "Draft",
-    enrollments: 0,
-    rating: 0,
-    createdAt: "2023-08-10",
-    thumbnail: "/placeholder.svg",
-    description: "Learn to build decentralized applications using Ethereum and Solidity.",
-    duration: "8 weeks",
-    level: "Advanced",
-  },
-  {
-    id: 10,
-    title: "Cloud Computing Essentials",
-    category: "Cloud Computing",
-    instructor: "Prof. Sophia Chen",
-    price: 59.99,
-    status: "Published",
-    enrollments: 189,
-    rating: 4.6,
-    createdAt: "2023-06-05",
-    thumbnail: "/placeholder.svg",
-    description: "Learn the fundamentals of cloud computing including AWS, Azure, and GCP.",
-    duration: "6 weeks",
-    level: "Beginner",
-  },
-]
+interface Course {
+  _id: string
+  title: string
+  category: string
+  level: string
+  duration: string
+  price: string
+  status: string
+  enrolledStudents: string[]
+  rating: number
+  image: string
+  createdAt: string
+  description: string
+  tags: string[]
+  learningPoints: string[]
+  targetedAudience: string[]
+  courseRequirements: string[]
+}
+
+interface Task {
+  _id: string
+  courseId: string
+  title: string
+  description: string
+  video: string
+  lessons: string[]
+  order: number
+  duration: string
+  status: string
+  resources: string[]
+}
 
 export function CourseManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedCourse, setSelectedCourse] = useState<(typeof courses)[0] | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [courses, setCourses] = useState<Course[]>([])
+  const [totalCourses, setTotalCourses] = useState(0)
+  const [editCourse, setEditCourse] = useState<{ course: Course; tasks: Task[] } | null>(null)
+  const [editTask, setEditTask] = useState<Task | null>(null)
+  const [viewCourse, setViewCourse] = useState<Course | null>(null)
   const itemsPerPage = 5
 
-  // Filter courses based on search term and filters
-  const filteredCourses = courses.filter((course) => {
-    const matchesSearch =
-      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory =
-      categoryFilter === "all" || course.category.toLowerCase().includes(categoryFilter.toLowerCase())
-    const matchesStatus = statusFilter === "all" || course.status.toLowerCase() === statusFilter.toLowerCase()
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const response = await axiosInstance.get(
+        `/api/course/courses?search=${encodeURIComponent(searchTerm)}&category=${categoryFilter}&status=${statusFilter}&page=${currentPage}&limit=${itemsPerPage}`,
+      )
+      console.log("respnse from loading time", response.data.courses)
 
-    return matchesSearch && matchesCategory && matchesStatus
-  })
+      setCourses(response.data.courses)
+      setTotalCourses(response.data.total)
+    }
+    fetchCourses()
+  }, [searchTerm, categoryFilter, statusFilter, currentPage])
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredCourses.length / itemsPerPage)
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredCourses.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(totalCourses / itemsPerPage)
 
-  const handleViewDetails = (course: (typeof courses)[0]) => {
-    setSelectedCourse(course)
+  const handleEditCourse = async (courseId: string) => {
+    const response = await axiosInstance.get(`/api/course/courses/${courseId}`)
+    setEditCourse(response.data)
+  }
+
+  const handleSaveCourse = async () => {
+    if (!editCourse) return
+
+    try {
+      const response = await axiosInstance.put(`/api/course/courses/${editCourse.course._id}`, editCourse.course)
+
+      setCourses((prevCourses) => prevCourses.map((c) => (c._id === response.data._id ? response.data : c)))
+
+      setEditCourse(null)
+    } catch (error) {
+      console.error("Error saving course:", error)
+    }
+  }
+
+  const handleAddTask = async () => {
+    if (!editCourse) return
+    const newTask = {
+      courseId: editCourse.course._id,
+      title: "New Task",
+      description: "",
+      video: "",
+      lessons: [],
+      order: editCourse.tasks.length + 1,
+      duration: "",
+      status: "active",
+      resources: [],
+    }
+    const response = await axiosInstance.post("/api/course/tasks", newTask)
+    setEditCourse({ ...editCourse, tasks: [...editCourse.tasks, response.data] })
+  }
+
+  const handleEditTask = (task: Task) => {
+    setEditTask(task)
+  }
+
+  const handleSaveTask = async () => {
+    if (!editTask || !editCourse) return
+    const response = await axiosInstance.put(`/api/tasks/${editTask._id}`, editTask)
+    setEditCourse({
+      ...editCourse,
+      tasks: editCourse.tasks.map((t) => (t._id === response.data._id ? response.data : t)),
+    })
+    setEditTask(null)
+  }
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!editCourse) return
+    await axiosInstance.delete(`/api/tasks/${taskId}`)
+    setEditCourse({ ...editCourse, tasks: editCourse.tasks.filter((t) => t._id !== taskId) })
   }
 
   const handlePageChange = (page: number) => {
@@ -248,12 +190,12 @@ export function CourseManagement() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="web">Web Development</SelectItem>
-                    <SelectItem value="data">Data Science</SelectItem>
-                    <SelectItem value="design">Design</SelectItem>
-                    <SelectItem value="mobile">Mobile Development</SelectItem>
-                    <SelectItem value="devops">DevOps</SelectItem>
-                    <SelectItem value="cyber">Cybersecurity</SelectItem>
+                    <SelectItem value="Web Development">Web Development</SelectItem>
+                    <SelectItem value="Data Science">Data Science</SelectItem>
+                    <SelectItem value="Design">Design</SelectItem>
+                    <SelectItem value="Mobile Development">Mobile Development</SelectItem>
+                    <SelectItem value="DevOps">DevOps</SelectItem>
+                    <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -267,6 +209,7 @@ export function CourseManagement() {
                     <SelectItem value="all">All</SelectItem>
                     <SelectItem value="published">Published</SelectItem>
                     <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -279,7 +222,6 @@ export function CourseManagement() {
                 <TableRow>
                   <TableHead>Course</TableHead>
                   <TableHead className="hidden md:table-cell">Category</TableHead>
-                  <TableHead className="hidden md:table-cell">Instructor</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden md:table-cell">Enrollments</TableHead>
@@ -287,19 +229,19 @@ export function CourseManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentItems.length === 0 ? (
+                {courses.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6">
+                    <TableCell colSpan={6} className="text-center py-6">
                       No courses found. Try adjusting your filters.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  currentItems.map((course) => (
-                    <TableRow key={course.id}>
+                  courses.map((course) => (
+                    <TableRow key={course._id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
                           <Avatar className="hidden sm:flex h-10 w-10 rounded">
-                            <AvatarImage src={course.thumbnail} alt={course.title} />
+                            <AvatarImage src={course.image} alt={course.title} />
                             <AvatarFallback>{course.title.substring(0, 2)}</AvatarFallback>
                           </Avatar>
                           <div>
@@ -311,12 +253,11 @@ export function CourseManagement() {
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{course.category}</TableCell>
-                      <TableCell className="hidden md:table-cell">{course.instructor}</TableCell>
-                      <TableCell>${course.price}</TableCell>
+                      <TableCell>₹{course.price}</TableCell>
                       <TableCell>
-                        <Badge variant={course.status === "Published" ? "default" : "secondary"}>{course.status}</Badge>
+                        <Badge variant={course.status === "published" ? "default" : "secondary"}>{course.status}</Badge>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">{course.enrollments}</TableCell>
+                      <TableCell className="hidden md:table-cell">{course.enrolledStudents.length}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -327,13 +268,13 @@ export function CourseManagement() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleViewDetails(course)}>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditCourse(course._id)}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Course
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setViewCourse(course)}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="text-destructive">
@@ -352,8 +293,8 @@ export function CourseManagement() {
         </CardContent>
         <CardFooter className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredCourses.length)} of{" "}
-            {filteredCourses.length} courses
+            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalCourses)} of{" "}
+            {totalCourses} courses
           </div>
           <Pagination>
             <PaginationContent>
@@ -363,9 +304,7 @@ export function CourseManagement() {
                   className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
-
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                // Show first page, last page, and pages around current page
                 if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
                   return (
                     <PaginationItem key={page}>
@@ -375,8 +314,6 @@ export function CourseManagement() {
                     </PaginationItem>
                   )
                 }
-
-                // Show ellipsis for gaps
                 if (page === 2 && currentPage > 3) {
                   return (
                     <PaginationItem key="ellipsis-start">
@@ -384,7 +321,6 @@ export function CourseManagement() {
                     </PaginationItem>
                   )
                 }
-
                 if (page === totalPages - 1 && currentPage < totalPages - 2) {
                   return (
                     <PaginationItem key="ellipsis-end">
@@ -392,10 +328,8 @@ export function CourseManagement() {
                     </PaginationItem>
                   )
                 }
-
                 return null
               })}
-
               <PaginationItem>
                 <PaginationNext
                   onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
@@ -406,7 +340,344 @@ export function CourseManagement() {
           </Pagination>
         </CardFooter>
       </Card>
+
+      {editCourse && (
+        <Dialog open={!!editCourse} onOpenChange={() => setEditCourse(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Course</DialogTitle>
+              <DialogDescription>Update course details and manage tasks.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={editCourse.course.title}
+                  onChange={(e) =>
+                    setEditCourse({ ...editCourse, course: { ...editCourse.course, title: e.target.value } })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={editCourse.course.description}
+                  onChange={(e) =>
+                    setEditCourse({ ...editCourse, course: { ...editCourse.course, description: e.target.value } })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={editCourse.course.category}
+                  onValueChange={(value) =>
+                    setEditCourse({ ...editCourse, course: { ...editCourse.course, category: value } })
+                  }
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Web Development">Web Development</SelectItem>
+                    <SelectItem value="Data Science">Data Science</SelectItem>
+                    <SelectItem value="Design">Design</SelectItem>
+                    <SelectItem value="Mobile Development">Mobile Development</SelectItem>
+                    <SelectItem value="DevOps">DevOps</SelectItem>
+                    <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="level">Level</Label>
+                  <Select
+                    value={editCourse.course.level}
+                    onValueChange={(value) =>
+                      setEditCourse({ ...editCourse, course: { ...editCourse.course, level: value } })
+                    }
+                  >
+                    <SelectTrigger id="level">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="duration">Duration</Label>
+                  <Input
+                    id="duration"
+                    value={editCourse.course.duration}
+                    onChange={(e) =>
+                      setEditCourse({ ...editCourse, course: { ...editCourse.course, duration: e.target.value } })
+                    }
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  value={editCourse.course.price}
+                  onChange={(e) =>
+                    setEditCourse({ ...editCourse, course: { ...editCourse.course, price: e.target.value } })
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={editCourse.course.status}
+                  onValueChange={(value) =>
+                    setEditCourse({ ...editCourse, course: { ...editCourse.course, status: value } })
+                  }
+                >
+                  <SelectTrigger id="status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold">Tasks</h3>
+                {editCourse.tasks.map((task) => (
+                  <div key={task._id} className="flex items-center justify-between py-2">
+                    <span>{task.title}</span>
+                    <div>
+                      <Button variant="ghost" size="sm" onClick={() => handleEditTask(task)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDeleteTask(task._id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button onClick={handleAddTask}>Add Task</Button>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditCourse(null)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveCourse}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {editTask && (
+        <Dialog open={!!editTask} onOpenChange={() => setEditTask(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Task</DialogTitle>
+              <DialogDescription>Update task details.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="task-title">Title</Label>
+                <Input
+                  id="task-title"
+                  value={editTask.title}
+                  onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="task-description">Description</Label>
+                <Input
+                  id="task-description"
+                  value={editTask.description}
+                  onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="task-video">Video URL</Label>
+                <Input
+                  id="task-video"
+                  value={editTask.video}
+                  onChange={(e) => setEditTask({ ...editTask, video: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="task-duration">Duration</Label>
+                <Input
+                  id="task-duration"
+                  value={editTask.duration}
+                  onChange={(e) => setEditTask({ ...editTask, duration: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="task-status">Status</Label>
+                <Select value={editTask.status} onValueChange={(value) => setEditTask({ ...editTask, status: value })}>
+                  <SelectTrigger id="task-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditTask(null)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveTask}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {viewCourse && (
+        <Dialog open={!!viewCourse} onOpenChange={() => setViewCourse(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Course Details</DialogTitle>
+              <DialogDescription>Detailed information about this course</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-6 py-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={viewCourse.image} alt={viewCourse.title} />
+                  <AvatarFallback>{viewCourse.title.substring(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-xl font-bold">{viewCourse.title}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant={viewCourse.status === "published" ? "default" : "secondary"}>
+                      {viewCourse.status}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      Created: {new Date(viewCourse.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Category</p>
+                  <p>{viewCourse.category}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Level</p>
+                  <p>{viewCourse.level}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Duration</p>
+                  <p>{viewCourse.duration}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Price</p>
+                  <p>${viewCourse.price}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Enrolled Students</p>
+                  <p>{viewCourse.enrolledStudents.length}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Rating</p>
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${i < viewCourse.rating ? "fill-primary text-primary" : "fill-muted text-muted-foreground"}`}
+                      />
+                    ))}
+                    <span className="ml-2">{viewCourse.rating.toFixed(1)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Description</p>
+                <p className="text-sm text-muted-foreground">{viewCourse.description}</p>
+              </div>
+
+              {/* Tags */}
+              {viewCourse.tags && viewCourse.tags.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Tags</p>
+                  <div className="flex flex-wrap gap-2">
+                    {viewCourse.tags.map((tag, index) => (
+                      <Badge key={index} variant="outline">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Learning Points */}
+              {viewCourse.learningPoints && viewCourse.learningPoints.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Learning Points</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {viewCourse.learningPoints.map((point, index) => (
+                      <li key={index} className="text-sm">
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Targeted Audience */}
+              {viewCourse.targetedAudience && viewCourse.targetedAudience.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Targeted Audience</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {viewCourse.targetedAudience.map((audience, index) => (
+                      <li key={index} className="text-sm">
+                        {audience}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Course Requirements */}
+              {viewCourse.courseRequirements && viewCourse.courseRequirements.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Course Requirements</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {viewCourse.courseRequirements.map((requirement, index) => (
+                      <li key={index} className="text-sm">
+                        {requirement}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setViewCourse(null)}>
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  setViewCourse(null)
+                  handleEditCourse(viewCourse._id)
+                }}
+              >
+                Edit Course
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
-

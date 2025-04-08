@@ -75,5 +75,30 @@ export class courseRepository implements ICourseRepository {
   }
 
 
+ async getCoursesAdmin(search: string, category: string, status: string, page: number, limit: number): Promise<{ courses: ICourse[]; total: number; }> {
+  const query: any = {};
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  if (category && category !== 'all') {
+    query.category = category;
+  }
+
+  if (status && status !== 'all') {
+    query.status = status;
+  }
+
+  const courses=await Course.find(query).skip((page-1)*limit).limit(limit)
+  const total=await Course.countDocuments(query)
+  return {courses,total}
+ }
+
+async updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> {
+  return await Course.findByIdAndUpdate(id, data, { new: true });
+}
 
 }
