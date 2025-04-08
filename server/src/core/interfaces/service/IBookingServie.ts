@@ -32,4 +32,6 @@ export interface IBookingService{
 
       markSlotAsBooked(mentorId: string, date: string, startTime: string, endTime: string): Promise<void>
 
+      getMentorBookings(mentorId: string): Promise<IBooking[]>
+
 }

@@ -10,4 +10,5 @@ export interface IBookingController{
     getMentorAvailability:RequestHandler
     createCheckoutSession:RequestHandler
     verifyPayment:RequestHandler
+    getMentorBookings:RequestHandler
 }

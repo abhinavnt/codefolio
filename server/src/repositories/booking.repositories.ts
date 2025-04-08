@@ -4,6 +4,7 @@ import { Booking, IBooking } from "../models/Booking";
 import { Mentor } from "../models/Mentor";
 import { startOfDay, endOfDay, getDay } from "date-fns";
 import { stripe } from "../config/stripe";
+import mongoose from "mongoose";
 
 
 
@@ -135,6 +136,11 @@ export class BookingRepository implements IBookingRepository{
 
 
 
+    async getBookingsByMentorId(mentorId: string): Promise<IBooking[]> {
+      return Booking.find({ mentorId: new mongoose.Types.ObjectId(mentorId) })
+      .populate("userId", "name email image") 
+      .exec();
+    }
 
 
 }
