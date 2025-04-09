@@ -20,4 +20,5 @@ export interface IBookingRepository{
       createBooking(bookingData: Partial<IBooking>): Promise<IBooking>
       findBooking(mentorId: string, date: string, startTime: string, endTime: string):Promise<IBooking|null>
       getBookingsByMentorId(mentorId: string): Promise<IBooking[]>
+      getBookingsByUserId(userId: string): Promise<IBooking[]>
 }

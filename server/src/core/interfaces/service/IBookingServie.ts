@@ -34,4 +34,6 @@ export interface IBookingService{
 
       getMentorBookings(mentorId: string): Promise<IBooking[]>
 
+      getUserBookings(userId: string): Promise<IBooking[]>
+
 }

@@ -39,7 +39,8 @@ export function Wishlist() {
 
   return (
     <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
+      Comming soon
+      {/* <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-medium">My Wishlist</h1>
         <p className="text-sm text-gray-500">{wishlistItems.length} courses</p>
       </div>
@@ -100,7 +101,7 @@ export function Wishlist() {
           <p className="text-gray-500 mb-4">Your wishlist is empty.</p>
           <button className="bg-green-500 text-white px-4 py-2 rounded-md text-sm">Browse Courses</button>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

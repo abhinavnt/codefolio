@@ -74,7 +74,7 @@ export class AdminController implements IAdminController{
 
        const {allMentors,total}= await this.adminService.getAllMentors(page,limit)
 
-       res.status(200).json({MentorData:allMentors,total})
+       res.status(200).json({MentorData:allMentors,totalPages:Math.ceil(total/limit),total})
     })
 
 
