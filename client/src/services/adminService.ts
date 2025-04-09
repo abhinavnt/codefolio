@@ -1,5 +1,5 @@
 import axiosInstance from "@/utils/axiosInstance"
-import { an } from "node_modules/framer-motion/dist/types.d-B50aGbjN";
+
 
 
 
@@ -79,6 +79,8 @@ export const toggleUserStatus=async(userId:string)=>{
 //get all mentors
 export const getAllMentors=async (page:number,limit:number)=>{
     try {
+        console.log(page,"pagefrom frontend service");
+        
         const response=await axiosInstance.get(`/api/admin/allMentors?page=${page}&limit=${limit}`)
         return response.data
     } catch (error) {

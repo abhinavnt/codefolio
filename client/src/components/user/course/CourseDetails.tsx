@@ -63,11 +63,11 @@ export default function CourseDetail() {
               className="w-full object-cover rounded-lg"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="rounded-full bg-white/90 p-4 shadow-lg">
+              {/* <div className="rounded-full bg-white/90 p-4 shadow-lg">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8 5V19L19 12L8 5Z" fill="#10b981" />
                 </svg>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -369,7 +369,7 @@ export default function CourseDetail() {
             </Card>
 
             <div className="sticky">
-              <RelatedCourses />
+              {/* <RelatedCourses /> */}
             </div>
 
           </div>

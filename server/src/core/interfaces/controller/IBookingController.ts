@@ -11,4 +11,5 @@ export interface IBookingController{
     createCheckoutSession:RequestHandler
     verifyPayment:RequestHandler
     getMentorBookings:RequestHandler
+    getUserBookings :RequestHandler
 }

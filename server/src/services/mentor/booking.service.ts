@@ -193,6 +193,9 @@ export class BookingService implements IBookingService{
     return "upcoming";
   }
 
+  async getUserBookings(userId: string): Promise<IBooking[]> {
+      return await this.bookingRepository.getBookingsByUserId(userId)
+  }
 
 
 }

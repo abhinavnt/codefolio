@@ -16,6 +16,7 @@ router.get("/:username/availability",bookingController.getMentorAvailability)
 router.post('/create-checkout-session',bookingController.createCheckoutSession)
 router.get('/verify-payment',bookingController.verifyPayment)
 router.get('/bookings',bookingController.getMentorBookings)
+router.get('/user-bookings',bookingController.getUserBookings)
 
 
 

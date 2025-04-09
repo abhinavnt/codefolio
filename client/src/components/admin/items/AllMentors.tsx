@@ -53,7 +53,6 @@ export interface IMentorData {
   status: "active" | "inactive"
   submittedAt: Date
   updatedAt?: Date
-  // availableTimeSlots?: IAvailableTimeSlot[];
   title?: string
   reviewTakenCount?: number
   phone?: string
@@ -79,8 +78,12 @@ export function AllMentors() {
   useEffect(() => {
     const fetchMentors = async () => {
       try {
+        console.log(currentPage,"current page from frontend");
+        
         const { MentorData, total, totalPages } = await getAllMentors(currentPage, itemsPerPage)
         console.log(MentorData, "mentor data")
+        console.log(totalPages,"total pages from allmentor side");
+        
         setMentors(MentorData)
         setTotalPages(totalPages)
         setTotalItems(total)
@@ -107,8 +110,10 @@ export function AllMentors() {
 
   // Calculate pagination
   // const totalPages = Math.ceil(filteredMentors.length / itemsPerPage)
-  const indexOfFirstItem = (currentPage - 1) * itemsPerPage
-  const indexOfLastItem = Math.min(currentPage * itemsPerPage, totalItems)
+  const indexOfFirstDisplay = (currentPage - 1) * itemsPerPage + 1
+  console.log(totalItems,"totalitems",itemsPerPage,"itemeperpage",currentPage,"current page");
+  
+  const indexOfLastDisplay = Math.min(currentPage * itemsPerPage, totalItems)
   // const currentItems = filteredMentors.slice(indexOfFirstItem, indexOfLastItem)
 
   const handleViewDetails = (mentor: IMentorData) => {
@@ -148,6 +153,8 @@ export function AllMentors() {
 
 
   const handlePageChange = (page: number) => {
+    console.log(page,"pagefrom handlepage change function");
+    
     setCurrentPage(page)
   }
 
@@ -396,7 +403,7 @@ export function AllMentors() {
         </CardContent>
         <CardFooter className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalItems)} of {totalItems} mentors
+            Showing {indexOfFirstDisplay + 1} to {Math.min(indexOfLastDisplay, totalItems)} of {totalItems} mentors
           </div>
           <Pagination>
             <PaginationContent>

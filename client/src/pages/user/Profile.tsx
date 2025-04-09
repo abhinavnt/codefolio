@@ -32,10 +32,10 @@ export default function UserProfile() {
         {/* Navigation Tabs */}
         <ProfileMenu activeTab={activeTab} setActiveTab={setActiveTab} />
         {/* Main Content */}
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto  px-4">
           {activeTab === "Dashboard" && <Dashboard />}
           {activeTab === "Courses" && <Courses />}
-          {activeTab === "Teachers" && <Mentors />}
+          {activeTab === "Bookings" && <Mentors />}
           {activeTab === "Message" && <Message />}
           {activeTab === "Wishlist" && <Wishlist />}
           {activeTab === "Purchase History" && <PurchaseHistory />}

@@ -75,4 +75,11 @@ export class BookingController implements IBookingController{
        })
 
 
+       getUserBookings =asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+        const userId = String(req.user?._id)
+        const bookings = await this.bookinService.getUserBookings(userId)
+        res.status(200).json(bookings)
+       })
+
+
 }

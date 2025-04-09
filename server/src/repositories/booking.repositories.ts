@@ -143,6 +143,12 @@ export class BookingRepository implements IBookingRepository{
     }
 
 
+
+    async getBookingsByUserId(userId: string): Promise<IBooking[]> {
+      return await Booking.find({ userId: userId }).populate('mentorId', 'name profileImage specialty');
+    }
+
+
 }
 
 

@@ -25,9 +25,9 @@ export function MentorCard({ mentor }: MentorCardProps) {
           alt={mentor.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        {mentor.expertise && (
+        {/* {mentor.expertise && (
           <Badge className="absolute top-2 left-2 bg-emerald-500 text-white">{mentor.expertise}</Badge>
-        )}
+        )} */}
       </div>
 
       <div className="p-4 flex flex-col flex-1">

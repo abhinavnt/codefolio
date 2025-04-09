@@ -29,7 +29,7 @@ const initialState: MentorState = {
     error: null,
     pagination: {
       page: 1,
-      limit: 8,
+      limit: 9,
       total: 0,
       totalPages: 0,
     },
@@ -40,7 +40,7 @@ const initialState: MentorState = {
   export const fetchMentors = createAsyncThunk(
     'mentors/fetchMentors',
     async ({page = 1,search, filters,}: {page?: number;search?: string;filters?: { rating?: number; technicalSkills?: string[]; priceRange?: [number, number] };}) => {
-      const params = new URLSearchParams({ page: page.toString(),limit: '8',});
+      const params = new URLSearchParams({ page: page.toString(),limit: '9',});
       if (search) params.append('search', search);
       if (filters?.rating) params.append('rating', filters.rating.toString());
       if (filters?.technicalSkills) params.append('technicalSkills', filters.technicalSkills.join(','));
