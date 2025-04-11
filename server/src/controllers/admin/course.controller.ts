@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import cloudinary from "../../config/cloudinary";
 import { ICourseController } from "../../core/interfaces/controller/ICourseController";
-import { courseService } from "../../services/admin/course.service";
+import { courseService } from "../../services/course.service"; 
 import { Request, RequestHandler, Response } from "express";
 import { TYPES } from "../../di/types";
 import { ICourseService } from "../../core/interfaces/service/ICourseService";

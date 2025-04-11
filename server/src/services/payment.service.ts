@@ -1,11 +1,14 @@
 import { inject, injectable } from "inversify";
-import { IPaymentService, PaymentDetails } from "../../core/interfaces/service/IPaymentService";
-import { TYPES } from "../../di/types";
-import { IPaymentRepository } from "../../core/interfaces/repository/IPaymentRepository";
-import { ICourse } from "../../models/Course";
+
 import { Types } from "mongoose";
-import { ITaskRepository } from "../../core/interfaces/repository/ITaskRepository";
-import { ICourseRepository } from "../../core/interfaces/repository/ICourseRepository";
+import { TYPES } from "../di/types";
+import { IPaymentService, PaymentDetails } from "../core/interfaces/service/IPaymentService";
+import { IPaymentRepository } from "../core/interfaces/repository/IPaymentRepository";
+import { ITaskRepository } from "../core/interfaces/repository/ITaskRepository";
+import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
+import { ICourse } from "../models/Course";
+import { IPurchasedTaskRepository } from "../core/interfaces/repository/IPurchaseTaskReposioty";
+
 
 
 
@@ -15,7 +18,8 @@ import { ICourseRepository } from "../../core/interfaces/repository/ICourseRepos
 export class PaymentService implements IPaymentService{
     constructor(@inject(TYPES.PaymentRepository) private paymentRepository:IPaymentRepository,
                 @inject(TYPES.TaskRepository) private taskRepository:ITaskRepository,
-                @inject(TYPES.CourseRepository) private courseRepository:ICourseRepository
+                @inject(TYPES.CourseRepository) private courseRepository:ICourseRepository,
+                @inject(TYPES.PurchaseTaskRepository) private purchaseTaskRepository:IPurchasedTaskRepository
 ){}
 
 
@@ -124,7 +128,7 @@ export class PaymentService implements IPaymentService{
 
         
 
-        await this.paymentRepository.savePurchasedTasks(purchasedTask)
+        await this.purchaseTaskRepository.savePurchasedTasks(purchasedTask)
 
         await this.courseRepository.addStudentToCourse(courseData._id as string,userId)
 

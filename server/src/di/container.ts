@@ -10,7 +10,7 @@ import { AuthRepository } from "../repositories/auth.repository";
 import { IUserController } from "../core/interfaces/controller/IUserController";
 import { UserController } from "../controllers/user/user.controller";
 import { IUserService } from "../core/interfaces/service/IUserService";
-import { userService } from "../services/user/user.service";
+import { userService } from "../services/user.service"; 
 import { IUserRepository } from "../core/interfaces/repository/IUserRepository";
 import { UserRepository } from "../repositories/user.repository";
 import { IMentorReqController } from "../core/interfaces/controller/IMentorReqController";
@@ -27,7 +27,7 @@ import { adminRepository } from "../repositories/admin.repository";
 import { ICourseController } from "../core/interfaces/controller/ICourseController";
 import { CourseController } from "../controllers/admin/course.controller";
 import { ICourseService } from "../core/interfaces/service/ICourseService";
-import { courseService } from "../services/admin/course.service";
+import { courseService } from "../services/course.service"; 
 import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
 import { courseRepository } from "../repositories/course.repository";
 import { IMentorRepository } from "../core/interfaces/repository/IMentorRepository";
@@ -41,15 +41,19 @@ import { PaymentRepository } from "../repositories/payment.repository";
 import { ITaskRepository } from "../core/interfaces/repository/ITaskRepository";
 import { TaskRepository } from "../repositories/task.repository";
 import { IPaymentService } from "../core/interfaces/service/IPaymentService";
-import { PaymentService } from "../services/user/payment.service";
+import { PaymentService } from "../services/payment.service"; 
 import { IPaymentController } from "../core/interfaces/controller/IPaymentController";
 import { PaymentController } from "../controllers/user/payment.controller";
 import { IBookingRepository } from "../core/interfaces/repository/IBookingRepository";
 import { BookingRepository } from "../repositories/booking.repositories";
 import { IBookingService } from "../core/interfaces/service/IBookingServie";
-import { BookingService } from "../services/mentor/booking.service";
+import { BookingService } from "../services/booking.service"; 
 import { IBookingController } from "../core/interfaces/controller/IBookingController";
 import { BookingController } from "../controllers/mentor/booking.controller";
+import { IPurchasedTaskRepository } from "../core/interfaces/repository/IPurchaseTaskReposioty";
+import { PurchaseTaskRepository } from "../repositories/purchaseTask.repository";
+import { IPurchaseCourseRepository } from "../core/interfaces/repository/IPurchasedCourse";
+import { PurchaseCourseRepository } from "../repositories/purchaseCourse.repository";
 
 
 
@@ -101,6 +105,9 @@ container.bind<IBookingRepository>(TYPES.BookingRepository).to(BookingRepository
 
 
 
+
+container.bind<IPurchasedTaskRepository>(TYPES.PurchaseTaskRepository).to(PurchaseTaskRepository)
+container.bind<IPurchaseCourseRepository>(TYPES.PurchaseCourseRepository).to(PurchaseCourseRepository)
 
 
 

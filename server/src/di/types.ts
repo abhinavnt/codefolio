@@ -1,6 +1,6 @@
 import { BookingController } from "../controllers/mentor/booking.controller";
 import { BookingRepository } from "../repositories/booking.repositories";
-import { BookingService } from "../services/mentor/booking.service";
+import { BookingService } from "../services/booking.service"; 
 
 
 export const TYPES={
@@ -14,6 +14,8 @@ export const TYPES={
     PaymentRepository:Symbol.for('PaymentRepository'),
     TaskRepository:Symbol.for('TaskRepository'),
     BookingRepository:Symbol.for('BookingRepository'),
+    PurchaseTaskRepository:Symbol.for('PurchaseTaskRepository'),
+    PurchaseCourseRepository:Symbol.for('PurchaseCourse'),
 
 
     //services

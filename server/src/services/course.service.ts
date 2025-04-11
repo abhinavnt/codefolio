@@ -1,14 +1,15 @@
-import { Types } from "mongoose"; 
-import { ICourseService } from "../../core/interfaces/service/ICourseService"; 
-import { ICourse } from "../../models/Course"; 
-import { courseRepository } from "../../repositories/course.repository"; 
-import { ILesson, ITask } from "../../models/Tasks";
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { ICourseRepository } from "../../core/interfaces/repository/ICourseRepository";
-import { ICoursePurchased } from "../../models/CoursePurchased";
-import { ITaskRepository } from "../../core/interfaces/repository/ITaskRepository";
-import { IPurchasedCourseTask } from "../../models/PurchasedCourseTasks";
+import { ICourseService } from "../core/interfaces/service/ICourseService";
+import { ILesson, ITask } from "../models/Tasks";
+import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
+import { ITaskRepository } from "../core/interfaces/repository/ITaskRepository";
+import { TYPES } from "../di/types";
+import { ICourse } from "../models/Course";
+import { ICoursePurchased } from "../models/CoursePurchased";
+import { IPurchasedCourseTask } from "../models/PurchasedCourseTasks";
+import { Types } from "mongoose";
+import { IPurchasedTaskRepository } from "../core/interfaces/repository/IPurchaseTaskReposioty";
+import { IPurchaseCourseRepository } from "../core/interfaces/repository/IPurchasedCourse";
 
 
 interface IModule {
@@ -24,7 +25,9 @@ injectable()
 export class courseService implements ICourseService {
    
   constructor(@inject(TYPES.CourseRepository) private courseRepository:ICourseRepository,
-              @inject(TYPES.TaskRepository) private taskRepositoroy:ITaskRepository
+              @inject(TYPES.TaskRepository) private taskRepositoroy:ITaskRepository,
+              @inject(TYPES.PurchaseTaskRepository) private purchaseTaskRepository:IPurchasedTaskRepository,
+              @inject(TYPES.PurchaseCourseRepository) private purchaseCourseRepository:IPurchaseCourseRepository,
 ){}
 
   async addCourse(courseData: any): Promise<ICourse> {
@@ -103,7 +106,7 @@ export class courseService implements ICourseService {
 
         console.log('waiting for tasks creation');
         
-        await this.courseRepository.createTasks(tasks);
+        await this.taskRepositoroy.createTasks(tasks);
       }
 
       return newCourse;
@@ -130,7 +133,7 @@ export class courseService implements ICourseService {
 
   //get purcased course for users
   async findCoursePurchaseByUserId(userId: string): Promise<ICoursePurchased[]> {
-      return await this.courseRepository.findCoursePurchaseByUserId(userId) 
+      return await this.purchaseCourseRepository.findCoursePurchaseByUserId(userId) 
   }
 
 
@@ -139,7 +142,7 @@ export class courseService implements ICourseService {
   async findTaskByUserIdAndCourseId(userId: string, courseId: string): Promise<IPurchasedCourseTask[]> {
     try {
       
-      return await this.taskRepositoroy.findTaskByUserIdAndCourseId(userId,courseId)
+      return await this.purchaseTaskRepository.findTaskByUserIdAndCourseId(userId,courseId)
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));
     }

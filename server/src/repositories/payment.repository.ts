@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { IPaymentRepository } from "../core/interfaces/repository/IPaymentRepository";
 import { stripe } from "../config/stripe";
 import { CoursePurchased, ICoursePurchased } from "../models/CoursePurchased";
-import { IPurchasedCourseTask, PurchasedCourseTasks } from "../models/PurchasedCourseTasks";
+import { BaseRepository } from "../core/abstracts/base.repository";
 
 
 
@@ -12,7 +12,10 @@ import { IPurchasedCourseTask, PurchasedCourseTasks } from "../models/PurchasedC
 
 
 
-export class PaymentRepository implements IPaymentRepository{
+export class PaymentRepository extends BaseRepository<ICoursePurchased> implements IPaymentRepository{
+      constructor(){
+        super(CoursePurchased)
+      }
 
     async createCheckoutSession({ courseId, amount, couponCode, }: { courseId: string; amount: number; couponCode?: string; }): Promise<Stripe.Checkout.Session> {
         console.log(amount,"amount from repository");
@@ -49,19 +52,19 @@ export class PaymentRepository implements IPaymentRepository{
     async savePurchase(purchaseData: Partial<ICoursePurchased>): Promise<ICoursePurchased> {
         console.log("save purchase repository",purchaseData);
         
-        const purchase= new CoursePurchased(purchaseData);
+        const purchase= new this.model(purchaseData);
         return await purchase.save()
     }
 
 
-    async savePurchasedTasks(tasks: Partial<IPurchasedCourseTask>[]): Promise<IPurchasedCourseTask[]> {
+    // async savePurchasedTasks(tasks: Partial<IPurchasedCourseTask>[]): Promise<IPurchasedCourseTask[]> {
 
-        return await PurchasedCourseTasks.insertMany(tasks) as IPurchasedCourseTask[]
-      }
+    //     return await PurchasedCourseTasks.insertMany(tasks) as IPurchasedCourseTask[]
+    //   }
       
 
     async checkPurchaseId(paymentIntent: string): Promise<ICoursePurchased|null> {
-        return await CoursePurchased.findOne({'paymentDetails.paymentIntent':paymentIntent})
+        return await this.findOne({'paymentDetails.paymentIntent':paymentIntent})
         
     }
 

@@ -117,7 +117,7 @@ export class MentorService implements IMentorService{
 
 
 
-            return this.mentorRepository.update(userId,updateData)
+            return this.mentorRepository.updateMentor(userId,updateData)
         } catch (error) {
             throw new Error(error instanceof Error ? error.message : String(error));
         }

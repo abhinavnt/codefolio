@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import cloudinary from '../../config/cloudinary';
 import { AuthRequest } from '../../types/custom';
-import { userService } from '../../services/user/user.service';
+import { userService } from '../../services/user.service'; 
 import { IUserController } from '../../core/interfaces/controller/IUserController';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../di/types';

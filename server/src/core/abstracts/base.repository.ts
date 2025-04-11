@@ -6,6 +6,8 @@ import {
     DeleteResult,
     Types,
     UpdateWriteOpResult,
+    Query,
+    QueryOptions,
   } from 'mongoose';
   import { IBaseRepository } from '../interfaces/repository/IBaseRepository'; 
   
@@ -13,10 +15,10 @@ import {
     constructor(protected model: Model<T>) {}
   
     async findById(id: Types.ObjectId): Promise<T | null> {
-      return this.model.findById(id);
+      return this.model.findById(id)
     }
   
-    async findByIdAndUpdate(id: Types.ObjectId, update: UpdateQuery<T>): Promise<T | null> {
+    async findByIdAndUpdate(id: Types.ObjectId, update: UpdateQuery<T>,options: QueryOptions = { upsert: true, new: true }): Promise<T | null> {
       return this.model.findByIdAndUpdate(id, update, { upsert: true, new: true });
     }
   
@@ -45,19 +47,29 @@ import {
       return this.model.deleteOne(filter);
     }
   
-    async find(filter: FilterQuery<T>): Promise<T[]> {
-      return await this.model.find(filter);
+    find(filter: FilterQuery<T>): Query<T[], T> {
+      return this.model.find(filter);
     }
   
-    async findOne(filter: FilterQuery<T>): Promise<T | null> {
+    findOne(filter: FilterQuery<T>): Query<T | null, T> {
       return this.model.findOne(filter);
-    }
+  }
   
-    async findOneAndUpdate(filter: FilterQuery<T>, update: UpdateQuery<T>): Promise<T> {
+    async findOneAndUpdate(filter: FilterQuery<T>, update: UpdateQuery<T>,options: QueryOptions = { upsert: true, new: true }): Promise<T> {
       return this.model.findOneAndUpdate(filter, update, { upsert: true, new: true });
     }
   
     async findOneAndDelete(filter: FilterQuery<T>): Promise<T | null> {
       return this.model.findOneAndDelete(filter);
     }
+
+    async countDocuments(filter: FilterQuery<T>): Promise<number> {
+      return this.model.countDocuments(filter);
+    }
+
+
+    async findByIdAndDelete(id: string): Promise<T | null> {
+      return this.model.findByIdAndDelete(id);
+    }
+    
   }

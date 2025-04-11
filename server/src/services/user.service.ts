@@ -1,19 +1,20 @@
-import { IUser } from "../../models/User";
-import bcrypt from "bcryptjs";
-import { UserRepository } from "../../repositories/user.repository";
-import { IUserService } from "../../core/interfaces/service/IUserService";
-import { ICourse } from "../../models/Course";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { IUserRepository } from "../../core/interfaces/repository/IUserRepository";
-
 
 
 // const userRepository = new UserRepository();
 
+import { inject, injectable } from "inversify";
+import { TYPES } from "../di/types";
+import { IUserRepository } from "../core/interfaces/repository/IUserRepository";
+import { IUserService } from "../core/interfaces/service/IUserService";
+import { IUser } from "../models/User";
+import { ICourse } from "../models/Course";
+import bcrypt from "bcryptjs";
+import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
+
 injectable()
 export class userService implements IUserService{
-     constructor(@inject(TYPES.UserRepository) private userRepository:IUserRepository
+     constructor(@inject(TYPES.UserRepository) private userRepository:IUserRepository,
+                  @inject(TYPES.CourseRepository) private courseRepository:ICourseRepository
     ){}
     async getUserProfile(userId: string): Promise<IUser> {
         try {
@@ -47,7 +48,7 @@ export class userService implements IUserService{
 
 
     async getAllCourse(): Promise<ICourse[] | null> {
-        return await this.userRepository.getAllCourses()
+        return await this.courseRepository.getAllCourses()
     }
 
     async getNotifications(userId: string): Promise<IUser["notifications"]> {

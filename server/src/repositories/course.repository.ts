@@ -3,28 +3,25 @@
 import mongoose from "mongoose";
 import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
 import { Course, ICourse } from "../models/Course";
-import { ITask, Task } from "../models/Tasks";
-import { CoursePurchased, ICoursePurchased } from "../models/CoursePurchased";
+import { BaseRepository } from "../core/abstracts/base.repository";
 
-export class courseRepository implements ICourseRepository {
+export class courseRepository extends BaseRepository<ICourse> implements ICourseRepository {
+constructor(){
+  super(Course)
+}
+
+  async getAllCourses(): Promise<ICourse[] | null> {
+    return await this.find({})
+}
+
   // Create a new course
   async createCourse(courseData: Partial<ICourse>): Promise<ICourse> {
     try {
-      const newCourse = new Course(courseData);
+      const newCourse = new this.model(courseData);
       await newCourse.save();
       return newCourse;
     } catch (error: any) {
       throw new Error(`Error creating course: ${error.message}`);
-    }
-  }
-
-  // Create multiple tasks
-  async createTasks(tasksData: Partial<ITask>[]): Promise<ITask[]> {
-    try {
-      const tasks = await Task.insertMany(tasksData) as ITask[]; 
-      return tasks;
-    } catch (error: any) {
-      throw new Error(`Error creating tasks: ${error.message}`);
     }
   }
 
@@ -33,7 +30,7 @@ export class courseRepository implements ICourseRepository {
       try {
         console.log(courseId,"getcourserby id repository");
         
-        const course=await Course.findById(courseId)
+        const course=await this.findById(new mongoose.Types.ObjectId(courseId))
 
         console.log('course from getcourse by id',course);
         
@@ -48,7 +45,7 @@ export class courseRepository implements ICourseRepository {
     const courseObjectId = new mongoose.Types.ObjectId(courseId);
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    return await Course.findByIdAndUpdate(
+    return await this.findByIdAndUpdate(
       courseObjectId,
       { $addToSet: { enrolledStudents: userObjectId } },
       { new: true }
@@ -61,17 +58,12 @@ export class courseRepository implements ICourseRepository {
     const courseObjectId = new mongoose.Types.ObjectId(courseId);
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    const course = await Course.findOne({
+    const course = await this.findOne({
       _id: courseObjectId,
       enrolledStudents: userObjectId
     });
 
     return !!course;
-  }
-
-  //get user purchased courses
-  async findCoursePurchaseByUserId(userId: string): Promise<ICoursePurchased[]> {
-      return CoursePurchased.find({userId}).exec()
   }
 
 
@@ -92,13 +84,13 @@ export class courseRepository implements ICourseRepository {
     query.status = status;
   }
 
-  const courses=await Course.find(query).skip((page-1)*limit).limit(limit)
-  const total=await Course.countDocuments(query)
+  const courses=await this.find(query).skip((page-1)*limit).limit(limit)
+  const total=await this.countDocuments(query)
   return {courses,total}
  }
 
 async updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> {
-  return await Course.findByIdAndUpdate(id, data, { new: true });
+  return await this.findByIdAndUpdate(new mongoose.Types.ObjectId(id), data, { new: true });
 }
 
 }

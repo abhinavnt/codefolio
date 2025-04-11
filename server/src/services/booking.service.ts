@@ -1,11 +1,13 @@
 import { inject, injectable } from "inversify";
-import { IBookingService } from "../../core/interfaces/service/IBookingServie";
-import { TYPES } from "../../di/types";
-import { IBookingRepository } from "../../core/interfaces/repository/IBookingRepository";
-import { IMentorRepository } from "../../core/interfaces/repository/IMentorRepository";
+
 import { format, isSameDay } from "date-fns";
-import { IBooking } from "../../models/Booking";
+
 import mongoose from "mongoose";
+import { IBookingService } from "../core/interfaces/service/IBookingServie";
+import { TYPES } from "../di/types";
+import { IMentorRepository } from "../core/interfaces/repository/IMentorRepository";
+import { IBookingRepository } from "../core/interfaces/repository/IBookingRepository";
+import { IBooking } from "../models/Booking";
 
 
 
@@ -26,7 +28,7 @@ export class BookingService implements IBookingService{
     }
        const fromDate = new Date(from)
        const toDate= new Date(to)
-       return this.bookingRepository.getAvailableSlots(ogMentorId._id as string,fromDate,toDate)
+       return this.mentorRepository.getAvailableSlots(ogMentorId._id as string,fromDate,toDate)
    }
 
 
@@ -63,7 +65,7 @@ export class BookingService implements IBookingService{
       
       if (existingBooking) return false
 
-      const mentor=await this.mentorRepository.findById(mentorId)
+      const mentor=await this.mentorRepository.findByMentorID(mentorId)
       console.log(mentor,"mentor from checkavailbilty");
       
       if (!mentor) return false
@@ -129,7 +131,7 @@ export class BookingService implements IBookingService{
 
 
    async markSlotAsBooked(mentorId: string, date: string, startTime: string, endTime: string): Promise<void> {
-       const mentor= await this.mentorRepository.findById(mentorId)
+       const mentor= await this.mentorRepository.findByMentorID(mentorId)
        if (!mentor) throw new Error("Mentor not found")
 
          const targetDate = new Date(date)
