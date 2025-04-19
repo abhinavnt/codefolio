@@ -23,6 +23,7 @@ import MentorLoadingPage from "./pages/mentor/Mentor-verifcation";
 import MentorDashboardPage from "./pages/mentor/MentorDashboard";
 import { BookingSuccess } from "./pages/user/SlotBookingSuccess";
 import EnrolledCourseTask from "./pages/user/EnrolledCourseTask";
+import { VideoCall } from "./pages/video/VideoCall";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -108,6 +109,8 @@ function App() {
 
               {/* <Route path="/admin/login" element={<AdminLogin/>}/> */}
               <Route path="/admin/*" element={<AdminRoutes />} />
+
+              <Route path="/video-call/:bookingId" element={<VideoCall />} />
 
 
 

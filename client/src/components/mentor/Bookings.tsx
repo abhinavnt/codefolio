@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Clock, MapPin, User } from "lucide-react";
 import axiosInstance from "@/utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 interface Booking {
   id: string;
@@ -32,12 +31,13 @@ export function Bookings({ mentorId }: { mentorId: string }) {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [activeTab, setActiveTab] = useState<"upcoming" | "completed" | "cancelled">("upcoming");
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         const response = await axiosInstance.get(`/api/booking/bookings`);
-        const data = await response.data
+        const data = await response.data;
         setBookings(data);
       } catch (error) {
         console.error("Error fetching bookings:", error);
@@ -48,6 +48,10 @@ export function Bookings({ mentorId }: { mentorId: string }) {
 
     fetchBookings();
   }, [mentorId]);
+
+  const handleJoinMeeting = (bookingId: string) => {
+    navigate(`/video-call/${bookingId}`);
+  };
 
   const filteredBookings = bookings.filter((booking) => booking.status === activeTab);
 
@@ -150,7 +154,7 @@ export function Bookings({ mentorId }: { mentorId: string }) {
                                   <MapPin className="h-4 w-4 text-gray-500 mt-0.5" />
                                   <div>
                                     <p className="font-medium">Location</p>
-                                    <p className="text-sm text-gray-500">Virtual (Zoom Meeting)</p>
+                                    <p className="text-sm text-gray-500">Virtual (Video Call)</p>
                                   </div>
                                 </div>
                               </div>
@@ -161,7 +165,12 @@ export function Bookings({ mentorId }: { mentorId: string }) {
                                     <Button variant="outline" className="text-red-500 border-red-500 hover:bg-red-50">
                                       Cancel Session
                                     </Button>
-                                    <Button className="bg-emerald-500 hover:bg-emerald-600">Join Meeting</Button>
+                                    <Button
+                                      className="bg-emerald-500 hover:bg-emerald-600"
+                                      onClick={() => handleJoinMeeting(selectedBooking.id)}
+                                    >
+                                      Join Meeting
+                                    </Button>
                                   </>
                                 )}
                                 {selectedBooking.status === "completed" && (
