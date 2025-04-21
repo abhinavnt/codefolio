@@ -177,9 +177,12 @@ export class BookingService implements IBookingService{
       studentEmail: (booking.userId as any).email,
       studentImage: (booking.userId as any).image || "/placeholder.svg?height=40&width=40",
       date: booking.date.toLocaleDateString("en-US", { day: "2-digit", month: "short" }),
-      time: booking.startTime,
+      startTime: booking.startTime,
+      endTime:booking.endTime,
       purpose: "Mentoring session", 
-      status: this.determineStatus(booking), 
+      paymentStatus: this.determineStatus(booking),
+      status:booking.status,
+      feedback:booking.feedback
     }));
 
 
@@ -198,6 +201,42 @@ export class BookingService implements IBookingService{
   async getUserBookings(userId: string): Promise<IBooking[]> {
       return await this.bookingRepository.getBookingsByUserId(userId)
   }
+
+
+  async cancelBooking(bookingId: string, cancellationReason: string): Promise<IBooking> {
+
+
+    try {
+      const booking= await this.bookingRepository.updateBooking(bookingId,{status:"cancelled",cancellationReason})
+      if(!booking) throw new Error("Booking not found")
+      
+        return booking
+      
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async completeBooking(bookingId: string, feedback: string): Promise<IBooking> {
+      try {
+        const booking= await this.bookingRepository.updateBooking(bookingId,{status:"completed",feedback})
+        if (!booking) throw new Error("Booking not found");
+       return booking;
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+  }
+
+  async editFeedback(bookingId: string, feedback: string): Promise<IBooking> {
+      try {
+        const booking=await this.bookingRepository.updateBooking(bookingId,{feedback})
+        if (!booking) throw new Error("Booking not found");
+        return booking;
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+  }
+
 
 
 }
