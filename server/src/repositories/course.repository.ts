@@ -10,8 +10,16 @@ constructor(){
   super(Course)
 }
 
-  async getAllCourses(): Promise<ICourse[] | null> {
-    return await this.find({})
+//get all courses with filter
+  async getAllCourses(query: any, skip: number, limit: number): Promise<ICourse[]> {
+    console.log(query,skip,limit);
+    
+    return await this.find(query).skip(skip).limit(limit)
+}
+
+//count documents
+async countCourses(query: any): Promise<number> {
+  return await this.countDocuments(query)
 }
 
   // Create a new course

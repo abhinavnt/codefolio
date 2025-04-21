@@ -1,3 +1,4 @@
+import { CourseFilter } from "../../../controllers/user/user.controller";
 import { ICourse } from "../../../models/Course";
 import { IUser } from "../../../models/User";
 
@@ -8,7 +9,7 @@ export interface IUserService {
 
   getUserProfile(userId: string): Promise<IUser>;
 
-  getAllCourse():Promise<ICourse[]|null>
+  getAllCourse(filter: CourseFilter): Promise<{ courses: ICourse[], total: number }>
 
   getNotifications(userId:string):Promise<IUser['notifications']>
   

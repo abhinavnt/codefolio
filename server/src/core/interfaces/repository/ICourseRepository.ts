@@ -12,5 +12,6 @@ export interface ICourseRepository {
   // findCoursePurchaseByUserId(userId: string): Promise<ICoursePurchased[]>
   getCoursesAdmin(search: string,category: string,status: string,page: number,limit: number): Promise<{ courses: ICourse[]; total: number }>
   updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> 
-  getAllCourses(): Promise<ICourse[] | null>
+  getAllCourses(query: any, skip: number, limit: number): Promise<ICourse[]>
+  countCourses(query: any): Promise<number>
 }

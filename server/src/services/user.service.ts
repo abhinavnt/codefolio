@@ -10,6 +10,7 @@ import { IUser } from "../models/User";
 import { ICourse } from "../models/Course";
 import bcrypt from "bcryptjs";
 import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
+import { CourseFilter } from "../controllers/user/user.controller";
 
 injectable()
 export class userService implements IUserService{
@@ -47,9 +48,76 @@ export class userService implements IUserService{
     }
 
 
-    async getAllCourse(): Promise<ICourse[] | null> {
-        return await this.courseRepository.getAllCourses()
-    }
+  async getAllCourse(filter: CourseFilter): Promise<{ courses: ICourse[]; total: number; }> {
+      try {
+        const query: any = { status: 'draft' };
+        
+        if (filter.q) {
+            query.$or = [
+              { title: { $regex: filter.q, $options: 'i' } },
+              { description: { $regex: filter.q, $options: 'i' } },
+            ];
+          }
+
+          if (filter.category && filter.category.length > 0) {
+            query.category = { $in: filter.category };
+          }
+
+          if (filter.tags && filter.tags.length > 0) {
+            query.tags = { $in: filter.tags };
+          }
+
+          if (filter.ratingMin) {
+            query.rating = { $gte: filter.ratingMin };
+          }
+
+          if (filter.level && filter.level.length > 0) {
+            query.level = { $in: filter.level };
+          }
+          if (filter.duration && filter.duration.length > 0) {
+            query.duration = { $in: filter.duration };
+          }
+
+          const priceConditions = [];
+          if (filter.selectedPriceOptions?.includes('free')) {
+            priceConditions.push({ price: '0' });
+          }
+          if (filter.selectedPriceOptions?.includes('paid')) {
+            const paidCondition: any = { price: { $ne: '0' } };
+            if (filter.priceMin !== undefined || filter.priceMax !== undefined) {
+              const exprConditions = [];
+              if (filter.priceMin !== undefined) {
+                exprConditions.push({ $gte: [{ $toDouble: '$price' }, filter.priceMin] });
+              }
+              if (filter.priceMax !== undefined) {
+                exprConditions.push({ $lte: [{ $toDouble: '$price' }, filter.priceMax] });
+              }
+              if (exprConditions.length > 0) {
+                paidCondition.$expr = { $and: exprConditions };
+              }
+            }
+            priceConditions.push(paidCondition);
+          }
+          if (priceConditions.length > 0) {
+            if (priceConditions.length === 1) {
+              Object.assign(query, priceConditions[0]);
+            } else {
+              query.$or = priceConditions;
+            }
+          }
+
+          const page = filter.page || 1;
+          const limit = filter.limit || 10;
+          const skip = (page - 1) * limit;
+
+          const courses = await this.courseRepository.getAllCourses(query, skip, limit);
+          const total = await this.courseRepository.countCourses(query);
+           
+          return { courses, total };
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
+  }
 
     async getNotifications(userId: string): Promise<IUser["notifications"]> {
         console.log('from getnotificatioon service');

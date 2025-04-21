@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { AppDispatch, RootState } from "../store"
-import { filterCourses } from "./CourseSlice"
+import { fetchCourses } from "./CourseSlice"
 import { dummyCategories, dummyTools, dummyLevels, dummyDurations } from "@/data/dummy-data"
 
 interface FilterState {
@@ -21,6 +21,8 @@ interface FilterState {
 
   availableDurations: { id: string; name: string; count: number }[]
   selectedDurations: string[]
+
+  searchQuery: string
 }
 
 const initialState: FilterState = {
@@ -41,6 +43,8 @@ const initialState: FilterState = {
 
   availableDurations: dummyDurations,
   selectedDurations: [],
+
+  searchQuery: "",
 }
 
 const filterSlice = createSlice({
@@ -88,6 +92,15 @@ const filterSlice = createSlice({
       state.priceRange = { min, max }
     },
 
+    setPriceOption: (state, action: PayloadAction<{ option: string; checked: boolean }>) => {
+      const { option, checked } = action.payload
+      if (checked) {
+        state.selectedPriceOptions.push(option)
+      } else {
+        state.selectedPriceOptions = state.selectedPriceOptions.filter((o) => o !== option)
+      }
+    },
+
     setDuration: (state, action: PayloadAction<{ duration: string; checked: boolean }>) => {
       const { duration, checked } = action.payload
       if (checked) {
@@ -95,6 +108,10 @@ const filterSlice = createSlice({
       } else {
         state.selectedDurations = state.selectedDurations.filter((d) => d !== duration)
       }
+    },
+
+    setSearchQuery: (state, action: PayloadAction<string>) => {
+      state.searchQuery = action.payload
     },
 
     resetFilters: (state) => {
@@ -105,6 +122,7 @@ const filterSlice = createSlice({
       state.priceRange = { min: 0, max: 100 }
       state.selectedPriceOptions = []
       state.selectedDurations = []
+      state.searchQuery = ""
     },
   },
 })
@@ -112,59 +130,38 @@ const filterSlice = createSlice({
 // Thunk to apply all filters
 export const applyFilters = () => (dispatch: AppDispatch, getState: () => RootState) => {
   const state = getState()
-  const { courses } = state.courses
+  const { page, limit } = state.courses
   const filters = state.filters
 
-  let filteredCourses = [...courses]
-
-  // Apply category filters
-  if (filters.selectedCategories.length > 0) {
-    filteredCourses = filteredCourses.filter((course) => filters.selectedCategories.includes(course.categoryId))
+  // P filter object for API
+  const apiFilters = {
+    q: filters.searchQuery,
+    category: filters.selectedCategories.length > 0 ? filters.selectedCategories : undefined,
+    tags: filters.selectedTools.length > 0 ? filters.selectedTools : undefined,
+    ratingMin: filters.selectedRatings.length > 0 ? Math.min(...filters.selectedRatings) : undefined,
+    level: filters.selectedLevels.length > 0 ? filters.selectedLevels : undefined,
+    priceMin: filters.priceRange.min > 0 ? filters.priceRange.min : undefined,
+    priceMax: filters.priceRange.max < 100 ? filters.priceRange.max : undefined,
+    duration: filters.selectedDurations.length > 0 ? filters.selectedDurations : undefined,
+    selectedPriceOptions: filters.selectedPriceOptions.length > 0 ? filters.selectedPriceOptions : undefined,
+    page,
+    limit,
   }
 
-  // Apply tool filters
-  if (filters.selectedTools.length > 0) {
-    filteredCourses = filteredCourses.filter((course) =>
-      course.tools.some((tool) => filters.selectedTools.includes(tool)),
-    )
-  }
-
-  // Apply rating filters
-  if (filters.selectedRatings.length > 0) {
-    filteredCourses = filteredCourses.filter((course) =>
-      filters.selectedRatings.some((rating) => course.rating >= rating),
-    )
-  }
-
-  // Apply level filters
-  if (filters.selectedLevels.length > 0) {
-    filteredCourses = filteredCourses.filter((course) => filters.selectedLevels.includes(course.levelId))
-  }
-
-  // Apply price range filter
-  filteredCourses = filteredCourses.filter(
-    (course) => course.price >= filters.priceRange.min && course.price <= filters.priceRange.max,
-  )
-
-  // Apply price options (free/paid)
-  if (filters.selectedPriceOptions.length > 0) {
-    filteredCourses = filteredCourses.filter((course) => {
-      if (filters.selectedPriceOptions.includes("free") && course.price === 0) return true
-      if (filters.selectedPriceOptions.includes("paid") && course.price > 0) return true
-      return false
-    })
-  }
-
-  // Apply duration filters
-  if (filters.selectedDurations.length > 0) {
-    filteredCourses = filteredCourses.filter((course) => filters.selectedDurations.includes(course.durationId))
-  }
-
-  dispatch(filterCourses(filteredCourses))
+  // Dispatch the fetch with filters
+  dispatch(fetchCourses(apiFilters))
 }
 
-export const { setCategory, setTool, setRating, setCourseLevel, setPriceRange, setDuration, resetFilters } =
-  filterSlice.actions
+export const {
+  setCategory,
+  setTool,
+  setRating,
+  setCourseLevel,
+  setPriceRange,
+  setPriceOption,
+  setDuration,
+  setSearchQuery,
+  resetFilters,
+} = filterSlice.actions
 
 export default filterSlice.reducer
-
