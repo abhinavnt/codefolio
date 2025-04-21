@@ -10,6 +10,21 @@ import asyncHandler from "express-async-handler";
 import { ParamsDictionary } from 'express-serve-static-core';
 // const UserService = new userService();
 
+
+export interface CourseFilter {
+  q?: string;
+  category?: string[];
+  tags?: string[];
+  ratingMin?: number;
+  level?: string[];
+  priceMin?: number;
+  priceMax?: number;
+  duration?: string[];
+  selectedPriceOptions?: string[];
+  page?: number;
+  limit?: number;
+}
+
 injectable()
 export class UserController implements IUserController {
    constructor(@inject(TYPES.UserService) private userService:IUserService
@@ -87,11 +102,24 @@ export class UserController implements IUserController {
 
 
  getAllCourse=asyncHandler( async(req: Request, res: Response): Promise<void> =>{
-    console.log('hai from getAllcourses');
-    
-      const courses= await this.userService.getAllCourse()
+  const filter: CourseFilter = {
+    q: req.query.q as string,
+    category: req.query.category ? (req.query.category as string).split(',') : undefined,
+    tags: req.query.tags ? (req.query.tags as string).split(',') : undefined,
+    ratingMin: req.query.ratingMin ? parseFloat(req.query.ratingMin as string) : undefined,
+    level: req.query.level ? (req.query.level as string).split(',') : undefined,
+    priceMin: req.query.priceMin ? parseFloat(req.query.priceMin as string) : undefined,
+    priceMax: req.query.priceMax ? parseFloat(req.query.priceMax as string) : undefined,
+    duration: req.query.duration ? (req.query.duration as string).split(',') : undefined,
+    selectedPriceOptions: req.query.selectedPriceOptions ? (req.query.selectedPriceOptions as string).split(',') : undefined,
+    page: req.query.page ? parseInt(req.query.page as string, 10) : 1,
+    limit: req.query.limit ? parseInt(req.query.limit as string, 10) : 10,
+  };
 
-      res.status(200).json(courses)
+  
+  const { courses, total } = await this.userService.getAllCourse(filter);
+  
+  res.status(200).json({ courses, total, page: filter.page, limit: filter.limit });
   })
 
   getNotifications=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
