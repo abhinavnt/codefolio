@@ -1,106 +1,103 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { X } from "lucide-react"
-import { format } from "date-fns"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import axiosInstance from "@/utils/axiosInstance"
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import axiosInstance from "@/utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 interface Booking {
-  _id: string
+  _id: string;
   mentorId: {
-    _id: string
-    name: string
-    profileImage?: string
-    specialty?: string
-  }
-  userId: string
-  date: string
-  startTime: string
-  endTime: string
-  paymentStatus: "pending" | "completed" | "failed"
-  totalPrice: number
-  createdAt: string
-  updatedAt: string
+    _id: string;
+    name: string;
+    profileImage?: string;
+    specialty?: string;
+  };
+  userId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  paymentStatus: "pending" | "completed" | "failed";
+  totalPrice: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function Mentors() {
-  const [bookings, setBookings] = useState<Booking[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [cancellingId, setCancellingId] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [bookingsPerPage] = useState(6)
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [bookingsPerPage] = useState(6);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        setLoading(true)
-        const response = await axiosInstance.get("/api/booking/user-bookings")
-        console.log(response.data,"response data from bookings")
-        
-        setBookings(response.data)
-        console.log(bookings);
-        
+        setLoading(true);
+        const response = await axiosInstance.get("/api/booking/user-bookings");
+        setBookings(response.data);
       } catch (err) {
-        setError("Failed to fetch bookings")
+        setError("Failed to fetch bookings");
       } finally {
         setTimeout(() => {
-          setLoading(false)
-        }, 2000)
+          setLoading(false);
+        }, 2000);
       }
-    }
-    fetchBookings()
-  }, [])
+    };
+    fetchBookings();
+  }, []);
 
   const handleViewDetails = (booking: Booking) => {
-    setSelectedBooking(booking)
-    setIsDialogOpen(true)
-  }
+    setSelectedBooking(booking);
+    setIsDialogOpen(true);
+  };
 
   const handleCancelBooking = async (bookingId: string) => {
     try {
-      console.log(bookingId, "hai booking id is here loging")
-      // setCancellingId(bookingId);
-      // await axios.delete(`/api/bookings/${bookingId}`);
-      // setBookings(bookings.filter((booking) => booking._id !== bookingId));
-      // if (selectedBooking && selectedBooking._id === bookingId) {
-      setIsDialogOpen(false)
-      // }
+      setCancellingId(bookingId);
+      // await axiosInstance.delete(`/api/bookings/${bookingId}`);
+      setBookings(bookings.filter((booking) => booking._id !== bookingId));
+      if (selectedBooking && selectedBooking._id === bookingId) {
+        setIsDialogOpen(false);
+      }
     } catch (err) {
-      setError("Failed to cancel booking. Please try again later.")
-      console.error("Error cancelling booking:", err)
+      setError("Failed to cancel booking. Please try again later.");
+      console.error("Error cancelling booking:", err);
     } finally {
-      setCancellingId(null)
+      setCancellingId(null);
     }
-  }
+  };
+
+  const handleJoinMeeting = (bookingId: string) => {
+    navigate(`/video-call/${bookingId}`);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "failed":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
-  // Get current bookings for pagination
-  const indexOfLastBooking = currentPage * bookingsPerPage
-  const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage
-  const currentBookings = bookings.slice(indexOfFirstBooking, indexOfLastBooking)
-  const totalPages = Math.ceil(bookings.length / bookingsPerPage)
+  const indexOfLastBooking = currentPage * bookingsPerPage;
+  const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
+  const currentBookings = bookings.slice(indexOfFirstBooking, indexOfLastBooking);
+  const totalPages = Math.ceil(bookings.length / bookingsPerPage);
 
-  // Change page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   if (loading) {
     return (
@@ -122,7 +119,7 @@ export function Mentors() {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -133,7 +130,7 @@ export function Mentors() {
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -262,10 +259,16 @@ export function Mentors() {
                   </>
                 )}
               </Button>
+              <Button
+                onClick={() => handleJoinMeeting(selectedBooking._id)}
+                className="bg-emerald-500 hover:bg-emerald-600"
+              >
+                Join Meeting
+              </Button>
             </DialogFooter>
           </DialogContent>
         )}
       </Dialog>
     </div>
-  )
+  );
 }
