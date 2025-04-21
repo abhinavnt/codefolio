@@ -6,7 +6,7 @@ interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ activeTab, setActiveTab }: ProfileMenuProps) {
-  const menuItems = ["Dashboard", "Courses", "Bookings", "Message", "Wishlist", "Purchase History", "Settings"]
+  const menuItems = ["Dashboard", "Courses", "Sessions", "Message", "Wishlist", "Purchase History", "Settings"]
 
   return (
     <div className="border-b cursor-pointer overflow-x-auto">

@@ -36,4 +36,10 @@ export interface IBookingService{
 
       getUserBookings(userId: string): Promise<IBooking[]>
 
+      cancelBooking(bookingId: string, cancellationReason: string): Promise<IBooking>
+
+      completeBooking(bookingId: string, feedback: string): Promise<IBooking>
+
+      editFeedback(bookingId: string, feedback: string): Promise<IBooking>
+
 }

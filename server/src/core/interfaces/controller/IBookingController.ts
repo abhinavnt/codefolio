@@ -12,4 +12,7 @@ export interface IBookingController{
     verifyPayment:RequestHandler
     getMentorBookings:RequestHandler
     getUserBookings :RequestHandler
+    cancelBooking:RequestHandler
+    completeBooking:RequestHandler
+    editFeedback:RequestHandler
 }

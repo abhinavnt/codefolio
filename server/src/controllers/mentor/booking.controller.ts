@@ -81,5 +81,38 @@ export class BookingController implements IBookingController{
         res.status(200).json(bookings)
        })
 
+       cancelBooking=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+        const {bookingId}=req.params
+        const {cancellationReason}=req.body
+        if (!cancellationReason) {
+          res.status(400).json({ error: "Cancellation reason is required" });
+          return;
+        }
+        const booking=await this.bookinService.cancelBooking(bookingId,cancellationReason)
+        res.status(200).json({ message: "Booking cancelled successfully", booking });
+       })
+
+       completeBooking=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+        const {bookingId}=req.params
+        const {feedback}=req.body
+        if (!feedback) {
+          res.status(400).json({ error: "Feedback is required" });
+          return;
+        }
+        const booking = await this.bookinService.completeBooking(bookingId, feedback);
+        res.status(200).json({ message: "Booking marked as completed", booking });
+       })
+
+       editFeedback=asyncHandler(async(req:Request,res:Response)=>{
+        const { bookingId } = req.params
+        const { feedback } = req.body
+        if (!feedback) {
+          res.status(400).json({ error: "Feedback is required" });
+          return;
+        }
+        const booking = await this.bookinService.editFeedback(bookingId, feedback)
+        res.status(200).json({ message: "Feedback updated successfully", booking })
+       })
+
 
 }

@@ -35,7 +35,7 @@ export default function UserProfile() {
         <div className="container mx-auto  px-4">
           {activeTab === "Dashboard" && <Dashboard />}
           {activeTab === "Courses" && <Courses />}
-          {activeTab === "Bookings" && <Mentors />}
+          {activeTab === "Sessions" && <Mentors />}
           {activeTab === "Message" && <Message />}
           {activeTab === "Wishlist" && <Wishlist />}
           {activeTab === "Purchase History" && <PurchaseHistory />}

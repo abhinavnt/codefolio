@@ -18,6 +18,8 @@ router.get('/verify-payment',bookingController.verifyPayment)
 router.get('/bookings',bookingController.getMentorBookings)
 router.get('/user-bookings',bookingController.getUserBookings)
 
-
+router.patch("/bookings/:bookingId/cancel", bookingController.cancelBooking);
+router.patch("/bookings/:bookingId/complete", bookingController.completeBooking);
+router.patch("/bookings/:bookingId/feedback", bookingController.editFeedback)
 
 export default router
