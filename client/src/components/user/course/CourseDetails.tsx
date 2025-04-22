@@ -1,3 +1,4 @@
+
 import { ArrowLeft, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -5,43 +6,61 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Star } from "lucide-react"
-import RelatedCourses from "./Related-course" 
-import { courseData } from "@/data/dummy-data" 
+import { courseData } from "@/data/dummy-data"
 import CourseHeader from "./Course-header"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { RootState } from "@/redux/store"
+import type { RootState } from "@/redux/store"
+import { useEffect, useState } from "react"
+import axiosInstance from "@/utils/axiosInstance"
+import type { Course } from "@/types/course"
 
 export default function CourseDetail() {
-    const { id } = useParams<{ id: string }>()
-    const navigate = useNavigate();
-    const { courses, loading, error } = useSelector((state: RootState) => state.courses) // Access courses from Redux
-    const course = courses.find((c) => c._id === id);
-    console.log(course,"course");
-    
-    if (!course) {
-        return (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center">
-            <div className="rounded-full bg-emerald-100 p-4 mb-6">
-              <BookOpen className="h-12 w-12 text-emerald-500" />
-            </div>
-      
-            <h2 className="text-3xl font-bold tracking-tight mb-2">Course not found</h2>
-      
-            <p className="text-muted-foreground mb-8 max-w-md">
-              We couldn't find the course you're looking for. It may have been removed or doesn't exist.
-            </p>
-      
-            <Button asChild className="bg-emerald-500 hover:bg-emerald-600">
-              <Link to={'/courses'}>Browse Courses</Link>
-            </Button>
-          </div>
-        )
-      }
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const [checkCourse, setCourses] = useState<Course[]>([])
 
-      const handleEnrollNow = () => {
-        navigate(`/checkout/${course._id}`); 
-      };
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axiosInstance.get("/api/course/enrolled-courses")
+        setCourses(response.data)
+        console.log(response.data,"respponse from the enrolled course");
+        
+      } catch (error) {
+        console.error("Error fetching courses:", error)
+      }
+    }
+    fetchCourses()
+  }, [])
+
+  const { courses } = useSelector((state: RootState) => state.courses)
+  const course = courses.find((c) => c._id === id)
+  console.log(course?._id, "course")
+
+  if (!course) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center">
+        <div className="rounded-full bg-emerald-100 p-4 mb-6">
+          <BookOpen className="h-12 w-12 text-emerald-500" />
+        </div>
+
+        <h2 className="text-3xl font-bold tracking-tight mb-2">Course not found</h2>
+
+        <p className="text-muted-foreground mb-8 max-w-md">
+          We couldn't find the course you're looking for. It may have been removed or doesn't exist.
+        </p>
+
+        <Button asChild className="bg-emerald-500 hover:bg-emerald-600">
+          <Link to={"/courses"}>Browse Courses</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  const handleEnrollNow = () => {
+    navigate(`/checkout/${course._id}`)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -56,7 +75,7 @@ export default function CourseDetail() {
 
           <div className="relative mt-6 rounded-lg overflow-hidden">
             <img
-              src={course.image}
+              src={course.image || "/placeholder.svg"}
               alt="Course thumbnail"
               width={800}
               height={400}
@@ -81,9 +100,7 @@ export default function CourseDetail() {
             <TabsContent value="overview" className="mt-6">
               <h3 className="text-xl font-bold mb-4">Description</h3>
               <div className="space-y-4 text-gray-700">
-                <p>
-                 {course.description}
-                </p>
+                <p>{course.description}</p>
                 <p>By the end of this course, you'll be able to:</p>
                 <ul className="list-disc pl-5 space-y-2">
                   <li>Create beautiful, responsive designs in Figma</li>
@@ -195,7 +212,7 @@ export default function CourseDetail() {
                 ))}
               </div>
             </TabsContent> */}
-{/* 
+            {/* 
             <TabsContent value="instructor">
               <div className="mt-6">
                 <h3 className="text-xl font-bold mb-4">Meet Your Instructor</h3>
@@ -225,7 +242,6 @@ export default function CourseDetail() {
                 </div>
               </div>
             </TabsContent> */}
-
 
             <TabsContent value="reviews">
               <div className="mt-6">
@@ -277,7 +293,15 @@ export default function CourseDetail() {
                   <Badge className="bg-emerald-500 hover:bg-emerald-600">10% off</Badge>
                 </div>
 
-                <Button onClick={handleEnrollNow} className="w-full mb-4 bg-emerald-500 hover:bg-emerald-600">Enroll Now</Button>
+                {checkCourse.some((enrolledCourse) => enrolledCourse.courseId === course._id) ? (
+                  <Button disabled className="w-full mb-4 bg-gray-400">
+                    Already Enrolled
+                  </Button>
+                ) : (
+                  <Button onClick={handleEnrollNow} className="w-full mb-4 bg-emerald-500 hover:bg-emerald-600">
+                    Enroll Now
+                  </Button>
+                )}
 
                 <p className="text-sm text-gray-500 text-center mb-6">30-day money-back guarantee</p>
 
@@ -368,14 +392,10 @@ export default function CourseDetail() {
               </div>
             </Card>
 
-            <div className="sticky">
-              {/* <RelatedCourses /> */}
-            </div>
-
+            <div className="sticky">{/* <RelatedCourses /> */}</div>
           </div>
         </div>
       </div>
     </div>
   )
 }
-

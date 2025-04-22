@@ -14,6 +14,7 @@ import {
 // import type { IMentor } from "@/types/mentor"
 import { ModeToggle } from "../theme/mode-toggle"
 import { RootState, useAppSelector } from "@/redux/store"
+import { useNavigate } from "react-router-dom"
 
 // interface NavbarProps {
 //   mentor: IMentor
@@ -23,6 +24,8 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
  const { mentor } = useAppSelector((state: RootState) => state.mentor);
+
+ const navigate=useNavigate()
 
  if(!mentor){
   return <div>no mentor found</div>
@@ -76,9 +79,9 @@ export function Navbar() {
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-500">
+                <DropdownMenuItem onClick={()=>navigate('/')} className="text-red-500">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
+                  <span >Go to User</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -10,6 +10,7 @@ import { IMentorReqController } from "../core/interfaces/controller/IMentorReqCo
 import { IMentorController } from "../core/interfaces/controller/IMentorController";
 import { ICourseController } from "../core/interfaces/controller/ICourseController";
 import { Types } from "mongoose";
+import { UserRole } from "../core/constants/user.enum";
 
 
 const router = express.Router();
@@ -23,22 +24,22 @@ const MentorController=container.get<IMentorController>(TYPES.MentorController)
 
 const courseController=container.get<ICourseController>(TYPES.CourseController)
 
-router.use(authMiddleware);
+// router.use(authMiddleware);
 
-router.get("/profile",userController.getUserProfile)
+router.get("/profile",authMiddleware([UserRole.USER]),userController.getUserProfile)
 
-router.put('/profile',upload.fields([{name:"profileImage",maxCount:1}]),userController.updateProfile)
+router.put('/profile',authMiddleware([UserRole.USER]),upload.fields([{name:"profileImage",maxCount:1}]),userController.updateProfile)
 
-router.post('/mentor-request',upload.fields([{ name: "profileImage", maxCount: 1 },{ name: "resume", maxCount: 1 },]),mentorReqController.addMentorReq)
+router.post('/mentor-request',authMiddleware([UserRole.USER]),upload.fields([{ name: "profileImage", maxCount: 1 },{ name: "resume", maxCount: 1 },]),mentorReqController.addMentorReq)
 
-router.get('/getAllCourses',userController.getAllCourse)
+router.get('/getAllCourses',authMiddleware([UserRole.USER]),userController.getAllCourse)
 
-router.get('/notifications',userController.getNotifications)
+router.get('/notifications',authMiddleware([UserRole.USER]),userController.getNotifications)
 
-router.post('/change-password',userController.changePassword)
+router.post('/change-password',authMiddleware([UserRole.USER]),userController.changePassword)
 
-router.get('/getAllMentors',MentorController.getAllMentors)
+router.get('/getAllMentors',authMiddleware([UserRole.USER]),MentorController.getAllMentors)
 
-router.get('/course/:id',courseController.getCourseById)
+router.get('/course/:id',authMiddleware([UserRole.USER]),courseController.getCourseById)
 
 export default router

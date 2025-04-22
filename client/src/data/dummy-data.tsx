@@ -170,7 +170,7 @@ import type { Course } from "@/types/course"
 export const dummyCategories = [
   { id: "development", name: "Development", count: 12 },
   { id: "web-development", name: "web-development", count: 765 },
-  { id: "data-science", name: "data-science", count: 432 },
+  { id: "data", name: "ML", count: 432 },
   { id: "it", name: "IT & Software", count: 876 },
   { id: "mobile-development", name: "Mobile-development", count: 654 },
   { id: "flutter", name: "Flutter", count: 543 },
