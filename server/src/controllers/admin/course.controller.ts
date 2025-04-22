@@ -158,7 +158,67 @@ export class CourseController implements ICourseController {
   }) 
 
 
+  getCourseWithTasks=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+
+    console.log('iam from getcourse with trassk');
+    
+   const {id}=req.params
+
+   const course=this.courseService.getCourseById(id)
+
+   if(!course){
+    res.status(404).json({ message: 'Course not found' });
+    return;
+   }
+
+   const tasks= await this.courseService.getCourseTasks(id)
+   console.log('get course from admin edit course',course);
+   
+   res.status(200).json({ course, tasks })
+
+  })
 
 
+  updateCourseAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const {id}= req.params
+    const {course,tasks}=req.body
+    let image=course.image
+
+
+    if(req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).image){
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      const uploadResult = await new Promise((resolve, reject)=>{
+        cloudinary.uploader.upload_stream({ folder: 'mentor_profiles' }, (error, result)=>{
+
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          if (result) {
+            resolve(result.secure_url);
+          }
+
+
+        }).end(files.image[0].buffer);
+      })
+
+      image = uploadResult as string;
+
+    }
+
+    const updatedCourseData = { ...course, image };
+
+    const updatedCourse = await this.courseService.updateCourseAndTasks(id, updatedCourseData, tasks);
+
+    if (!updatedCourse) {
+      res.status(404).json({ message: 'Course not found' });
+      return;
+    }
+
+    res.json(updatedCourse);
+
+  })
 
 }

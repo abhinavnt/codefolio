@@ -1,9 +1,8 @@
 "use client"
 
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
-
 import { useState, useEffect } from "react"
-import { Search, Edit, Trash2, Eye, MoreHorizontal, Star } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { Search, Trash2, Eye, MoreHorizontal, Star, Edit } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -15,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -30,11 +30,11 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination"
 import axiosInstance from "@/utils/axiosInstance"
 
@@ -57,19 +57,6 @@ interface Course {
   courseRequirements: string[]
 }
 
-interface Task {
-  _id: string
-  courseId: string
-  title: string
-  description: string
-  video: string
-  lessons: string[]
-  order: number
-  duration: string
-  status: string
-  resources: string[]
-}
-
 export function CourseManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
@@ -77,101 +64,52 @@ export function CourseManagement() {
   const [currentPage, setCurrentPage] = useState(1)
   const [courses, setCourses] = useState<Course[]>([])
   const [totalCourses, setTotalCourses] = useState(0)
-  const [editCourse, setEditCourse] = useState<{ course: Course; tasks: Task[] } | null>(null)
-  const [editTask, setEditTask] = useState<Task | null>(null)
+  const [search, setSearch] = useState("")
   const [viewCourse, setViewCourse] = useState<Course | null>(null)
-  const [search, setSearch] = useState('')
+  const navigate = useNavigate()
   const itemsPerPage = 5
 
   useEffect(() => {
     const fetchCourses = async () => {
-      const response = await axiosInstance.get(
-        `/api/course/courses?search=${encodeURIComponent(searchTerm)}&category=${categoryFilter}&status=${statusFilter}&page=${currentPage}&limit=${itemsPerPage}`,
-      )
-      console.log("respnse from loading time", response.data.courses)
-
-      setCourses(response.data.courses)
-      setTotalCourses(response.data.total)
+      try {
+        const response = await axiosInstance.get(
+          `/api/course/courses?search=${encodeURIComponent(searchTerm)}&category=${categoryFilter}&status=${statusFilter}&page=${currentPage}&limit=${itemsPerPage}`
+        )
+        setCourses(response.data.courses || [])
+        setTotalCourses(response.data.total || 0)
+      } catch (error) {
+        console.error("Error fetching courses:", error)
+        setCourses([])
+        setTotalCourses(0)
+      }
     }
     fetchCourses()
   }, [searchTerm, categoryFilter, statusFilter, currentPage])
 
-  useEffect(()=> {
-    const timeout = setTimeout(()=>{
+  useEffect(() => {
+    const timeout = setTimeout(() => {
       setSearchTerm(search)
-    },500)
-    console.log('hi')
-    return ()=> clearTimeout(timeout)
-  },[search])
+    }, 500)
+    return () => clearTimeout(timeout)
+  }, [search])
 
   const totalPages = Math.ceil(totalCourses / itemsPerPage)
 
-  const handleEditCourse = async (courseId: string) => {
-    const response = await axiosInstance.get(`/api/course/courses/${courseId}`)
-    setEditCourse(response.data)
-  }
-
-  const handleSaveCourse = async () => {
-    if (!editCourse) return
-
-    try {
-      const response = await axiosInstance.put(`/api/course/courses/${editCourse.course._id}`, editCourse.course)
-
-      setCourses((prevCourses) => prevCourses.map((c) => (c._id === response.data._id ? response.data : c)))
-
-      setEditCourse(null)
-    } catch (error) {
-      console.error("Error saving course:", error)
-    }
-  }
-
-  const handleAddTask = async () => {
-    if (!editCourse) return
-    const newTask = {
-      courseId: editCourse.course._id,
-      title: "New Task",
-      description: "",
-      video: "",
-      lessons: [],
-      order: editCourse.tasks.length + 1,
-      duration: "",
-      status: "active",
-      resources: [],
-    }
-    const response = await axiosInstance.post("/api/course/tasks", newTask)
-    setEditCourse({ ...editCourse, tasks: [...editCourse.tasks, response.data] })
-  }
-
-  const handleEditTask = (task: Task) => {
-    setEditTask(task)
-  }
-
-  const handleSaveTask = async () => {
-    if (!editTask || !editCourse) return
-    const response = await axiosInstance.put(`/api/tasks/${editTask._id}`, editTask)
-    setEditCourse({
-      ...editCourse,
-      tasks: editCourse.tasks.map((t) => (t._id === response.data._id ? response.data : t)),
-    })
-    setEditTask(null)
-  }
-
-  const handleDeleteTask = async (taskId: string) => {
-    if (!editCourse) return
-    await axiosInstance.delete(`/api/tasks/${taskId}`)
-    setEditCourse({ ...editCourse, tasks: editCourse.tasks.filter((t) => t._id !== taskId) })
+  const handleEditCourse = (courseId: string) => {
+    navigate(`/admin/courses/edit/${courseId}`)
   }
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+    }
   }
-
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-2xl font-bold tracking-tight">Course Management</h2>
-        <Button>Add New Course</Button>
+        <Button onClick={() => navigate("/admin/courses/add")}>Add New Course</Button>
       </div>
 
       <Card>
@@ -265,7 +203,9 @@ export function CourseManagement() {
                       <TableCell className="hidden md:table-cell">{course.category}</TableCell>
                       <TableCell>₹{course.price}</TableCell>
                       <TableCell>
-                        <Badge variant={course.status === "published" ? "default" : "secondary"}>{course.status}</Badge>
+                        <Badge variant={course.status === "published" ? "default" : "secondary"}>
+                          {course.status}
+                        </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{course.enrolledStudents.length}</TableCell>
                       <TableCell className="text-right">
@@ -310,7 +250,7 @@ export function CourseManagement() {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  onClick={() => handlePageChange(currentPage - 1)}
                   className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
@@ -318,7 +258,10 @@ export function CourseManagement() {
                 if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
                   return (
                     <PaginationItem key={page}>
-                      <PaginationLink isActive={page === currentPage} onClick={() => handlePageChange(page)}>
+                      <PaginationLink
+                        onClick={() => handlePageChange(page)}
+                        isActive={page === currentPage}
+                      >
                         {page}
                       </PaginationLink>
                     </PaginationItem>
@@ -342,7 +285,7 @@ export function CourseManagement() {
               })}
               <PaginationItem>
                 <PaginationNext
-                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  onClick={() => handlePageChange(currentPage + 1)}
                   className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
@@ -350,205 +293,6 @@ export function CourseManagement() {
           </Pagination>
         </CardFooter>
       </Card>
-
-      {editCourse && (
-        <Dialog open={!!editCourse} onOpenChange={() => setEditCourse(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Edit Course</DialogTitle>
-              <DialogDescription>Update course details and manage tasks.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={editCourse.course.title}
-                  onChange={(e) =>
-                    setEditCourse({ ...editCourse, course: { ...editCourse.course, title: e.target.value } })
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  value={editCourse.course.description}
-                  onChange={(e) =>
-                    setEditCourse({ ...editCourse, course: { ...editCourse.course, description: e.target.value } })
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Select
-                  value={editCourse.course.category}
-                  onValueChange={(value) =>
-                    setEditCourse({ ...editCourse, course: { ...editCourse.course, category: value } })
-                  }
-                >
-                  <SelectTrigger id="category">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Web Development">Web Development</SelectItem>
-                    <SelectItem value="Data Science">Data Science</SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Mobile Development">Mobile Development</SelectItem>
-                    <SelectItem value="DevOps">DevOps</SelectItem>
-                    <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="level">Level</Label>
-                  <Select
-                    value={editCourse.course.level}
-                    onValueChange={(value) =>
-                      setEditCourse({ ...editCourse, course: { ...editCourse.course, level: value } })
-                    }
-                  >
-                    <SelectTrigger id="level">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="beginner">Beginner</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="advanced">Advanced</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="duration">Duration</Label>
-                  <Input
-                    id="duration"
-                    value={editCourse.course.duration}
-                    onChange={(e) =>
-                      setEditCourse({ ...editCourse, course: { ...editCourse.course, duration: e.target.value } })
-                    }
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="price">Price</Label>
-                <Input
-                  id="price"
-                  value={editCourse.course.price}
-                  onChange={(e) =>
-                    setEditCourse({ ...editCourse, course: { ...editCourse.course, price: e.target.value } })
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="status">Status</Label>
-                <Select
-                  value={editCourse.course.status}
-                  onValueChange={(value) =>
-                    setEditCourse({ ...editCourse, course: { ...editCourse.course, status: value } })
-                  }
-                >
-                  <SelectTrigger id="status">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="archived">Archived</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">Tasks</h3>
-                {editCourse.tasks.map((task) => (
-                  <div key={task._id} className="flex items-center justify-between py-2">
-                    <span>{task.title}</span>
-                    <div>
-                      <Button variant="ghost" size="sm" onClick={() => handleEditTask(task)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteTask(task._id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                <Button onClick={handleAddTask}>Add Task</Button>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditCourse(null)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveCourse}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {editTask && (
-        <Dialog open={!!editTask} onOpenChange={() => setEditTask(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Task</DialogTitle>
-              <DialogDescription>Update task details.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="task-title">Title</Label>
-                <Input
-                  id="task-title"
-                  value={editTask.title}
-                  onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="task-description">Description</Label>
-                <Input
-                  id="task-description"
-                  value={editTask.description}
-                  onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="task-video">Video URL</Label>
-                <Input
-                  id="task-video"
-                  value={editTask.video}
-                  onChange={(e) => setEditTask({ ...editTask, video: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="task-duration">Duration</Label>
-                <Input
-                  id="task-duration"
-                  value={editTask.duration}
-                  onChange={(e) => setEditTask({ ...editTask, duration: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="task-status">Status</Label>
-                <Select value={editTask.status} onValueChange={(value) => setEditTask({ ...editTask, status: value })}>
-                  <SelectTrigger id="task-status">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditTask(null)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveTask}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
 
       {viewCourse && (
         <Dialog open={!!viewCourse} onOpenChange={() => setViewCourse(null)}>
@@ -591,7 +335,7 @@ export function CourseManagement() {
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Price</p>
-                  <p>${viewCourse.price}</p>
+                  <p>₹{viewCourse.price}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Enrolled Students</p>
@@ -616,7 +360,6 @@ export function CourseManagement() {
                 <p className="text-sm text-muted-foreground">{viewCourse.description}</p>
               </div>
 
-              {/* Tags */}
               {viewCourse.tags && viewCourse.tags.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Tags</p>
@@ -630,7 +373,6 @@ export function CourseManagement() {
                 </div>
               )}
 
-              {/* Learning Points */}
               {viewCourse.learningPoints && viewCourse.learningPoints.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Learning Points</p>
@@ -644,7 +386,6 @@ export function CourseManagement() {
                 </div>
               )}
 
-              {/* Targeted Audience */}
               {viewCourse.targetedAudience && viewCourse.targetedAudience.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Targeted Audience</p>
@@ -658,7 +399,6 @@ export function CourseManagement() {
                 </div>
               )}
 
-              {/* Course Requirements */}
               {viewCourse.courseRequirements && viewCourse.courseRequirements.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Course Requirements</p>
@@ -676,12 +416,7 @@ export function CourseManagement() {
               <Button variant="outline" onClick={() => setViewCourse(null)}>
                 Close
               </Button>
-              <Button
-                onClick={() => {
-                  setViewCourse(null)
-                  handleEditCourse(viewCourse._id)
-                }}
-              >
+              <Button onClick={() => { setViewCourse(null); handleEditCourse(viewCourse._id); }}>
                 Edit Course
               </Button>
             </DialogFooter>

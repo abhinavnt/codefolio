@@ -10,4 +10,6 @@ export interface ICourseController {
   updateTask:RequestHandler
   deleteTask:RequestHandler
   getCourseByIdAdmin:RequestHandler
+  getCourseWithTasks:RequestHandler
+  updateCourseAdmin:RequestHandler
 }

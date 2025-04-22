@@ -4,6 +4,7 @@ import { ICourseController } from "../core/interfaces/controller/ICourseControll
 import container from "../di/container";
 import { TYPES } from "../di/types";
 import { UserRole } from "../core/constants/user.enum";
+import upload from "../middlewares/upload";
 
 
 
@@ -25,6 +26,9 @@ router.put('/courses/:id',authMiddleware([UserRole.ADMIN]),courseController.upda
 // router.post('/tasks',courseController.)
 router.put('/tasks/:id',authMiddleware([UserRole.ADMIN]),courseController.updateTask)
 router.delete('/tasks/:id',authMiddleware([UserRole.ADMIN]),courseController.deleteTask)
+
+router.get('/courses/:id/edit', authMiddleware([UserRole.ADMIN]), courseController.getCourseWithTasks);
+router.put('/courses/:id', authMiddleware([UserRole.ADMIN]), upload.fields([{ name: 'image', maxCount: 1 }]), courseController.updateCourse);
 
 
 
