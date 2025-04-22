@@ -14,6 +14,7 @@ import { UserRepository } from '../../repositories/user.repository'
 import { inject, injectable } from 'inversify'
 import { TYPES } from '../../di/types'
 import { IUserRepository } from '../../core/interfaces/repository/IUserRepository'
+import { UserRole } from '../../core/constants/user.enum'
 
 dotenv.config()
 
@@ -59,39 +60,44 @@ export class AuthService implements IAuthService{
 
     async verifyOtp(email: string, otp: string): Promise<verifiedUer> {
       try {
-        
-        const data=await RedisClient.get(`otp:${email}`)
-        if(!data) throw new Error("OTP expired or invalid");
-
+        const data = await RedisClient.get(`otp:${email}`);
+        if (!data) throw new Error("OTP expired or invalid");
+  
         const { otp: storedOtp } = JSON.parse(data);
         if (otp !== storedOtp) throw new Error("Invalid OTP");
-
+  
         const userData = await RedisClient.get(`user_session:${email}`);
         if (!userData) throw new Error("User data not found Please register again");
-        console.log(userData,'from redis');
-        
+        console.log(userData, 'from redis');
+  
         const { name, hashedPassword } = JSON.parse(userData);
-
+  
         const user = await this.authRepository.createUser(name, email, hashedPassword);
-
+  
         if (!user) throw new Error("Cannot create user please register again");
-
+  
         const userId = user._id;
-       
-        
-        const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {expiresIn: "15m",});
+        const userRole = UserRole.USER; 
+  
+        const accessToken = jwt.sign(
+          { userId, role: userRole },
+          process.env.ACCESS_TOKEN_SECRET!,
+          { expiresIn: "15m" }
+        );
         console.log('after access toke');
-        const refreshToken = jwt.sign({ userId },process.env.REFRESH_TOKEN_SECRET!,{expiresIn: "7d",});
-
+        const refreshToken = jwt.sign(
+          { userId, role: userRole },
+          process.env.REFRESH_TOKEN_SECRET!,
+          { expiresIn: "7d" }
+        );
+  
         await RedisClient.del(`otp:${email}`);
         await RedisClient.del(`user_session:${email}`);
-
+  
         return { accessToken, refreshToken, user };
-
       } catch (error) {
         throw new Error(error instanceof Error ? error.message : String(error));
       }
-
     }
 
     async resendOtp(email: string): Promise<void> {
@@ -110,82 +116,90 @@ export class AuthService implements IAuthService{
       }
     }
 
-    async login(email: string,password: string,role: string): Promise<verifiedUer> {
-         
-        console.log('login servicel kayri');
-        try {
-          
+    async login(email: string, password: string, role: string): Promise<verifiedUer> {
+      console.log('login servicel kayri');
+      try {
         let user: IAdmin | IUser | null;
-         console.log('email',email);
-         
-        if (role === "admin") user = await this.authRepository.findAdminByEmail(email)
+        console.log('email', email);
+  
+        if (role === "admin") user = await this.authRepository.findAdminByEmail(email);
         else user = await this.authRepository.findUserByEmail(email);
-
-        console.log('login servicel kayri 1',role,user);
-        
+  
+        console.log('login servicel kayri 1', role, user);
+  
         if (!user) throw new Error("Invalid email address");
-
+  
         if ("status" in user && user.status === "blocked") {
           throw new Error("you have been blocked");
         }
-
+  
         const isPasswordValid = await bcrypt.compare(password, user.password);
-
+  
         if (!isPasswordValid) throw new Error("Incorrect password");
-        
+  
         const userId = user._id;
-
-        const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {
-          expiresIn: "15m",
-        });
-        
-        const refreshToken = jwt.sign(
-          { userId },
-          process.env.REFRESH_TOKEN_SECRET!,
-          {
-            expiresIn:"7d",
-          }
+        const userRole = role === "admin" ? UserRole.ADMIN : UserRole.USER;
+  
+        const accessToken = jwt.sign(
+          { userId, role: userRole },
+          process.env.ACCESS_TOKEN_SECRET!,
+          { expiresIn: "15m" }
         );
-
+  
+        const refreshToken = jwt.sign(
+          { userId, role: userRole },
+          process.env.REFRESH_TOKEN_SECRET!,
+          { expiresIn: "7d" }
+        );
+  
         console.log('hei last und login servicesl');
-        console.log(user,'user from ath login service');
-        
-        return { accessToken, refreshToken, user: user as IUser};
-
+        console.log(user, 'user from ath login service');
+  
+        return { accessToken, refreshToken, user: user as IUser };
       } catch (error) {
         throw new Error(error instanceof Error ? error.message : String(error));
       }
-      }
+    }
 
 
     async refreshAccessToken(refreshToken: string, role: string): Promise<refreshedUser> {
-        try {
-            const decoded= jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET!)as { userId: string }
-
-            const userId = decoded.userId;
-
-            const newAccessToken=jwt.sign({userId},process.env.ACCESS_TOKEN_SECRET!,{expiresIn: "15m"})
-
-            let user
-            if(role==='admin'){
-                user= await this.authRepository.findAdminById(decoded.userId)
-            }else{
-                user = await this.authRepository.findUserById(decoded.userId)
-                
-              }
-              console.log(user,"user get from refreshtoke");
-
-            if (!user) {
-                throw new Error("cannot find user please try again");
-              }
-
-              console.log('after the error throew');
-              
-              return { accessToken: newAccessToken, user };
-
-        } catch (error:any) {
-          throw new Error(error instanceof Error ? error.message : String(error));
+      try {
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as {
+          userId: string;
+          role: string;
+        };
+  
+        const userId = decoded.userId;
+        const userRole = decoded.role as UserRole;
+  
+        if (role !== userRole) {
+          throw new Error("Role mismatch in refresh token");
         }
+  
+        const newAccessToken = jwt.sign(
+          { userId, role: userRole },
+          process.env.ACCESS_TOKEN_SECRET!,
+          { expiresIn: "15m" }
+        );
+  
+        let user;
+        if (role === UserRole.ADMIN) {
+          user = await this.authRepository.findAdminById(decoded.userId);
+        } else {
+          user = await this.authRepository.findUserById(decoded.userId);
+        }
+        console.log(user, "user get from refreshtoke");
+  
+        if (!user) {
+          throw new Error("cannot find user please try again");
+        }
+  
+        console.log('after the error throew');
+  
+        return { accessToken: newAccessToken, user };
+      } catch (error: any) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
     }
 
     async sendMagicLink(email: string): Promise<void> {
@@ -235,41 +249,56 @@ export class AuthService implements IAuthService{
         }
     }
 
-    async handleGoogleUser(googleData: { googleId: string; email: string; name: string; profilepic: string; }): Promise<verifiedUer> {
-
+    async handleGoogleUser(googleData: {
+      googleId: string;
+      email: string;
+      name: string;
+      profilepic: string;
+    }): Promise<verifiedUer> {
       try {
-        
-        let user= await this.userRepository.findByGoogleId(googleData.googleId)
-
-        if(!user){
-          user= await this.userRepository.findByEmail(googleData.email)
-
-          if(!user){
-
-            const dummyPassword= Math.random().toString(36).slice(-8);
+        let user = await this.userRepository.findByGoogleId(googleData.googleId);
+  
+        if (!user) {
+          user = await this.userRepository.findByEmail(googleData.email);
+  
+          if (!user) {
+            const dummyPassword = Math.random().toString(36).slice(-8);
             const hashedPassword = await hash(dummyPassword, 10);
-
-            user = await this.authRepository.createGoogleUser(googleData.googleId,googleData.name,hashedPassword,googleData.email,googleData.profilepic)
-
-          }else{
-            user.googleId=googleData.googleId
-            await user.save()
+  
+            user = await this.authRepository.createGoogleUser(
+              googleData.googleId,
+              googleData.name,
+              hashedPassword,
+              googleData.email,
+              googleData.profilepic
+            );
+          } else {
+            user.googleId = googleData.googleId;
+            await user.save();
           }
         }
-
+  
         if (!user) throw new Error("Cannot create user please register again");
-
+  
         const userId = user._id;
-
-        const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {expiresIn: "15m",});
-         console.log('after access toke');
-        const refreshToken = jwt.sign({ userId },process.env.REFRESH_TOKEN_SECRET!,{expiresIn: "7d",});
-
+        const userRole = UserRole.USER; 
+  
+        const accessToken = jwt.sign(
+          { userId, role: userRole },
+          process.env.ACCESS_TOKEN_SECRET!,
+          { expiresIn: "15m" }
+        );
+        console.log('after access toke');
+        const refreshToken = jwt.sign(
+          { userId, role: userRole },
+          process.env.REFRESH_TOKEN_SECRET!,
+          { expiresIn: "7d" }
+        );
+  
         return { accessToken, refreshToken, user };
       } catch (error) {
         throw new Error(error instanceof Error ? error.message : String(error));
       }
-
     }
 
 
