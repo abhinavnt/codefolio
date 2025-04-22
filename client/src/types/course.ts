@@ -1,5 +1,6 @@
 export interface Course {
   _id:string;
+  courseId:string
   title: string;
   description: string;
   category: string;
