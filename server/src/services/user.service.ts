@@ -50,7 +50,7 @@ export class userService implements IUserService{
 
   async getAllCourse(filter: CourseFilter): Promise<{ courses: ICourse[]; total: number; }> {
       try {
-        const query: any = { status: 'draft' };
+        const query: any = { status: 'published' };
         
         if (filter.q) {
             query.$or = [
@@ -107,7 +107,7 @@ export class userService implements IUserService{
           }
 
           const page = filter.page || 1;
-          const limit = filter.limit || 10;
+          const limit = filter.limit || 9;
           const skip = (page - 1) * limit;
 
           const courses = await this.courseRepository.getAllCourses(query, skip, limit);

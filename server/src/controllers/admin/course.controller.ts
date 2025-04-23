@@ -8,6 +8,8 @@ import { ICourseService } from "../../core/interfaces/service/ICourseService";
 import asyncHandler from "express-async-handler";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
+import { ITask } from "../../models/Tasks";
+import { ICourse } from "../../models/Course";
 // const CourseService = new courseService();
 
 @injectable()
@@ -28,7 +30,8 @@ export class CourseController implements ICourseController {
         modules,
         learningPoints,
         targetedAudience,
-        courseRequirements
+        courseRequirements,
+        status
       } = req.body;
 
     console.log(req.body);
@@ -63,7 +66,7 @@ export class CourseController implements ICourseController {
 
             const parsedModules = modules ? JSON.parse(modules) : [];
 
-            const courseData = {title,description,category, level, price, duration, image,modules:parsedModules,learningPoints,targetedAudience,courseRequirements};
+            const courseData = {title,description,category, level, price, duration, image,modules:parsedModules,learningPoints,targetedAudience,courseRequirements,status};
             
              const newCourse = await this.courseService.addCourse(courseData);
 
@@ -94,7 +97,7 @@ export class CourseController implements ICourseController {
   listCoursesAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
     const { search = '', category = 'all', status = 'all', page = '1', limit = '5' } = req.query;
     const result=await this.courseService.getCoursesAdmin(search as string,category as string,status as string,parseInt(page as string),parseInt(limit as string))
-    console.log('result form listcourse Controler',result);
+    // console.log('result form listcourse Controler',result);
     
     res.status(200).json(result)
   })
@@ -119,11 +122,7 @@ export class CourseController implements ICourseController {
     res.json(updatedTask);
   })
 
-  deleteTask=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-    const { id } = req.params;
-    await this.courseService.deleteTask(id);
-    res.status(204).send();
-  })
+
 
   getCourseByIdAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
     const { id } = req.params;
@@ -160,12 +159,13 @@ export class CourseController implements ICourseController {
 
   getCourseWithTasks=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
 
-    console.log('iam from getcourse with trassk');
+    console.log('iam from getcourse with trassk controller');
     
    const {id}=req.params
 
-   const course=this.courseService.getCourseById(id)
-
+   const course= await this.courseService.getCourseById(id)
+    console.log('course kitty from getcourese with tasks course controler',course);
+    
    if(!course){
     res.status(404).json({ message: 'Course not found' });
     return;
@@ -182,7 +182,23 @@ export class CourseController implements ICourseController {
   updateCourseAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
     const {id}= req.params
     const {course,tasks}=req.body
-    let image=course.image
+    
+    let parsedCourse: Partial<ICourse>;
+    try {
+      parsedCourse = typeof course === "string" ? JSON.parse(course) : course;
+    } catch (error) {
+      res.status(400).json({ message: "Invalid course data format" });
+      return;
+    }
+    
+    let parsedTasks: Partial<ITask>[] = [];
+    try {
+      parsedTasks = typeof tasks === "string" ? JSON.parse(tasks) : tasks;
+    } catch (error) {
+      res.status(400).json({ message: "Invalid tasks data format" });
+      return;
+    }
+    let image=parsedCourse.image
 
 
     if(req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).image){
@@ -208,9 +224,9 @@ export class CourseController implements ICourseController {
 
     }
 
-    const updatedCourseData = { ...course, image };
+    const updatedCourseData = { ...parsedCourse, image };
 
-    const updatedCourse = await this.courseService.updateCourseAndTasks(id, updatedCourseData, tasks);
+    const updatedCourse = await this.courseService.updateCourseAndTasks(id, updatedCourseData, parsedTasks);
 
     if (!updatedCourse) {
       res.status(404).json({ message: 'Course not found' });
@@ -221,4 +237,5 @@ export class CourseController implements ICourseController {
 
   })
 
+  
 }

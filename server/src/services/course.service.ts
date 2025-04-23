@@ -43,7 +43,8 @@ export class courseService implements ICourseService {
         !courseDetails.level ||
         !courseDetails.duration ||
         !courseDetails.image ||
-        !courseDetails.price
+        !courseDetails.price||
+        !courseDetails.status
       ) {
         throw new Error("Missing required course fields");
       }
@@ -77,7 +78,7 @@ export class courseService implements ICourseService {
         price: courseDetails.price,
         rating: 0, 
         enrolledStudents: [], 
-        status: "draft",
+        status: courseDetails.status,
         tags: courseDetails.tags || [], 
         targetedAudience:parsedTargetedAudience,
         learningPoints:parsedLearningPoints,
@@ -184,7 +185,12 @@ export class courseService implements ICourseService {
         const existingTasks=await this.taskRepositoroy.getCourseTasks(courseId)
 
         
+       console.log(tasksData,"task data from the backend service updatecourse and task");
 
+       if (!Array.isArray(tasksData)) {
+        throw new Error("tasksData must be an array");
+      }
+       
         const incomingTaskIds = tasksData.filter(task => task._id).map(task => new Types.ObjectId(task._id as string));
 
         if(existingTasks){
@@ -199,7 +205,7 @@ export class courseService implements ICourseService {
             const taskData= tasksData[index]
             const order=index+1
             if(taskData._id){
-              await this.taskRepositoroy.updateTask(taskData.id as string,{...taskData,order})
+              await this.taskRepositoroy.updateTask(taskData._id as string,{...taskData,order})
 
             }else{
               const newTask={

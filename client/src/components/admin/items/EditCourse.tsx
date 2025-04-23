@@ -10,9 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { Plus, Trash2, Upload } from "lucide-react"
+import { ChevronDown, Plus, Trash2, } from "lucide-react"
 import axiosInstance from "@/utils/axiosInstance"
 import { toast } from "sonner"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 
 interface Task {
   _id?: string
@@ -59,6 +60,7 @@ export function EditCourse() {
   const [targetedAudienceRaw, setTargetedAudienceRaw] = useState("")
   const [courseRequirementsRaw, setCourseRequirementsRaw] = useState("")
   const [errors, setErrors] = useState<FormErrors>({})
+  const [status, setStatus] = useState<"draft" | "published">("draft")
 
   useEffect(() => {
     const fetchCourseAndTasks = async () => {
@@ -173,18 +175,32 @@ export function EditCourse() {
         learningPoints,
         targetedAudience,
         courseRequirements,
+        status
       }
       formData.append("course", JSON.stringify(updatedCourse))
       formData.append("tasks", JSON.stringify(tasks))
       if (courseImage) formData.append("image", courseImage)
 
+
+     console.log("Logging Form Data Before Sending to Backend:");
+    console.log("1. Updated Course Object:", updatedCourse);
+    console.log("2. Tasks Array:", tasks);
+    console.log("3. FormData Contents:");
+    for (const [key, value] of formData.entries()) {
+      if (key === "image" && value instanceof File) {
+        console.log(`   - ${key}: File - ${value.name}, Size: ${value.size} bytes, Type: ${value.type}`);
+      } else {
+        console.log(`   - ${key}:`, value);
+      }
+    }
+      
       try {
         const response = await axiosInstance.put(`/api/course/courses/${id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })
         if (response.status === 200) {
           toast.success("Course updated successfully")
-          navigate("/admin/courses")
+          navigate("/admin/course-management")
         }
       } catch (error) {
         console.error("Error updating course:", error)
@@ -510,7 +526,19 @@ export function EditCourse() {
       </Tabs>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/admin/courses")}>Cancel</Button>
+        <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    {status === "draft" ? "Save as Draft" : "Save as Published"}
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setStatus("draft")}>Save as Draft</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatus("published")}>Save as Published</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+        <Button variant="outline" onClick={() => navigate("/admin/course-management")}>Cancel</Button>
         <Button onClick={handleSubmit}>Save Changes</Button>
       </div>
     </div>

@@ -20,7 +20,7 @@ const initialState: CourseState = {
   error: null,
   total: 0,
   page: 1,
-  limit: 10,
+  limit: 9,
 }
 
 // Fetch courses from backend API with filters
@@ -59,7 +59,7 @@ export const fetchCourses = createAsyncThunk(
 
       // Pagination
       params.append("page", (filters.page || 1).toString())
-      params.append("limit", (filters.limit || 10).toString())
+      params.append("limit", (filters.limit || 9).toString())
 
       const response = await axiosInstance.get("/api/user/getAllCourses", {
         params,

@@ -18,17 +18,14 @@ const courseController =container.get<ICourseController>(TYPES.CourseController)
 router.get('/enrolled-courses',authMiddleware([UserRole.USER,UserRole.ADMIN]),courseController.getUserEnrolledCourses)
 router.get('/course-tasks/:courseId',authMiddleware([UserRole.USER,UserRole.ADMIN]),courseController.getUserCourseTasks)
 
+//its not using
+router.put('/tasks/:id',authMiddleware([UserRole.ADMIN]),courseController.updateTask)
 
 //admin
 router.get('/courses',authMiddleware([UserRole.ADMIN]),courseController.listCoursesAdmin)
 router.get('/courses/:id',authMiddleware([UserRole.ADMIN]),courseController.getCourseByIdAdmin)
-router.put('/courses/:id',authMiddleware([UserRole.ADMIN]),courseController.updateCourse)
-// router.post('/tasks',courseController.)
-router.put('/tasks/:id',authMiddleware([UserRole.ADMIN]),courseController.updateTask)
-router.delete('/tasks/:id',authMiddleware([UserRole.ADMIN]),courseController.deleteTask)
-
 router.get('/courses/:id/edit', authMiddleware([UserRole.ADMIN]), courseController.getCourseWithTasks);
-router.put('/courses/:id', authMiddleware([UserRole.ADMIN]), upload.fields([{ name: 'image', maxCount: 1 }]), courseController.updateCourse);
+router.put('/courses/:id', authMiddleware([UserRole.ADMIN]), upload.fields([{ name: 'image', maxCount: 1 }]), courseController.updateCourseAdmin);
 
 
 

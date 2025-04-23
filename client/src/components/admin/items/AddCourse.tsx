@@ -11,9 +11,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { Plus, Trash2, Upload } from "lucide-react"
+import { ChevronDown, Plus, Trash2, Upload } from "lucide-react"
 import { addNewCourse } from "@/services/adminService"
 import { toast } from "sonner"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 
 type Lesson = {
   title: string
@@ -64,24 +65,25 @@ export function AddCourse() {
   const [courseModules, setCourseModules] = useState<Module[]>([
     { title: "", description: "", video: "", lessons: [{ title: "", duration: "", video: "" }] },
   ])
+  const [status, setStatus] = useState<"draft" | "published">("draft")
 
   const [errors, setErrors] = useState<FormErrors>({})
 
-  // Raw input strings for comma-separated fields
+  //  input strings for comma-separated fields
   const [learningPointsRaw, setLearningPointsRaw] = useState("")
   const [targetedAudienceRaw, setTargetedAudienceRaw] = useState("")
   const [courseRequirementsRaw, setCourseRequirementsRaw] = useState("")
 
   const validateField = (field: string, value: string | File | null, required = true): string => {
-    // Handle courseImage (File | null)
+    
     if (field === "courseImage") {
       if (required && !value) {
         return "Course image is required"
       }
       if (value instanceof File) {
-        // Add file-specific validation (e.g., size, type)
+   
         if (value.size > 5 * 1024 * 1024) {
-          // 5MB limit
+      
           return "Image size must be less than 5MB"
         }
         if (!value.type.startsWith("image/")) {
@@ -91,7 +93,7 @@ export function AddCourse() {
       return ""
     }
 
-    // Handle other fields (strings)
+    // Handle other fields 
     if (required && (!value || (typeof value === "string" && value.trim() === ""))) {
       return "This field is required"
     }
@@ -203,7 +205,7 @@ export function AddCourse() {
         formData.append("learningPoints", JSON.stringify(learningPoints))
         formData.append("targetedAudience", JSON.stringify(targetedAudience))
         formData.append("courseRequirements", JSON.stringify(courseRequirements))
-
+        formData.append("status",status)
         for (const [key, value] of formData.entries()) {
           console.log(`${key}: ${value}`)
         }
@@ -801,7 +803,18 @@ export function AddCourse() {
       </Tabs>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline">Save as Draft</Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="flex items-center gap-2">
+            {status === "draft" ? "Save as Draft" : "Save as Published"}
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setStatus("draft")}>Save as Draft</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setStatus("published")}>Save as Published</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
         <Button onClick={handleSubmit}>Create Course</Button>
       </div>
     </div>

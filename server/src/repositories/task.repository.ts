@@ -26,9 +26,30 @@ constructor(){
  }
 
  async updateTask(id: string, data: Partial<ITask>): Promise<ITask | null> {
-    return await this.findByIdAndUpdate(new mongoose.Types.ObjectId(id), data, { new: true });
-  }
+  try {
+   
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error(`Invalid task ID: ${id}`);
+    }
 
+    const { _id, ...updateData } = data;
+
+    const updatedTask = await this.findByIdAndUpdate(
+      new mongoose.Types.ObjectId(id),
+      { $set: updateData },
+      { new: true, runValidators: true }
+    )
+
+    if (!updatedTask) {
+      throw new Error(`Task with ID ${id} not found`);
+    }
+
+    return updatedTask;
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : String(error));
+  }
+}
   async deleteTask(id: string): Promise<void> {
     await this.findByIdAndDelete(id);
   }

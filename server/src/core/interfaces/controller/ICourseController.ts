@@ -8,7 +8,6 @@ export interface ICourseController {
   listCoursesAdmin:RequestHandler
   updateCourse:RequestHandler
   updateTask:RequestHandler
-  deleteTask:RequestHandler
   getCourseByIdAdmin:RequestHandler
   getCourseWithTasks:RequestHandler
   updateCourseAdmin:RequestHandler
