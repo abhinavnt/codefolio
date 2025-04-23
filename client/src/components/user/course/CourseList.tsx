@@ -124,7 +124,7 @@ export default function CourseList() {
                   value={limit}
                   onChange={(e) => handleLimitChange(Number(e.target.value))}
                 >
-                  <option value="10">10 per page</option>
+                  <option value="9">9 per page</option>
                   <option value="20">20 per page</option>
                   <option value="50">50 per page</option>
                 </select>

@@ -12,6 +12,7 @@ import { Dashboard } from "@/components/admin/items/DashBoard"
 import { CourseManagement } from "@/components/admin/items/CourseManagment"
 import ProtectedRoute from "@/components/auth/ProtectedRoute"
 import AdminLogin from "@/pages/admin/AdminLogin"
+import { EditCourse } from "@/components/admin/items/EditCourse"
 
 export function AdminRoutes() {
     console.log('admin routil kayritundllooo');
@@ -33,6 +34,7 @@ export function AdminRoutes() {
         <Route path="enrolled-users" element={<EnrolledUsers />} />
         <Route path="course-management" element={<CourseManagement />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="courses/edit/:id" element={<EditCourse/>}/>
         </Route>
 
       </Route>

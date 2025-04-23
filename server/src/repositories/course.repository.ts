@@ -40,7 +40,7 @@ async countCourses(query: any): Promise<number> {
         
         const course=await this.findById(new mongoose.Types.ObjectId(courseId))
 
-        console.log('course from getcourse by id',course);
+        // console.log('course from getcourse by id',course);
         
         return course
       } catch (error:any) {
@@ -97,7 +97,7 @@ async countCourses(query: any): Promise<number> {
   return {courses,total}
  }
 
-async updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> {
+async updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> { 
   return await this.findByIdAndUpdate(new mongoose.Types.ObjectId(id), data, { new: true });
 }
 
