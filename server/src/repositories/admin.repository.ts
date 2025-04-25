@@ -3,20 +3,4 @@ import { IMentor, IMentorData, Mentor } from "../models/Mentor";
 import { IMentorRequest, MentorRequest } from "../models/MentorRequest";
 import { IUser, User } from "../models/User";
 
-
-
-
-
-
-export class adminRepository implements IAdminRepository{
-    
-
-
-
-
-
-
-
-    
-
-}
+export class adminRepository implements IAdminRepository {}

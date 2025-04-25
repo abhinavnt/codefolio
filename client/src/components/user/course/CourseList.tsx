@@ -21,7 +21,7 @@ export default function CourseList() {
 
   // Initial fetch of courses
   useEffect(() => {
-    
+
     dispatch(applyFilters())
 
     const handleResize = () => {

@@ -10,7 +10,7 @@ export interface IBooking extends Document {
   status: "pending" | "completed" | "cancelled";
   totalPrice: number;
   feedback?: string;
-  cancellationReason?:string
+  cancellationReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }

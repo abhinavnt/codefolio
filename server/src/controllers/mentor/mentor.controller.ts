@@ -9,122 +9,113 @@ import asyncHandler from "express-async-handler";
 import cloudinary from "../../config/cloudinary";
 import { IMentor } from "../../models/Mentor";
 
-
-
-
 @injectable()
-export class MentorController implements IMentorController{
-   constructor(@inject(TYPES.MentorService) private mentorService:IMentorService
-){}
+export class MentorController implements IMentorController {
+  constructor(@inject(TYPES.MentorService) private mentorService: IMentorService) {}
 
+  getAllMentors = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 8;
+    const search = req.query.search as string;
+    const rating = req.query.rating ? parseInt(req.query.rating as string) : undefined;
+    const technicalSkills = req.query.technicalSkills ? (req.query.technicalSkills as string).split(",") : undefined;
+    const priceRange = req.query.priceRange ? ((req.query.priceRange as string).split(",").map(Number) as [number, number]) : undefined;
+    const filters = { rating, technicalSkills, priceRange };
 
-    getAllMentors= asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 8;
-        const search = req.query.search as string;
-        const rating = req.query.rating ? parseInt(req.query.rating as string) : undefined;
-        const technicalSkills = req.query.technicalSkills ? (req.query.technicalSkills as string).split(',') : undefined;
-        const priceRange = req.query.priceRange ? (req.query.priceRange as string).split(',').map(Number) as [number, number] : undefined;
-        const filters = { rating, technicalSkills, priceRange };
+    const { mentors, total } = await this.mentorService.getAllMentors(page, limit, search, filters);
 
-        const {mentors,total}= await this.mentorService.getAllMentors(page,limit,search,filters)
+    res.status(200).json({ success: true, data: mentors, pagination: { page, limit, total, totalPage: Math.ceil(total / limit) } });
+  });
 
-        res.status(200).json({success:true,data:mentors,pagination:{page,limit,total,totalPage:Math.ceil(total/limit)}})
-    })
+  getMentorProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { username } = req.params;
+    const mentor = await this.mentorService.getMentorProfile(username);
 
-    getMentorProfile=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-     const {username}=req.params
-     const mentor= await this.mentorService.getMentorProfile(username)
+    if (!mentor) {
+      res.status(404).json({ message: "Mentor not found" });
+      return;
+    }
+    res.status(200).json(mentor);
+  });
 
-     if (!mentor) {
-        res.status(404).json({ message: 'Mentor not found' });
-        return;
-      }
-      res.status(200).json(mentor);
-    })
+  verifyMentor = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = String(req.user?._id);
 
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
 
-    verifyMentor= asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const mentor = await this.mentorService.verifyMentor(userId);
 
-      const userId = String(req.user?._id);
+    res.status(200).json({ success: true, message: "Mentor verified successfully", data: mentor });
+  });
 
-      if (!userId) {
-        res.status(401).json({ success: false, message: 'Unauthorized' });
-        return;
-      }
+  updateProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = String(req.user?._id);
 
-      const mentor= await this.mentorService.verifyMentor(userId)
+    console.log(userId, "user id from updaaaaatementor");
+    if (!userId) throw new Error("Unauthorized");
 
-      res.status(200).json({success:true,message:'Mentor verified successfully',data:mentor})
+    const {
+      name,
+      username,
+      email,
+      phoneNumber,
+      dateOfBirth,
+      yearsOfExperience,
+      currentCompany,
+      currentRole,
+      durationAtCompany,
+      technicalSkills,
+      primaryLanguage,
+      bio,
+      linkedin,
+      github,
+      twitter,
+      instagram,
+      status,
+      title,
+      location,
+    } = req.body;
 
-    })
-
-    updateProfile=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-
-      const userId = String(req.user?._id);
-
-      console.log(userId,"user id from updaaaaatementor");
-      if (!userId) throw new Error("Unauthorized")
-
-        const {
-          name,
-          username,
-          email,
-          phoneNumber,
-          dateOfBirth,
-          yearsOfExperience,
-          currentCompany,
-          currentRole,
-          durationAtCompany,
-          technicalSkills,
-          primaryLanguage,
-          bio,
-          linkedin,
-          github,
-          twitter,
-          instagram,
-          status,
-          title,
-          location,
-        } = req.body
-
-        let profileImageUrl = ""
-    let resumeUrl = ""
+    let profileImageUrl = "";
+    let resumeUrl = "";
     if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).profileImage) {
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] }
-      console.log("Uploading profile image to Cloudinary...")
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      console.log("Uploading profile image to Cloudinary...");
 
       profileImageUrl = await new Promise((resolve, reject) => {
         cloudinary.uploader
           .upload_stream({ folder: "mentor_profiles" }, (error, result) => {
             if (error) {
-              console.error("Cloudinary upload error (profile image):", error)
-              reject(error)
+              console.error("Cloudinary upload error (profile image):", error);
+              reject(error);
             } else if (result) {
-              resolve(result.secure_url)
+              resolve(result.secure_url);
             }
           })
-          .end(files.profileImage[0].buffer)
-      })
+          .end(files.profileImage[0].buffer);
+      });
     }
 
     // Handle resume upload to Cloudinary
     if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).resume) {
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] }
-      console.log("Uploading resume to Cloudinary...")
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      console.log("Uploading resume to Cloudinary...");
 
       resumeUrl = await new Promise((resolve, reject) => {
         cloudinary.uploader
           .upload_stream({ folder: "mentor_resumes" }, (error, result) => {
             if (error) {
-              console.error("Cloudinary upload error (resume):", error)
-              reject(error)
+              console.error("Cloudinary upload error (resume):", error);
+              reject(error);
             } else if (result) {
-              resolve(result.secure_url)
+              resolve(result.secure_url);
             }
           })
-          .end(files.resume[0].buffer)
-      })
+          .end(files.resume[0].buffer);
+      });
     }
 
     // Prepare mentor data
@@ -150,36 +141,29 @@ export class MentorController implements IMentorController{
       status: status as "active" | "inactive",
       title,
       location,
-    }
-    console.log(mentorData,"mentor data from conatroler");
-    
-    console.log('gone to service');
-     
-        const updatedMentor = await this.mentorService.updateMentorProfile(userId,mentorData)
-      res.status(200).json({ success: true, data: updatedMentor })
-    })
+    };
+    console.log(mentorData, "mentor data from conatroler");
 
+    console.log("gone to service");
 
-    updateAvailability=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-      const userId = String(req.user?._id);
-      const { specificDateAvailability, weeklyAvailability } = req.body;
-      console.log(specificDateAvailability,'here is the difrence',weeklyAvailability);
-      
-      const mentor=await this.mentorService.updateAvailability(userId,specificDateAvailability,weeklyAvailability)
-      res.status(200).json({ message: "Availability updated successfully", mentor });
-    })
+    const updatedMentor = await this.mentorService.updateMentorProfile(userId, mentorData);
+    res.status(200).json({ success: true, data: updatedMentor });
+  });
 
+  updateAvailability = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = String(req.user?._id);
+    const { specificDateAvailability, weeklyAvailability } = req.body;
+    console.log(specificDateAvailability, "here is the difrence", weeklyAvailability);
 
-    getAvailability=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-      console.log('this is from mentor get availbility controller');
-      
-      const mentorId = String(req.user?._id);
-      const availability = await this.mentorService.getAvailability(mentorId);
-      res.status(200).json(availability);
-    })
+    const mentor = await this.mentorService.updateAvailability(userId, specificDateAvailability, weeklyAvailability);
+    res.status(200).json({ message: "Availability updated successfully", mentor });
+  });
 
+  getAvailability = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    console.log("this is from mentor get availbility controller");
 
-    
- 
-
+    const mentorId = String(req.user?._id);
+    const availability = await this.mentorService.getAvailability(mentorId);
+    res.status(200).json(availability);
+  });
 }
