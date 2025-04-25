@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback, memo } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import Peer from "peerjs"
 import { io, type Socket } from "socket.io-client"
@@ -40,10 +40,83 @@ interface ChatMessage {
   timestamp: Date
 }
 
+// Memoized video components to prevent unnecessary re-renders
+const LocalVideo = memo(
+  ({
+    stream,
+    isCameraOff,
+    isScreenSharing,
+    isMuted,
+  }: {
+    stream: MediaStream | null
+    isCameraOff: boolean
+    isScreenSharing: boolean
+    isMuted: boolean
+  }) => {
+    const videoRef = useRef<HTMLVideoElement | null>(null)
+
+    useEffect(() => {
+      if (videoRef.current && stream) {
+        videoRef.current.srcObject = stream
+      }
+    }, [stream])
+
+    return (
+      <>
+        {isCameraOff && !isScreenSharing && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+            <Avatar className="h-16 w-16 mb-2">
+              <div className="bg-blue-500 h-full w-full flex items-center justify-center text-white text-xl font-semibold">
+                Y
+              </div>
+            </Avatar>
+            <p className="text-white">You</p>
+          </div>
+        )}
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          className={`w-full h-full object-cover ${isCameraOff && !isScreenSharing ? "opacity-0" : "opacity-100"}`}
+        />
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
+          You {isMuted && <MicOff className="h-3 w-3 inline ml-1" />}
+        </div>
+      </>
+    )
+  },
+)
+LocalVideo.displayName = "LocalVideo"
+
+const RemoteVideo = memo(
+  ({ stream, label }: { stream: MediaStream; label: string }) => {
+    const videoRef = useRef<HTMLVideoElement | null>(null)
+
+    useEffect(() => {
+      if (videoRef.current && stream) {
+        videoRef.current.srcObject = stream
+      }
+    }, [stream])
+
+    return (
+      <>
+        <video ref={videoRef} autoPlay className="w-full h-full object-cover" />
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
+          {label}
+        </div>
+      </>
+    )
+  },
+  (prevProps, nextProps) => {
+    // Only re-render if the stream ID changes
+    return prevProps.stream.id === nextProps.stream.id
+  },
+)
+RemoteVideo.displayName = "RemoteVideo"
+
 export function VideoCall() {
   const { bookingId } = useParams<{ bookingId: string }>()
   const navigate = useNavigate()
-  const localVideoRef = useRef<HTMLVideoElement | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<VideoStream[]>([])
   const peerRef = useRef<Peer | null>(null)
   const socketRef = useRef<Socket | null>(null)
@@ -64,6 +137,7 @@ export function VideoCall() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [messageInput, setMessageInput] = useState<string>("")
   const [participantCount, setParticipantCount] = useState<number>(1)
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null)
 
   // Initialize socket and peer
   useEffect(() => {
@@ -158,10 +232,14 @@ export function VideoCall() {
       updateParticipantCount()
     })
 
-    socketRef.current.on("chat-message", (message: ChatMessage) => {
-      setChatMessages((prev) => [...prev, message])
+    socketRef.current.on("chat-message", (message: any) => {
+      const receivedMessage: ChatMessage = {
+        ...message,
+        timestamp: new Date(message.timestamp),
+        sender: message.sender === peerRef.current?.id ? "You" : "Participant",
+      }
+      setChatMessages((prev) => [...prev, receivedMessage])
     })
-
     socketRef.current.on("screen-share-started", (peerId: string) => {
       setScreenSharingPeer(peerId)
     })
@@ -194,10 +272,10 @@ export function VideoCall() {
     }
   }, [isPeerOpen, isSocketConnected, isMediaInitialized, bookingId])
 
-  const updateParticipantCount = () => {
+  const updateParticipantCount = useCallback(() => {
     const uniquePeers = new Set(remoteStreams.map((s) => s.peerId))
     setParticipantCount(uniquePeers.size + 1)
-  }
+  }, [remoteStreams])
 
   const initializeMedia = async () => {
     try {
@@ -207,9 +285,6 @@ export function VideoCall() {
       })
       localStreamRef.current = stream
       setDisplayStream(stream)
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream
-      }
       setIsMediaInitialized(true)
     } catch (err) {
       console.error("Error accessing media devices:", err)
@@ -236,15 +311,15 @@ export function VideoCall() {
     }
   }
 
-  const handleLeaveCall = () => {
+  const handleLeaveCall = useCallback(() => {
     if (isScreenSharing && socketRef.current) {
       socketRef.current.emit("screen-share-stopped", { roomId: bookingId, peerId: peerRef.current?.id })
     }
     cleanupResources()
     navigate("/mentor")
-  }
+  }, [isScreenSharing, bookingId, navigate])
 
-  const toggleMute = () => {
+  const toggleMute = useCallback(() => {
     if (localStreamRef.current) {
       const audioTracks = localStreamRef.current.getAudioTracks()
       audioTracks.forEach((track) => {
@@ -252,9 +327,9 @@ export function VideoCall() {
       })
       setIsMuted((prev) => !prev)
     }
-  }
+  }, [])
 
-  const toggleCamera = () => {
+  const toggleCamera = useCallback(() => {
     if (localStreamRef.current) {
       const videoTracks = localStreamRef.current.getVideoTracks()
       videoTracks.forEach((track) => {
@@ -262,9 +337,9 @@ export function VideoCall() {
       })
       setIsCameraOff((prev) => !prev)
     }
-  }
+  }, [])
 
-  const toggleScreenShare = async () => {
+  const toggleScreenShare = useCallback(async () => {
     if (isScreenSharing) {
       if (screenShareRef.current) {
         screenShareRef.current.getTracks().forEach((track) => track.stop())
@@ -306,42 +381,40 @@ export function VideoCall() {
         console.error("Error sharing screen:", err)
       }
     }
-  }
+  }, [isScreenSharing, bookingId, remoteStreams])
 
-  const sendChatMessage = () => {
-    if (messageInput.trim() && socketRef.current) {
+  const sendChatMessage = useCallback(() => {
+    if (messageInput.trim() && socketRef.current && peerRef.current) {
       const newMessage: ChatMessage = {
         id: Date.now().toString(),
-        sender: "You",
+        sender: peerRef.current.id,
         text: messageInput,
         timestamp: new Date(),
       }
-      setChatMessages((prev) => [...prev, newMessage])
       socketRef.current.emit("chat-message", {
         roomId: bookingId,
-        message: { ...newMessage, sender: "Participant" },
+        message: newMessage,
       })
       setMessageInput("")
     }
-  }
+  }, [messageInput, bookingId])
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      sendChatMessage()
-    }
-  }
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault()
+        sendChatMessage()
+      }
+    },
+    [sendChatMessage],
+  )
 
-  const toggleFocusParticipant = (peerId: string | null) => {
-    if (focusedParticipant === peerId) {
-      setFocusedParticipant(null)
-    } else {
-      setFocusedParticipant(peerId)
-    }
-  }
+  const toggleFocusParticipant = useCallback((peerId: string | null) => {
+    setFocusedParticipant((prev) => (prev === peerId ? null : peerId))
+  }, [])
 
   // Get layout configuration based on participant count and screen sharing status
-  const getLayoutConfig = () => {
+  const getLayoutConfig = useCallback(() => {
     const totalParticipants = remoteStreams.filter((s) => !s.isScreenShare).length + 1
     const hasScreenShare = screenSharingPeer !== null
 
@@ -378,15 +451,41 @@ export function VideoCall() {
     } else {
       return { gridCols: "grid-cols-4", hasFocus: false }
     }
-  }
+  }, [remoteStreams, screenSharingPeer, focusedParticipant])
 
   useEffect(() => {
-    if (localVideoRef.current && displayStream) {
-      localVideoRef.current.srcObject = displayStream
-    }
-  }, [displayStream])
+    const timer = setTimeout(() => {
+      if (scrollAreaRef.current) {
+        const viewport = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]") as HTMLDivElement
+        if (viewport) {
+          viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" })
+        }
+      }
+    }, 100) // 100ms debounce
+
+    return () => clearTimeout(timer)
+  }, [chatMessages])
+
+  const handleMessageInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessageInput(e.target.value)
+  }, [])
+
+  const toggleChat = useCallback(() => {
+    setIsChatOpen((prev) => !prev)
+  }, [])
 
   const layout = getLayoutConfig()
+
+  // Find the screen share stream
+  const screenShareStream = screenSharingPeer
+    ? remoteStreams.find((s) => s.peerId === screenSharingPeer && s.isScreenShare)?.stream
+    : null
+
+  // Find the focused participant stream
+  const focusedStream =
+    focusedParticipant !== "local"
+      ? remoteStreams.find((s) => s.peerId === focusedParticipant && !s.isScreenShare)?.stream
+      : null
 
   return (
     <div className="h-screen bg-gray-100 flex flex-col overflow-hidden">
@@ -412,21 +511,14 @@ export function VideoCall() {
       <div className="flex-1 flex overflow-hidden">
         <div className={`flex-1 ${isChatOpen ? "pr-0" : ""} p-4`}>
           {/* Screen sharing layout */}
-          {screenSharingPeer && remoteStreams.find((s) => s.peerId === screenSharingPeer && s.isScreenShare) && (
+          {screenSharingPeer && screenShareStream && (
             <div className="flex flex-col h-full">
               {/* Screen share video */}
               <div className="relative bg-gray-800 rounded-lg overflow-hidden mb-4 h-2/3">
-                <video
-                  autoPlay
-                  ref={(video) => {
-                    const stream = remoteStreams.find((s) => s.peerId === screenSharingPeer && s.isScreenShare)?.stream
-                    if (video && stream) video.srcObject = stream
-                  }}
-                  className="w-full h-full object-contain"
+                <RemoteVideo
+                  stream={screenShareStream}
+                  label={screenSharingPeer === peerRef.current?.id ? "You (Screen)" : "Participant (Screen)"}
                 />
-                <div className="absolute top-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
-                  {screenSharingPeer === peerRef.current?.id ? "You (Screen)" : "Participant (Screen)"}
-                </div>
               </div>
 
               {/* Participant videos in a grid below the screen share */}
@@ -436,25 +528,12 @@ export function VideoCall() {
                   className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
                   onClick={() => toggleFocusParticipant("local")}
                 >
-                  {isCameraOff && !isScreenSharing && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                      <Avatar className="h-16 w-16 mb-2">
-                        <div className="bg-blue-500 h-full w-full flex items-center justify-center text-white text-xl font-semibold">
-                          Y
-                        </div>
-                      </Avatar>
-                      <p className="text-white">You</p>
-                    </div>
-                  )}
-                  <video
-                    ref={localVideoRef}
-                    autoPlay
-                    muted
-                    className={`w-full h-full object-cover ${isCameraOff && !isScreenSharing ? "opacity-0" : "opacity-100"}`}
+                  <LocalVideo
+                    stream={displayStream}
+                    isCameraOff={isCameraOff}
+                    isScreenSharing={isScreenSharing}
+                    isMuted={isMuted}
                   />
-                  <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
-                    You {isMuted && <MicOff className="h-3 w-3 inline ml-1" />}
-                  </div>
                 </div>
 
                 {/* Remote videos */}
@@ -466,16 +545,7 @@ export function VideoCall() {
                       className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
                       onClick={() => toggleFocusParticipant(stream.peerId)}
                     >
-                      <video
-                        autoPlay
-                        ref={(video) => {
-                          if (video) video.srcObject = stream.stream
-                        }}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
-                        Participant
-                      </div>
+                      <RemoteVideo stream={stream.stream} label="Participant" />
                     </div>
                   ))}
               </div>
@@ -488,26 +558,14 @@ export function VideoCall() {
               {/* Focused participant if any */}
               {layout.hasFocus && (
                 <>
-                  <div className={`${layout.mainArea} bg-gray-800 rounded-lg overflow-hidden`}>
+                  <div className={`${layout.mainArea} bg-gray-800 rounded-lg overflow-hidden relative`}>
                     {focusedParticipant === "local" ? (
                       <>
-                        {isCameraOff && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                            <Avatar className="h-24 w-24 mb-2">
-                              <div className="bg-blue-500 h-full w-full flex items-center justify-center text-white text-2xl font-semibold">
-                                Y
-                              </div>
-                            </Avatar>
-                            <p className="text-white">You</p>
-                          </div>
-                        )}
-                        <video
-                          ref={(video) => {
-                            if (video && localStreamRef.current) video.srcObject = localStreamRef.current
-                          }}
-                          autoPlay
-                          muted
-                          className={`w-full h-full object-cover ${isCameraOff ? "opacity-0" : "opacity-100"}`}
+                        <LocalVideo
+                          stream={displayStream}
+                          isCameraOff={isCameraOff}
+                          isScreenSharing={isScreenSharing}
+                          isMuted={isMuted}
                         />
                         <div className="absolute bottom-4 right-4">
                           <Button
@@ -522,53 +580,38 @@ export function VideoCall() {
                         </div>
                       </>
                     ) : (
-                      <>
-                        <video
-                          autoPlay
-                          ref={(video) => {
-                            const stream = remoteStreams.find((s) => s.peerId === focusedParticipant)?.stream
-                            if (video && stream) video.srcObject = stream
-                          }}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute bottom-4 right-4">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="bg-black bg-opacity-50 text-white"
-                            onClick={() => setFocusedParticipant(null)}
-                          >
-                            <Minimize2 className="h-4 w-4 mr-2" />
-                            Exit Focus
-                          </Button>
-                        </div>
-                      </>
+                      focusedStream && (
+                        <>
+                          <RemoteVideo stream={focusedStream} label="Participant" />
+                          <div className="absolute bottom-4 right-4">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="bg-black bg-opacity-50 text-white"
+                              onClick={() => setFocusedParticipant(null)}
+                            >
+                              <Minimize2 className="h-4 w-4 mr-2" />
+                              Exit Focus
+                            </Button>
+                          </div>
+                        </>
+                      )
                     )}
                   </div>
 
                   <div className={`${layout.sideArea} grid grid-rows-3 gap-4`}>
                     {/* Local video if not focused */}
                     {focusedParticipant !== "local" && (
-                      <div className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer">
-                        {isCameraOff && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                            <Avatar className="h-12 w-12 mb-1">
-                              <div className="bg-blue-500 h-full w-full flex items-center justify-center text-white text-lg font-semibold">
-                                Y
-                              </div>
-                            </Avatar>
-                            <p className="text-white text-sm">You</p>
-                          </div>
-                        )}
-                        <video
-                          ref={localVideoRef}
-                          autoPlay
-                          muted
-                          className={`w-full h-full object-cover ${isCameraOff ? "opacity-0" : "opacity-100"}`}
+                      <div
+                        className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
+                        onClick={() => toggleFocusParticipant("local")}
+                      >
+                        <LocalVideo
+                          stream={displayStream}
+                          isCameraOff={isCameraOff}
+                          isScreenSharing={isScreenSharing}
+                          isMuted={isMuted}
                         />
-                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-xs">
-                          You {isMuted && <MicOff className="h-3 w-3 inline ml-1" />}
-                        </div>
                       </div>
                     )}
 
@@ -581,16 +624,7 @@ export function VideoCall() {
                           className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
                           onClick={() => toggleFocusParticipant(stream.peerId)}
                         >
-                          <video
-                            autoPlay
-                            ref={(video) => {
-                              if (video) video.srcObject = stream.stream
-                            }}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-xs">
-                            Participant
-                          </div>
+                          <RemoteVideo stream={stream.stream} label="Participant" />
                         </div>
                       ))}
                   </div>
@@ -605,25 +639,12 @@ export function VideoCall() {
                     className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer aspect-video"
                     onClick={() => toggleFocusParticipant("local")}
                   >
-                    {isCameraOff && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                        <Avatar className="h-16 w-16 md:h-24 md:w-24 mb-2">
-                          <div className="bg-blue-500 h-full w-full flex items-center justify-center text-white text-xl md:text-2xl font-semibold">
-                            Y
-                          </div>
-                        </Avatar>
-                        <p className="text-white">You</p>
-                      </div>
-                    )}
-                    <video
-                      ref={localVideoRef}
-                      autoPlay
-                      muted
-                      className={`w-full h-full object-cover ${isCameraOff ? "opacity-0" : "opacity-100"}`}
+                    <LocalVideo
+                      stream={displayStream}
+                      isCameraOff={isCameraOff}
+                      isScreenSharing={isScreenSharing}
+                      isMuted={isMuted}
                     />
-                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
-                      You {isMuted && <MicOff className="h-3 w-3 inline ml-1" />}
-                    </div>
                     <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
                       <Button
                         variant="secondary"
@@ -648,16 +669,7 @@ export function VideoCall() {
                         className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer aspect-video"
                         onClick={() => toggleFocusParticipant(stream.peerId)}
                       >
-                        <video
-                          autoPlay
-                          ref={(video) => {
-                            if (video) video.srcObject = stream.stream
-                          }}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm">
-                          Participant
-                        </div>
+                        <RemoteVideo stream={stream.stream} label="Participant" />
                         <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
                           <Button
                             variant="secondary"
@@ -684,19 +696,22 @@ export function VideoCall() {
           <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
             <div className="p-3 border-b border-gray-200 flex justify-between items-center">
               <h2 className="font-medium">Meeting chat</h2>
-              <Button variant="ghost" size="icon" onClick={() => setIsChatOpen(false)}>
+              <Button variant="ghost" size="icon" onClick={toggleChat}>
                 <X className="h-5 w-5" />
               </Button>
             </div>
 
-            <ScrollArea className="flex-1 p-3">
-              {chatMessages.length === 0 ? (
-                <div className="text-center text-gray-500 mt-10">
-                  <p>No messages yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {chatMessages.map((msg) => (
+            <ScrollArea
+              ref={scrollAreaRef}
+              className="flex-1 p-3 h-[calc(100vh-180px)] overflow-y-auto" // Adjusted height
+            >
+              <div className="space-y-3">
+                {chatMessages.length === 0 ? (
+                  <div className="text-center text-gray-500 mt-10">
+                    <p>No messages yet</p>
+                  </div>
+                ) : (
+                  chatMessages.map((msg) => (
                     <div key={msg.id} className={`flex flex-col ${msg.sender === "You" ? "items-end" : "items-start"}`}>
                       <div
                         className={`px-3 py-2 rounded-lg max-w-[85%] ${
@@ -710,16 +725,16 @@ export function VideoCall() {
                         {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                )}
+              </div>
             </ScrollArea>
 
             <div className="p-3 border-t border-gray-200">
               <div className="flex gap-2">
                 <Input
                   value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
+                  onChange={handleMessageInputChange}
                   onKeyDown={handleKeyDown}
                   placeholder="Send a message"
                   className="flex-1"
@@ -799,7 +814,7 @@ export function VideoCall() {
                   variant={isChatOpen ? "default" : "secondary"}
                   size="icon"
                   className="rounded-full h-12 w-12"
-                  onClick={() => setIsChatOpen(!isChatOpen)}
+                  onClick={toggleChat}
                 >
                   <MessageSquare className="h-5 w-5" />
                 </Button>
