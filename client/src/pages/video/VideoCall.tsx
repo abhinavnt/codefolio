@@ -64,7 +64,7 @@ export function VideoCall() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [messageInput, setMessageInput] = useState<string>("")
   const [participantCount, setParticipantCount] = useState<number>(1)
-
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   // Initialize socket and peer
   useEffect(() => {
     socketRef.current = io("http://localhost:5000", {
@@ -158,10 +158,14 @@ export function VideoCall() {
       updateParticipantCount()
     })
 
-    socketRef.current.on("chat-message", (message: ChatMessage) => {
-      setChatMessages((prev) => [...prev, message])
-    })
-
+    socketRef.current.on("chat-message", (message: any) => {
+      const receivedMessage: ChatMessage = {
+        ...message,
+        timestamp: new Date(message.timestamp),
+        sender: message.sender === peerRef.current?.id ? "You" : "Participant",
+      };
+      setChatMessages((prev) => [...prev, receivedMessage]);
+    });
     socketRef.current.on("screen-share-started", (peerId: string) => {
       setScreenSharingPeer(peerId)
     })
@@ -309,21 +313,20 @@ export function VideoCall() {
   }
 
   const sendChatMessage = () => {
-    if (messageInput.trim() && socketRef.current) {
+    if (messageInput.trim() && socketRef.current && peerRef.current) {
       const newMessage: ChatMessage = {
         id: Date.now().toString(),
-        sender: "You",
+        sender: peerRef.current.id,
         text: messageInput,
         timestamp: new Date(),
-      }
-      setChatMessages((prev) => [...prev, newMessage])
+      };
       socketRef.current.emit("chat-message", {
         roomId: bookingId,
-        message: { ...newMessage, sender: "Participant" },
-      })
-      setMessageInput("")
+        message: newMessage,
+      });
+      setMessageInput("");
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -385,6 +388,17 @@ export function VideoCall() {
       localVideoRef.current.srcObject = displayStream
     }
   }, [displayStream])
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      ) as HTMLDivElement;
+      if (viewport) {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" });
+      }
+    }
+  }, [chatMessages]);
 
   const layout = getLayoutConfig()
 
@@ -689,19 +703,24 @@ export function VideoCall() {
               </Button>
             </div>
 
-            <ScrollArea className="flex-1 p-3">
-              {chatMessages.length === 0 ? (
-                <div className="text-center text-gray-500 mt-10">
-                  <p>No messages yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {chatMessages.map((msg) => (
-                    <div key={msg.id} className={`flex flex-col ${msg.sender === "You" ? "items-end" : "items-start"}`}>
+            <ScrollArea
+              ref={scrollAreaRef}
+              className="flex-1 p-3 h-[calc(100vh-180px)] overflow-y-auto" // Adjusted height
+            >
+              <div className="space-y-3">
+                {chatMessages.length === 0 ? (
+                  <div className="text-center text-gray-500 mt-10">
+                    <p>No messages yet</p>
+                  </div>
+                ) : (
+                  chatMessages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col ${msg.sender === "You" ? "items-end" : "items-start"}`}
+                    >
                       <div
-                        className={`px-3 py-2 rounded-lg max-w-[85%] ${
-                          msg.sender === "You" ? "bg-blue-100" : "bg-gray-100"
-                        }`}
+                        className={`px-3 py-2 rounded-lg max-w-[85%] ${msg.sender === "You" ? "bg-blue-100" : "bg-gray-100"
+                          }`}
                       >
                         <p className="text-sm font-medium">{msg.sender}</p>
                         <p className="text-sm">{msg.text}</p>
@@ -710,9 +729,9 @@ export function VideoCall() {
                         {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                )}
+              </div>
             </ScrollArea>
 
             <div className="p-3 border-t border-gray-200">

@@ -49,6 +49,12 @@ export const setupSocket = (server: HttpServer) => {
         socket.to(roomId).emit("screen-share-stopped", peerId);
       });
 
+
+      socket.on("chat-message", (data) => {
+        const { roomId, message } = data;
+        io.to(roomId).emit("chat-message", message);
+      });
+
       socket.on("disconnect", () => {
         console.log(`User with peerId ${peerId} disconnected from room ${roomId}`);
         socket.to(roomId).emit("user-disconnected", peerId);
