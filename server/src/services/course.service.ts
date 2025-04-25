@@ -11,30 +11,29 @@ import { Types } from "mongoose";
 import { IPurchasedTaskRepository } from "../core/interfaces/repository/IPurchaseTaskReposioty";
 import { IPurchaseCourseRepository } from "../core/interfaces/repository/IPurchasedCourse";
 
-
 interface IModule {
   title: string;
   description: string;
   video: string;
-  lessons: ILesson[]; 
+  lessons: ILesson[];
   duration?: number;
   resources?: string[];
 }
 
-injectable()
+injectable();
 export class courseService implements ICourseService {
-   
-  constructor(@inject(TYPES.CourseRepository) private courseRepository:ICourseRepository,
-              @inject(TYPES.TaskRepository) private taskRepositoroy:ITaskRepository,
-              @inject(TYPES.PurchaseTaskRepository) private purchaseTaskRepository:IPurchasedTaskRepository,
-              @inject(TYPES.PurchaseCourseRepository) private purchaseCourseRepository:IPurchaseCourseRepository,
-){}
+  constructor(
+    @inject(TYPES.CourseRepository) private courseRepository: ICourseRepository,
+    @inject(TYPES.TaskRepository) private taskRepositoroy: ITaskRepository,
+    @inject(TYPES.PurchaseTaskRepository) private purchaseTaskRepository: IPurchasedTaskRepository,
+    @inject(TYPES.PurchaseCourseRepository) private purchaseCourseRepository: IPurchaseCourseRepository
+  ) {}
 
   async addCourse(courseData: any): Promise<ICourse> {
-    console.log('add course service kayritund');
-    
+    console.log("add course service kayritund");
+
     try {
-      const { modules, targetedAudience,learningPoints,courseRequirements,...courseDetails} = courseData;
+      const { modules, targetedAudience, learningPoints, courseRequirements, ...courseDetails } = courseData;
 
       if (
         !courseDetails.title ||
@@ -43,31 +42,22 @@ export class courseService implements ICourseService {
         !courseDetails.level ||
         !courseDetails.duration ||
         !courseDetails.image ||
-        !courseDetails.price||
+        !courseDetails.price ||
         !courseDetails.status
       ) {
         throw new Error("Missing required course fields");
       }
-      console.log(courseDetails,"course details");
+      console.log(courseDetails, "course details");
 
-        const parsedLearningPoints = typeof learningPoints === 'string' 
-        ? JSON.parse(learningPoints) 
-        : Array.isArray(learningPoints) 
-        ? learningPoints 
-        : [];
-      
-      const parsedTargetedAudience = typeof targetedAudience === 'string'
-        ? JSON.parse(targetedAudience)
-        : Array.isArray(targetedAudience)
-        ? targetedAudience
-        : [];
-      
-      const parsedCourseRequirements = typeof courseRequirements === 'string'
-        ? JSON.parse(courseRequirements)
-        : Array.isArray(courseRequirements)
-        ? courseRequirements
-        : [];
-      
+      const parsedLearningPoints =
+        typeof learningPoints === "string" ? JSON.parse(learningPoints) : Array.isArray(learningPoints) ? learningPoints : [];
+
+      const parsedTargetedAudience =
+        typeof targetedAudience === "string" ? JSON.parse(targetedAudience) : Array.isArray(targetedAudience) ? targetedAudience : [];
+
+      const parsedCourseRequirements =
+        typeof courseRequirements === "string" ? JSON.parse(courseRequirements) : Array.isArray(courseRequirements) ? courseRequirements : [];
+
       const newCourse = await this.courseRepository.createCourse({
         title: courseDetails.title,
         description: courseDetails.description,
@@ -76,37 +66,35 @@ export class courseService implements ICourseService {
         duration: courseDetails.duration,
         image: courseDetails.image,
         price: courseDetails.price,
-        rating: 0, 
-        enrolledStudents: [], 
+        rating: 0,
+        enrolledStudents: [],
         status: courseDetails.status,
-        tags: courseDetails.tags || [], 
-        targetedAudience:parsedTargetedAudience,
-        learningPoints:parsedLearningPoints,
-        courseRequirements:parsedCourseRequirements
+        tags: courseDetails.tags || [],
+        targetedAudience: parsedTargetedAudience,
+        learningPoints: parsedLearningPoints,
+        courseRequirements: parsedCourseRequirements,
       });
 
-      console.log(modules,"modules");
-      
-      console.log(Array.isArray(modules),'arry ano modules');
-      console.log(modules.length,'module length');
-      
-      if (modules && Array.isArray(modules) && modules.length > 0) {
-        const tasks: Partial<ITask>[] = modules.map(
-          (module: IModule, index: number) => ({
-            courseId: newCourse._id as Types.ObjectId,
-            title: module.title || `Task ${index + 1}`,
-            description: module.description || "",
-            video: module.video || "",
-            lessons: module.lessons ? module.lessons.map(lesson => lesson.title) : [],
-            order: index + 1,
-            duration: module.duration?.toString() || newCourse.duration.toString(),
-            status: "active" as "active" | "inactive",
-            resources: module.resources || [],
-          })
-        );
+      console.log(modules, "modules");
 
-        console.log('waiting for tasks creation');
-        
+      console.log(Array.isArray(modules), "arry ano modules");
+      console.log(modules.length, "module length");
+
+      if (modules && Array.isArray(modules) && modules.length > 0) {
+        const tasks: Partial<ITask>[] = modules.map((module: IModule, index: number) => ({
+          courseId: newCourse._id as Types.ObjectId,
+          title: module.title || `Task ${index + 1}`,
+          description: module.description || "",
+          video: module.video || "",
+          lessons: module.lessons ? module.lessons.map((lesson) => lesson.title) : [],
+          order: index + 1,
+          duration: module.duration?.toString() || newCourse.duration.toString(),
+          status: "active" as "active" | "inactive",
+          resources: module.resources || [],
+        }));
+
+        console.log("waiting for tasks creation");
+
         await this.taskRepositoroy.createTasks(tasks);
       }
 
@@ -117,44 +105,42 @@ export class courseService implements ICourseService {
   }
 
   async getCourseById(courseId: string): Promise<ICourse | null> {
-      try {
-        console.log('get course by id serviceil ethitunf ');
-        
-        const course= await this.courseRepository.getCourseByID(courseId)
-
-        console.log(course,"course response from getcourseby id service");
-        
-        return course
-      } catch (error) {
-        throw new Error(error instanceof Error ? error.message : String(error));
-      }
-  }
-
-
-
-  //get purcased course for users
-  async findCoursePurchaseByUserId(userId: string): Promise<ICoursePurchased[]> {
-      return await this.purchaseCourseRepository.findCoursePurchaseByUserId(userId) 
-  }
-
-
-
-  //get purchased course tasks
-  async findTaskByUserIdAndCourseId(userId: string, courseId: string): Promise<IPurchasedCourseTask[]> {
     try {
-      
-      return await this.purchaseTaskRepository.findTaskByUserIdAndCourseId(userId,courseId)
+      console.log("get course by id serviceil ethitunf ");
+
+      const course = await this.courseRepository.getCourseByID(courseId);
+
+      console.log(course, "course response from getcourseby id service");
+
+      return course;
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));
     }
   }
 
+  //get purcased course for users
+  async findCoursePurchaseByUserId(userId: string): Promise<ICoursePurchased[]> {
+    return await this.purchaseCourseRepository.findCoursePurchaseByUserId(userId);
+  }
 
-
+  //get purchased course tasks
+  async findTaskByUserIdAndCourseId(userId: string, courseId: string): Promise<IPurchasedCourseTask[]> {
+    try {
+      return await this.purchaseTaskRepository.findTaskByUserIdAndCourseId(userId, courseId);
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  }
 
   //admin
-   async getCoursesAdmin(search: string, category: string, status: string, page: number, limit: number): Promise<{ courses: ICourse[]; total: number; }> {
-      return await this.courseRepository.getCoursesAdmin(search,category,status,page,limit)
+  async getCoursesAdmin(
+    search: string,
+    category: string,
+    status: string,
+    page: number,
+    limit: number
+  ): Promise<{ courses: ICourse[]; total: number }> {
+    return await this.courseRepository.getCoursesAdmin(search, category, status, page, limit);
   }
 
   async updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> {
@@ -166,69 +152,59 @@ export class courseService implements ICourseService {
   }
 
   async deleteTask(id: string): Promise<void> {
-    return await this.taskRepositoroy.deleteTask(id)
+    return await this.taskRepositoroy.deleteTask(id);
   }
 
   async getCourseTasks(courseId: string): Promise<ITask[] | null> {
-      return await this.taskRepositoroy.getCourseTasks(courseId)
+    return await this.taskRepositoroy.getCourseTasks(courseId);
   }
 
-//new update course 
+  //new update course
   async updateCourseAndTasks(courseId: string, courseData: Partial<ICourse>, tasksData: Partial<ITask>[]): Promise<ICourse | null> {
-      try {
-        const updatedCourse=await this.courseRepository.updateCourse(courseId,courseData)
+    try {
+      const updatedCourse = await this.courseRepository.updateCourse(courseId, courseData);
 
-        if (!updatedCourse) {
-          return null;
-        }
+      if (!updatedCourse) {
+        return null;
+      }
 
-        const existingTasks=await this.taskRepositoroy.getCourseTasks(courseId)
+      const existingTasks = await this.taskRepositoroy.getCourseTasks(courseId);
 
-        
-       console.log(tasksData,"task data from the backend service updatecourse and task");
+      console.log(tasksData, "task data from the backend service updatecourse and task");
 
-       if (!Array.isArray(tasksData)) {
+      if (!Array.isArray(tasksData)) {
         throw new Error("tasksData must be an array");
       }
-       
-        const incomingTaskIds = tasksData.filter(task => task._id).map(task => new Types.ObjectId(task._id as string));
 
-        if(existingTasks){
-          const tasksToDelete = existingTasks.filter(task => !incomingTaskIds.some(id => id.equals(task._id as string)));
+      const incomingTaskIds = tasksData.filter((task) => task._id).map((task) => new Types.ObjectId(task._id as string));
 
-          for (const task of tasksToDelete) {
-            await this.taskRepositoroy.deleteTask(task._id as string);
-          }
+      if (existingTasks) {
+        const tasksToDelete = existingTasks.filter((task) => !incomingTaskIds.some((id) => id.equals(task._id as string)));
 
-
-          for(let index = 0; index < tasksData.length; index++){
-            const taskData= tasksData[index]
-            const order=index+1
-            if(taskData._id){
-              await this.taskRepositoroy.updateTask(taskData._id as string,{...taskData,order})
-
-            }else{
-              const newTask={
-                ...taskData,
-                courseId: new Types.ObjectId(courseId),
-                order,
-                status:taskData.status||'active'
-              }
-              await this.taskRepositoroy.createTasks([newTask])
-            }
-
-          }
-
+        for (const task of tasksToDelete) {
+          await this.taskRepositoroy.deleteTask(task._id as string);
         }
 
-        return updatedCourse
-       
-
-      } catch (error) {
-        throw new Error(error instanceof Error ? error.message : String(error));
+        for (let index = 0; index < tasksData.length; index++) {
+          const taskData = tasksData[index];
+          const order = index + 1;
+          if (taskData._id) {
+            await this.taskRepositoroy.updateTask(taskData._id as string, { ...taskData, order });
+          } else {
+            const newTask = {
+              ...taskData,
+              courseId: new Types.ObjectId(courseId),
+              order,
+              status: taskData.status || "active",
+            };
+            await this.taskRepositoroy.createTasks([newTask]);
+          }
+        }
       }
+
+      return updatedCourse;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
   }
-  
-
-
 }

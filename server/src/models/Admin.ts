@@ -1,20 +1,20 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export interface IAdmin extends Document{
-     name:string,
-     email:string,
-     password:string,
-     createdAt:Date,
-     updatedAt:Date
+export interface IAdmin extends Document {
+  name: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const AdminShema = new Schema(
-    {
-        name:{type:String, required:true},
-        email:{type:String, required:true},
-        password:{type:String, required:true}
-    },
-    {timestamps:true}
-)
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
-export const Admin = mongoose.model("Admin",AdminShema)
+export const Admin = mongoose.model("Admin", AdminShema);

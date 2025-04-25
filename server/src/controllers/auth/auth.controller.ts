@@ -69,11 +69,7 @@ export class AuthController implements IAuthController {
 
       console.log(email, "from controller");
 
-      const { refreshToken, ...user } = await this.authService.login(
-        email,
-        password,
-        role
-      );
+      const { refreshToken, ...user } = await this.authService.login(email, password, role);
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -97,13 +93,9 @@ export class AuthController implements IAuthController {
       const refreshToken = req.cookies.refreshToken;
       console.log(refreshToken, "refresh token");
 
-      if (!refreshToken)
-        res.status(403).json({ error: "Refresh tokekn required" });
+      if (!refreshToken) res.status(403).json({ error: "Refresh tokekn required" });
       const { role } = req.body;
-      const { accessToken, user } = await this.authService.refreshAccessToken(
-        refreshToken,
-        role
-      );
+      const { accessToken, user } = await this.authService.refreshAccessToken(refreshToken, role);
       res.status(200).json({ accessToken, user });
     } catch (error) {}
   };
@@ -117,9 +109,7 @@ export class AuthController implements IAuthController {
       });
       res.status(200).json({ message: "Logged out successfully" });
     } catch (error: any) {
-      res
-        .status(500)
-        .json({ message: "something went wrong while logging out" });
+      res.status(500).json({ message: "something went wrong while logging out" });
     }
   };
 
@@ -130,9 +120,7 @@ export class AuthController implements IAuthController {
 
       await this.authService.sendMagicLink(email);
 
-      res
-        .status(200)
-        .json({ message: "A reset link has been sent to your email" });
+      res.status(200).json({ message: "A reset link has been sent to your email" });
     } catch (error: any) {
       if (error.message === "Invalid email address") {
         res.status(404).json({ message: error.message });

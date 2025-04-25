@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import cloudinary from "../../config/cloudinary";
 import { ICourseController } from "../../core/interfaces/controller/ICourseController";
-import { courseService } from "../../services/course.service"; 
+import { courseService } from "../../services/course.service";
 import { Request, RequestHandler, Response } from "express";
 import { TYPES } from "../../di/types";
 import { ICourseService } from "../../core/interfaces/service/ICourseService";
@@ -14,175 +14,168 @@ import { ICourse } from "../../models/Course";
 
 @injectable()
 export class CourseController implements ICourseController {
-  constructor(@inject(TYPES.CourseServices) private courseService:ICourseService){}
+  constructor(@inject(TYPES.CourseServices) private courseService: ICourseService) {}
 
+  addCourse = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    console.log("add course controller vannitund", req.body);
 
-  addCourse=asyncHandler(async(req: Request, res: Response): Promise<void> =>{
-    console.log('add course controller vannitund',req.body);
-
-      const {
-        title,
-        description,
-        category,
-        level,
-        price,
-        duration,
-        modules,
-        learningPoints,
-        targetedAudience,
-        courseRequirements,
-        status
-      } = req.body;
+    const { title, description, category, level, price, duration, modules, learningPoints, targetedAudience, courseRequirements, status } = req.body;
 
     console.log(req.body);
-    
-      
-     
 
-      let image=''
+    let image = "";
 
-      console.log(req.file,"files");
-      
+    console.log(req.file, "files");
 
-       if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).image) {
-              const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      
-              console.log('Uploading profile image to Cloudinary...');
-      
-              await new Promise((resolve, reject) => {
-                cloudinary.uploader.upload_stream({ folder: 'mentor_profiles' }, (error, result) => {
-                  if (error) {
-                    console.error('Cloudinary upload error (profile image):', error);
-                    reject(error);
-                    return;
-                  }
-                  if (result) {
-                    image = result.secure_url;
-                    resolve(result);
-                  }
-                }).end(files.image[0].buffer);
-              });
+    if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).image) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+      console.log("Uploading profile image to Cloudinary...");
+
+      await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "mentor_profiles" }, (error, result) => {
+            if (error) {
+              console.error("Cloudinary upload error (profile image):", error);
+              reject(error);
+              return;
             }
-
-            const parsedModules = modules ? JSON.parse(modules) : [];
-
-            const courseData = {title,description,category, level, price, duration, image,modules:parsedModules,learningPoints,targetedAudience,courseRequirements,status};
-            
-             const newCourse = await this.courseService.addCourse(courseData);
-
-      res.status(201).json({
-        message: "Course and tasks created successfully",
-        course: newCourse,
+            if (result) {
+              image = result.secure_url;
+              resolve(result);
+            }
+          })
+          .end(files.image[0].buffer);
       });
-  
-  })
+    }
 
-  getCourseById=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-    console.log('reached the course controller');
-    
-          const courseId=req.params.id
-          console.log(courseId,"course id from getcoursebyid");
-           
-          if(!courseId){
-         res.status(400).json({ message: 'course id is required'})
-          }
+    const parsedModules = modules ? JSON.parse(modules) : [];
 
-      const course=await this.courseService.getCourseById(courseId)
-      console.log(course,"course chance und");
-      
-      res.status(200).json({course,message:"got the course"})
+    const courseData = {
+      title,
+      description,
+      category,
+      level,
+      price,
+      duration,
+      image,
+      modules: parsedModules,
+      learningPoints,
+      targetedAudience,
+      courseRequirements,
+      status,
+    };
 
-  })
+    const newCourse = await this.courseService.addCourse(courseData);
 
-  listCoursesAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-    const { search = '', category = 'all', status = 'all', page = '1', limit = '5' } = req.query;
-    const result=await this.courseService.getCoursesAdmin(search as string,category as string,status as string,parseInt(page as string),parseInt(limit as string))
+    res.status(201).json({
+      message: "Course and tasks created successfully",
+      course: newCourse,
+    });
+  });
+
+  getCourseById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    console.log("reached the course controller");
+
+    const courseId = req.params.id;
+    console.log(courseId, "course id from getcoursebyid");
+
+    if (!courseId) {
+      res.status(400).json({ message: "course id is required" });
+    }
+
+    const course = await this.courseService.getCourseById(courseId);
+    console.log(course, "course chance und");
+
+    res.status(200).json({ course, message: "got the course" });
+  });
+
+  listCoursesAdmin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { search = "", category = "all", status = "all", page = "1", limit = "5" } = req.query;
+    const result = await this.courseService.getCoursesAdmin(
+      search as string,
+      category as string,
+      status as string,
+      parseInt(page as string),
+      parseInt(limit as string)
+    );
     // console.log('result form listcourse Controler',result);
-    
-    res.status(200).json(result)
-  })
 
-  updateCourse=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    res.status(200).json(result);
+  });
+
+  updateCourse = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const data = req.body;
     const updatedCourse = await this.courseService.updateCourse(id, data);
     if (!updatedCourse) {
-       res.status(404).json({ message: 'Course not found' });
+      res.status(404).json({ message: "Course not found" });
     }
     res.json(updatedCourse);
-  })
+  });
 
-  updateTask=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+  updateTask = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const data = req.body;
     const updatedTask = await this.courseService.updateTask(id, data);
     if (!updatedTask) {
-      res.status(404).json({ message: 'Task not found' });
+      res.status(404).json({ message: "Task not found" });
     }
     res.json(updatedTask);
-  })
+  });
 
-
-
-  getCourseByIdAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+  getCourseByIdAdmin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
-    const course=await this.courseService.getCourseById(id)
-    const task=await this.courseService.getCourseTasks(id)
-  })
-
-
+    const course = await this.courseService.getCourseById(id);
+    const task = await this.courseService.getCourseTasks(id);
+  });
 
   //get user enroled courses
-  getUserEnrolledCourses=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-    console.log('reached course controller');
-    
-    const userId = String(req.user?._id)
-    const courses=await this.courseService.findCoursePurchaseByUserId(userId)
-    console.log(courses);
-    
-    res.status(200).json(courses)
-  })
+  getUserEnrolledCourses = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    console.log("reached course controller");
 
+    const userId = String(req.user?._id);
+    const courses = await this.courseService.findCoursePurchaseByUserId(userId);
+    console.log(courses);
+
+    res.status(200).json(courses);
+  });
 
   //get user enrolled courses tasks
-  getUserCourseTasks=asyncHandler(async(req:Request,res:Response)=>{
-    const userId = String(req.user?._id)
+  getUserCourseTasks = asyncHandler(async (req: Request, res: Response) => {
+    const userId = String(req.user?._id);
     const courseId = req.params.courseId;
-    console.log('userid courseid',userId,courseId);
-    
-    const tasks= await this.courseService.findTaskByUserIdAndCourseId(userId,courseId)
-    console.log('tasks from coursetasksgeting',tasks);
-    
-    res.status(200).json(tasks)
-  }) 
+    console.log("userid courseid", userId, courseId);
 
+    const tasks = await this.courseService.findTaskByUserIdAndCourseId(userId, courseId);
+    console.log("tasks from coursetasksgeting", tasks);
 
-  getCourseWithTasks=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    res.status(200).json(tasks);
+  });
 
-    console.log('iam from getcourse with trassk controller');
-    
-   const {id}=req.params
+  getCourseWithTasks = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    console.log("iam from getcourse with trassk controller");
 
-   const course= await this.courseService.getCourseById(id)
-    console.log('course kitty from getcourese with tasks course controler',course);
-    
-   if(!course){
-    res.status(404).json({ message: 'Course not found' });
-    return;
-   }
+    const { id } = req.params;
 
-   const tasks= await this.courseService.getCourseTasks(id)
-   console.log('get course from admin edit course',course);
-   
-   res.status(200).json({ course, tasks })
+    const course = await this.courseService.getCourseById(id);
+    console.log("course kitty from getcourese with tasks course controler", course);
 
-  })
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
 
+    const tasks = await this.courseService.getCourseTasks(id);
+    console.log("get course from admin edit course", course);
 
-  updateCourseAdmin=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
-    const {id}= req.params
-    const {course,tasks}=req.body
-    
+    res.status(200).json({ course, tasks });
+  });
+
+  updateCourseAdmin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const { course, tasks } = req.body;
+
     let parsedCourse: Partial<ICourse>;
     try {
       parsedCourse = typeof course === "string" ? JSON.parse(course) : course;
@@ -190,7 +183,7 @@ export class CourseController implements ICourseController {
       res.status(400).json({ message: "Invalid course data format" });
       return;
     }
-    
+
     let parsedTasks: Partial<ITask>[] = [];
     try {
       parsedTasks = typeof tasks === "string" ? JSON.parse(tasks) : tasks;
@@ -198,30 +191,27 @@ export class CourseController implements ICourseController {
       res.status(400).json({ message: "Invalid tasks data format" });
       return;
     }
-    let image=parsedCourse.image
+    let image = parsedCourse.image;
 
-
-    if(req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).image){
+    if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).image) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      
-      const uploadResult = await new Promise((resolve, reject)=>{
-        cloudinary.uploader.upload_stream({ folder: 'mentor_profiles' }, (error, result)=>{
 
-          if (error) {
-            reject(error);
-            return;
-          }
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "mentor_profiles" }, (error, result) => {
+            if (error) {
+              reject(error);
+              return;
+            }
 
-          if (result) {
-            resolve(result.secure_url);
-          }
-
-
-        }).end(files.image[0].buffer);
-      })
+            if (result) {
+              resolve(result.secure_url);
+            }
+          })
+          .end(files.image[0].buffer);
+      });
 
       image = uploadResult as string;
-
     }
 
     const updatedCourseData = { ...parsedCourse, image };
@@ -229,13 +219,10 @@ export class CourseController implements ICourseController {
     const updatedCourse = await this.courseService.updateCourseAndTasks(id, updatedCourseData, parsedTasks);
 
     if (!updatedCourse) {
-      res.status(404).json({ message: 'Course not found' });
+      res.status(404).json({ message: "Course not found" });
       return;
     }
 
     res.json(updatedCourse);
-
-  })
-
-  
+  });
 }

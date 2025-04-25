@@ -9,12 +9,14 @@ const PORT = process.env.PORT || 5000;
 
 const server = createServer(app);
 
-app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST"],
-  credentials: true,
-  allowedHeaders: ["Content-Type"],
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+    allowedHeaders: ["Content-Type"],
+  })
+);
 
 setupSocket(server);
 

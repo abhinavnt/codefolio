@@ -8,77 +8,32 @@ import { IUserRepository } from "../../core/interfaces/repository/IUserRepositor
 import { mentorRepository } from "../../repositories/mentor.repository";
 import { IMentorReqRepository } from "../../core/interfaces/repository/IMentorReqRepository";
 
-
-
-
-
-
-// const mentorReqRepository=new MentorReqRepository()
-
-// const userRepository=new UserRepository()
-
-
 @injectable()
-export class mentorReqService implements IMentorReqService{
-
-  constructor(@inject(TYPES.UserRepository) private userRepository:IUserRepository,
-              @inject(TYPES.MentorReqRepository) private mentorReqRepository:IMentorReqRepository
-){}
-
-
-
-//   async findUserName(username: string): Promise<IMentorReqService | null> {
-//     const mentor = await mentorReqRepository.checkMentorUsername(username);
-    
-//     if (!mentor) return null;
-
-//     // Transform IMentorRequest to IMentorReqService
-//     const mappedMentor: any = {
-//         // Ensure that all required properties in IMentorReqService are mapped from mentor
-//         ...mentor, // If structures are similar, spread properties
-//     };
-
-//     return mappedMentor;
-// }
-
-
-// async findReq(userId: string): Promise<IMentorReqService | null> {
-//   const mentor = await mentorReqRepository.findReqById(userId)
-    
-//   if (!mentor) return null;
-
-//   const mappedMentor: any = {
-      
-//       ...mentor, 
-//   };
-
-//   return mappedMentor;
-// }
+export class mentorReqService implements IMentorReqService {
+  constructor(
+    @inject(TYPES.UserRepository) private userRepository: IUserRepository,
+    @inject(TYPES.MentorReqRepository) private mentorReqRepository: IMentorReqRepository
+  ) {}
 
   async addMentorRequest(userId: string, mentorData: Partial<IMentorRequest>): Promise<void> {
-       try {
-        const existingReq= await this.mentorReqRepository.findReqById(userId)
+    try {
+      const existingReq = await this.mentorReqRepository.findReqById(userId);
 
-        if(existingReq) throw new Error("Request alredy submited")
+      if (existingReq) throw new Error("Request alredy submited");
 
-            if (!mentorData.username) {
-                throw new Error("Username is required");
-            }
-        
-        const isUsername=await this.mentorReqRepository.checkMentorUsername(mentorData.username)
+      if (!mentorData.username) {
+        throw new Error("Username is required");
+      }
 
-          if(isUsername) throw new Error("username alredy taken")
+      const isUsername = await this.mentorReqRepository.checkMentorUsername(mentorData.username);
 
-            const mentorReq=await this.mentorReqRepository.addMentorRequest(userId,mentorData)
+      if (isUsername) throw new Error("username alredy taken");
 
-             await this.userRepository.updateReviewerRequestStatus(userId,'pending')
+      const mentorReq = await this.mentorReqRepository.addMentorRequest(userId, mentorData);
 
-       } catch (error:any) {
-        throw new Error(error instanceof Error ? error.message : String(error));
-       }
-   }
-
-
+      await this.userRepository.updateReviewerRequestStatus(userId, "pending");
+    } catch (error: any) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  }
 }
-
-

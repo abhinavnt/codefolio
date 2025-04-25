@@ -7,16 +7,12 @@ import { UserRole } from "../core/constants/user.enum";
 
 const router = express.Router();
 
-
-
-const paymentController= container.get<IPaymentController>(TYPES.PaymentController)
+const paymentController = container.get<IPaymentController>(TYPES.PaymentController);
 
 // router.use(authMiddleware)
 
-router.post('/create-checkout-session',authMiddleware([UserRole.USER]),paymentController.createCheckoutSession)
-router.post('/verify-payment',authMiddleware([UserRole.USER]),paymentController.verifyPayment)
+router.post("/create-checkout-session", authMiddleware([UserRole.USER]), paymentController.createCheckoutSession);
 
+router.post("/verify-payment", authMiddleware([UserRole.USER]), paymentController.verifyPayment);
 
-
-
-export default router
+export default router;
