@@ -16,6 +16,7 @@ export const TYPES={
     BookingRepository:Symbol.for('BookingRepository'),
     PurchaseTaskRepository:Symbol.for('PurchaseTaskRepository'),
     PurchaseCourseRepository:Symbol.for('PurchaseCourse'),
+    MentorFeedbackRepository:Symbol.for('MentorFeedbackRepository'),
 
 
     //services
@@ -27,6 +28,7 @@ export const TYPES={
     MentorService:Symbol.for('MentorService'),
     PaymentService:Symbol.for('PaymentService'),
     BookingService:Symbol.for('BookingService'),
+    FeedbackService:Symbol.for('FeedbackService'),
 
 
     //Controllers
@@ -37,6 +39,7 @@ export const TYPES={
     CourseController:Symbol.for('CourseController'),
     MentorController:Symbol.for('MentorController'),
     PaymentController:Symbol.for('PaymentController'),
-    BookingController:Symbol.for('BookingController')
+    BookingController:Symbol.for('BookingController'),
+    FeedbackController:Symbol.for('FeedbackController')
 
 }

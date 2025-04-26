@@ -277,7 +277,7 @@ export default function MentorProfile() {
                 </Card>
               </TabsContent>
               <TabsContent value="review" className="mt-4">
-                <Feedback />
+                <Feedback mentorId={mentor._id} />
               </TabsContent>
             </Tabs>
           </div>

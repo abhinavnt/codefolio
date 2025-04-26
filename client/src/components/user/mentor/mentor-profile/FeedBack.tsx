@@ -1,57 +1,80 @@
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axiosInstance from "@/utils/axiosInstance"; // Adjust the import path as necessary
+import { formatDistanceToNow } from "date-fns";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+interface User {
+  name: string;
+  profileImageUrl: string;
+}
 
-// Dummy data for feedback
-const feedbackData = [
-  {
-    id: 1,
-    name: "Sarah M.",
-    avatar: "/placeholder.svg?height=40&width=40",
-    rating: 5,
-    time: "1 week ago",
-    comment: "Alex is an amazing mentor! His teaching style is clear and engaging. Highly recommend!",
-  },
-  {
-    id: 2,
-    name: "John D.",
-    avatar: "/placeholder.svg?height=40&width=40",
-    rating: 4,
-    time: "2 weeks ago",
-    comment: "Great course, but I wish there were more practical examples.",
-  },
-  {
-    id: 3,
-    name: "Emily R.",
-    avatar: "/placeholder.svg?height=40&width=40",
-    rating: 5,
-    time: "3 weeks ago",
-    comment: "Best instructor I've ever had. Learned so much in just a few weeks!",
-  },
-  {
-    id: 4,
-    name: "Michael T.",
-    avatar: "/placeholder.svg?height=40&width=40",
-    rating: 3,
-    time: "1 month ago",
-    comment: "Good content, but the pace was a bit fast for beginners.",
-  },
-]
+interface FeedbackItem {
+  _id: string;
+  userId: User;
+  rating: number;
+  feedback: string;
+  createdAt: string;
+}
 
-export function Feedback() {
-  const [filter, setFilter] = useState("all")
+export function Feedback({ mentorId }: { mentorId: string }) {
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const [filter, setFilter] = useState<string>("all");
+  const [loading, setLoading] = useState<boolean>(false);
+  const limit = 5;
 
-  const filteredFeedback =
-    filter === "all" ? feedbackData : feedbackData.filter((item) => item.rating === Number.parseInt(filter))
+  // Reset feedback and page when filter changes
+  useEffect(() => {
+    setFeedback([]);
+    setPage(1);
+  }, [filter]);
+
+  // Fetch feedback when mentorId, filter, or page changes
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      setLoading(true);
+      try {
+        const rating = filter === "all" ? undefined : parseInt(filter);
+        const response = await axiosInstance.get(`/api/feedback/${mentorId}`, {
+          params: { page, limit, rating },
+        });
+        const newFeedback = response.data.feedback;
+        console.log(newFeedback, "new feedback from ");
+
+        if (page === 1) {
+          setFeedback(newFeedback);
+        } else {
+          setFeedback((prev) => [...prev, ...newFeedback]);
+        }
+        setTotal(response.data.total);
+      } catch (error) {
+        console.error("Error fetching feedback:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeedback();
+  }, [mentorId, filter, page]);
+
+  // Function to load more feedback
+  const loadMore = () => {
+    setPage((prev) => prev + 1);
+  };
+
+  // Format date
+  const formatTime = (date: string) => {
+    return formatDistanceToNow(new Date(date), { addSuffix: true });
+  };
 
   return (
     <Card>
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-medium">Students Feedback</h3>
-          <Select defaultValue="all" onValueChange={setFilter}>
+          <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by rating" />
             </SelectTrigger>
@@ -67,17 +90,17 @@ export function Feedback() {
         </div>
 
         <div className="space-y-6">
-          {filteredFeedback.length > 0 ? (
-            filteredFeedback.map((feedback) => (
-              <div key={feedback.id} className="flex gap-4">
+          {feedback.length > 0 ? (
+            feedback.map((item) => (
+              <div key={item._id} className="flex gap-4">
                 <Avatar>
-                  <AvatarImage src={feedback.avatar} alt={feedback.name} />
-                  <AvatarFallback>{feedback.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={item.userId.profileImageUrl} alt={item.userId.name} />
+                  <AvatarFallback>{item.userId.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{feedback.name}</span>
-                    <span className="text-xs text-muted-foreground">{feedback.time}</span>
+                    <span className="font-medium">{item.userId.name}</span>
+                    <span className="text-xs text-muted-foreground">{formatTime(item.createdAt)}</span>
                   </div>
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
@@ -87,7 +110,7 @@ export function Feedback() {
                         width="16"
                         height="16"
                         viewBox="0 0 24 24"
-                        fill={i < feedback.rating ? "currentColor" : "none"}
+                        fill={i < item.rating ? "currentColor" : "none"}
                         stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
@@ -98,16 +121,26 @@ export function Feedback() {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-sm">{feedback.comment}</p>
+                  <p className="text-sm">{item.feedback}</p>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-center text-muted-foreground">No reviews match the selected filter.</p>
+            !loading && <p className="text-center text-muted-foreground">No feedback available.</p>
+          )}
+          {loading && <p className="text-center">Loading...</p>}
+          {feedback.length < total && !loading && (
+            <div className="text-center">
+              <button
+                onClick={loadMore}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+              >
+                Load More
+              </button>
+            </div>
           )}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-
