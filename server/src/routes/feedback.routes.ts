@@ -11,7 +11,6 @@ const feedbackController = container.get<IFeedbackController>(TYPES.FeedbackCont
 
 router.post("/mentor", authMiddleware([UserRole.USER]), feedbackController.submitMentorFeedback);
 
-
 router.get("/user-feedbacks", authMiddleware([UserRole.USER]), feedbackController.getUserFeedbacks);
 
 router.get("/:mentorId", authMiddleware([UserRole.USER]), feedbackController.getFeedbackByMentorId);

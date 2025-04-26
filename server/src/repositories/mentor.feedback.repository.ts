@@ -13,8 +13,30 @@ export class MentorFeedbackRepository extends BaseRepository<IMentorFeedback> im
     return await feedback.save();
   }
 
-  async findByMentorId(mentorId: string): Promise<IMentorFeedback[]> {
-    return await this.find({ mentorId }).populate("userId", "name profileImage");
+  async findByMentorId(mentorId: string, page: number, limit: number, excludeUserId?: string, rating?: number): Promise<IMentorFeedback[]> {
+    const skip = (page - 1) * limit;
+
+    let query: any = { mentorId };
+
+    if (excludeUserId) {
+      query.userId = { $ne: new mongoose.Types.ObjectId(excludeUserId) };
+    }
+
+    if (rating) {
+      query.rating = rating;
+    }
+    return await this.find(query).populate("userId", "name profileImageUrl").skip(skip).limit(limit);
+  }
+
+  async countByMentorId(mentorId: string, excludeUserId?: string, rating?: number): Promise<number> {
+    let query: any = { mentorId };
+    if (excludeUserId) {
+      query.userId = { $ne: new mongoose.Types.ObjectId(excludeUserId) };
+    }
+    if (rating) {
+      query.rating = rating;
+    }
+    return await this.countDocuments(query);
   }
 
   async findByMentorAndUser(mentorId: string, userId: string): Promise<IMentorFeedback | null> {

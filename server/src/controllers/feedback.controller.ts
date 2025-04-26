@@ -17,16 +17,27 @@ export class FeedbackController implements IFeedbackController {
 
   getFeedbackByMentorId = asyncHandler(async (req: Request, res: Response) => {
     const mentorId = req.params.mentorId;
-    const feedback = await this.feedbackService.getFeedbackByMentorId(mentorId);
+
+    const page = parseInt(req.query.page as string) || 1;
+
+    const limit = parseInt(req.query.limit as string) || 5;
+
+    const excludeUserId = req.query.excludeUserId as string;
+
+    const rating = req.query.rating ? parseInt(req.query.rating as string) : undefined;
+
+    const feedback = await this.feedbackService.getFeedbackByMentorId(mentorId, page, limit, excludeUserId, rating);
+    console.log(feedback,"feedback from the backend controler ");
+    
     res.status(200).json(feedback);
   });
 
   getUserFeedbacks = asyncHandler(async (req: Request, res: Response) => {
-    console.log('iam from get user feedbacks controller');
-    
+    console.log("iam from get user feedbacks controller");
+
     const userId = String(req.user?._id);
-    console.log('userid from controler getuser feeback',userId);
-    
+    console.log("userid from controler getuser feeback", userId);
+
     const feedbacks = await this.feedbackService.getFeedbackByUserId(userId);
     res.status(200).json(feedbacks);
   });

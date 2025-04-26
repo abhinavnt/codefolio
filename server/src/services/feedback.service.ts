@@ -39,9 +39,19 @@ export class FeedbackService implements IFeedbackService {
     }
   }
 
-  async getFeedbackByMentorId(mentorId: string): Promise<IMentorFeedback[]> {
+  async getFeedbackByMentorId(
+    mentorId: string,
+    page: number,
+    limit: number,
+    excludeUserId?: string,
+    rating?: number
+  ): Promise<{ feedback: IMentorFeedback[]; total: number }> {
     try {
-      return this.mentorFeedbackRepository.findByMentorId(mentorId);
+      const feedback = await this.mentorFeedbackRepository.findByMentorId(mentorId, page, limit, excludeUserId, rating);
+      const total = await this.mentorFeedbackRepository.countByMentorId(mentorId);
+      console.log("feedback from service", feedback);
+
+      return { feedback, total };
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));
     }
