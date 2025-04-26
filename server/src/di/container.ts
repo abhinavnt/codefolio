@@ -54,6 +54,12 @@ import { IPurchasedTaskRepository } from "../core/interfaces/repository/IPurchas
 import { PurchaseTaskRepository } from "../repositories/purchaseTask.repository";
 import { IPurchaseCourseRepository } from "../core/interfaces/repository/IPurchasedCourse";
 import { PurchaseCourseRepository } from "../repositories/purchaseCourse.repository";
+import { IMentorFeedbackRepository } from "../core/interfaces/repository/IMentorFeedbackRepository";
+import { MentorFeedbackRepository } from "../repositories/mentor.feedback.repository";
+import { IFeedbackService } from "../core/interfaces/service/IFeedbackService";
+import { FeedbackService } from "../services/feedback.service";
+import { IFeedbackController } from "../core/interfaces/controller/IFeedbackController";
+import { FeedbackController } from "../controllers/feedback.controller";
 
 
 
@@ -111,6 +117,9 @@ container.bind<IPurchaseCourseRepository>(TYPES.PurchaseCourseRepository).to(Pur
 
 
 
+container.bind<IFeedbackController>(TYPES.FeedbackController).to(FeedbackController)
+container.bind<IFeedbackService>(TYPES.FeedbackService).to(FeedbackService)
+container.bind<IMentorFeedbackRepository>(TYPES.MentorFeedbackRepository).to(MentorFeedbackRepository)
 
 
 

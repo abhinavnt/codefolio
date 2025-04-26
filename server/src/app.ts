@@ -13,6 +13,7 @@ import paymentRoutes from './routes/payment.routes'
 import mentorRoutes from './routes/mentor.routes'
 import bookingRoutes from './routes/booking.routes'
 import courseRoutes from './routes/course.routes'
+import feedbackRoutes from './routes/feedback.routes'
 import passport from "./config/passport";
 import { errorHandler } from "./middlewares/errorMiddleware";
 const rfs = require('rotating-file-stream');
@@ -32,15 +33,15 @@ app.use(cookieParser())
 
 
 const errorLogStream = rfs.createStream("error.log", {
-    interval: "1d", // Rotate daily
-    maxFiles: 7, // Keep logs for 7 days
-    path: path.join(__dirname, "../logs"), // Log files in Codefolio/server/logs/
+    interval: "1d", 
+    maxFiles: 7, 
+    path: path.join(__dirname, "../logs"), 
   });
 
   app.use(
     morgan("combined", {
       stream: errorLogStream,
-      skip: (req, res) => res.statusCode < 400, // Log only errors (status >= 400)
+      skip: (req, res) => res.statusCode < 400, 
     })
   );
 
@@ -60,9 +61,7 @@ app.use(cors({
 
 
 console.log('serveril vannu');
-app.get("/test-error", (req, res) => {
-    res.status(500).send("Test error occurred");
-  });
+
 app.use("/api/auth", authRoutes);
 app.use("/api/user",userRoutes)
 app.use("/api/admin",adminRoutes)
@@ -70,6 +69,8 @@ app.use("/api/payment",paymentRoutes)
 app.use("/api/mentor",mentorRoutes)
 app.use("/api/booking",bookingRoutes)
 app.use('/api/course',courseRoutes)
+app.use('/api/feedback',feedbackRoutes)
+
 app.use(errorHandler)
 
 

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Calendar, CheckCircle, ChevronLeft, ChevronRight, Clock, X, XCircle } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { Calendar, CheckCircle, ChevronLeft, ChevronRight, Clock, StarIcon, X, XCircle } from "lucide-react"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -37,42 +37,73 @@ interface Booking {
   updatedAt: string
 }
 
+interface IMentorFeedback {
+  _id: string
+  mentorId: {
+    _id: string
+    name: string
+    profileImage?: string
+  }
+  userId: string
+  rating: number
+  feedback: string
+  createdAt: string
+  updatedAt: string
+}
+
 export function Mentors() {
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [userFeedbacks, setUserFeedbacks] = useState<IMentorFeedback[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+  const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false)
   const [cancellationReason, setCancellationReason] = useState("")
+  const [userFeedback, setUserFeedback] = useState("")
+  const [userRating, setUserRating] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [activeTab, setActiveTab] = useState<"pending" | "completed" | "cancelled">("pending")
   const [currentPage, setCurrentPage] = useState(1)
-  const [bookingsPerPage] = useState(5) // Changed to 5 items per page
+  const [bookingsPerPage] = useState(5)
   const navigate = useNavigate()
 
   useEffect(() => {
-    fetchBookings()
+    fetchData()
   }, [])
 
   useEffect(() => {
     setCurrentPage(1)
   }, [activeTab])
 
-  const fetchBookings = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true)
-      const response = await axiosInstance.get("/api/booking/user-bookings")
-      setBookings(response.data)
+      const [bookingsRes, feedbacksRes] = await Promise.all([
+        axiosInstance.get("/api/booking/user-bookings"),
+        axiosInstance.get("/api/feedback/user-feedbacks"),
+      ])
+      setBookings(bookingsRes.data)
+      setUserFeedbacks(feedbacksRes.data)
     } catch (err) {
-      setError("Failed to fetch bookings")
-      toast.error("Failed to fetch bookings. Please try again.")
+      setError("Failed to fetch data")
+      toast.error("Failed to fetch data. Please try again.")
     } finally {
-      setTimeout(() => {
-        setLoading(false)
-      }, 2000)
+      setLoading(false)
     }
   }
+
+  const mentorFeedbackMap = useMemo(() => {
+    return userFeedbacks.reduce(
+      (map, feedback) => {
+        map[feedback.mentorId._id] = feedback
+        return map
+      },
+      {} as { [mentorId: string]: IMentorFeedback },
+    )
+  }, [userFeedbacks])
 
   const handleViewDetails = (booking: Booking) => {
     setSelectedBooking(booking)
@@ -92,9 +123,6 @@ export function Mentors() {
       setIsCancelDialogOpen(false)
       setIsDetailsOpen(false)
 
-      // await axiosInstance.patch(`/api/booking/bookings/${bookingId}/cancel`, {
-      //   cancellationReason,
-      // })
       throw new Error("not done")
 
       toast.success("Booking cancelled successfully")
@@ -119,6 +147,72 @@ export function Mentors() {
     setIsCancelDialogOpen(true)
   }
 
+  const openFeedbackDialog = (booking: Booking, existingFeedback?: IMentorFeedback) => {
+    setSelectedBooking(booking)
+    if (existingFeedback) {
+      setUserFeedback(existingFeedback.feedback)
+      setUserRating(existingFeedback.rating)
+    } else {
+      setUserFeedback("")
+      setUserRating(0)
+    }
+    setIsFeedbackDialogOpen(true)
+  }
+
+  const handleSubmitFeedback = async () => {
+    if (!userFeedback.trim() || userRating === 0) {
+      toast.error("Please provide both feedback and rating")
+      return
+    }
+    if (!selectedBooking) return
+
+    setIsSubmitting(true)
+    try {
+      const feedbackData = {
+        mentorId: selectedBooking.mentorId._id,
+        userId: selectedBooking.userId,
+        rating: userRating,
+        feedback: userFeedback,
+      }
+      const response = await axiosInstance.post("/api/feedback/mentor", feedbackData)
+      const updatedFeedback = response.data
+
+      const formattedFeedback = {
+        ...updatedFeedback,
+        mentorId:
+          typeof updatedFeedback.mentorId === "string"
+            ? {
+              _id: updatedFeedback.mentorId,
+              name: selectedBooking.mentorId.name,
+              profileImage: selectedBooking.mentorId.profileImage,
+            }
+            : updatedFeedback.mentorId,
+      }
+
+      // Update the userFeedbacks state with the new feedback
+      setUserFeedbacks((prev) => {
+        const existingIndex = prev.findIndex((f) => f.mentorId._id === selectedBooking.mentorId._id)
+        if (existingIndex >= 0) {
+         
+          const newFeedbacks = [...prev]
+          newFeedbacks[existingIndex] = formattedFeedback
+          return newFeedbacks
+        } else {
+         
+          return [...prev, formattedFeedback]
+        }
+      })
+
+      toast.success("Feedback submitted successfully")
+    } catch (err) {
+      toast.error("Failed to submit feedback. Please try again.")
+      console.error("Error submitting feedback:", err)
+    } finally {
+      setIsSubmitting(false)
+      setIsFeedbackDialogOpen(false)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -134,16 +228,54 @@ export function Mentors() {
     }
   }
 
-  // Filter bookings based on active tab
   const filteredBookings = bookings.filter((booking) => booking.status === activeTab)
-
-  // Calculate pagination indexes
   const indexOfLastBooking = currentPage * bookingsPerPage
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage
   const currentBookings = filteredBookings.slice(indexOfFirstBooking, indexOfLastBooking)
   const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage)
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+
+  //star component
+  const StarRating = ({
+    rating,
+    hoverRating,
+    onRatingChange,
+    onHoverChange,
+    onMouseLeave,
+    size = "w-6 h-6",
+    interactive = true,
+  }: {
+    rating: number
+    hoverRating?: number
+    onRatingChange?: (rating: number) => void
+    onHoverChange?: (rating: number) => void
+    onMouseLeave?: () => void
+    size?: string
+    interactive?: boolean
+  }) => {
+    return (
+      <div className="flex">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => interactive && onRatingChange && onRatingChange(star)}
+            onMouseEnter={() => interactive && onHoverChange && onHoverChange(star)}
+            onMouseLeave={() => interactive && onMouseLeave && onMouseLeave()}
+            disabled={!interactive}
+            className={`${interactive ? "cursor-pointer" : "cursor-default"} p-0.5 focus:outline-none`}
+            aria-label={`Rate ${star} stars out of 5`}
+          >
+            <StarIcon
+              className={`${size} ${star <= (hoverRating || rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+                }`}
+            />
+          </button>
+        ))}
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -197,64 +329,86 @@ export function Mentors() {
             <TabsContent value={activeTab} className="mt-0">
               <div className="space-y-4">
                 {currentBookings.length > 0 ? (
-                  currentBookings.map((booking) => (
-                    <div
-                      key={booking._id}
-                      className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-secondary transition-colors"
-                    >
-                      <div className="flex items-center gap-4 mb-4 md:mb-0">
-                        <Avatar>
-                          <AvatarImage
-                            src={booking.mentorId.profileImage || "/placeholder.svg"}
-                            alt={booking.mentorId.name}
-                          />
-                          <AvatarFallback>{booking.mentorId.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-medium">Mentor: {booking.mentorId.name}</h3>
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-primary">
-                            <div className="flex items-center">
-                              <Calendar className="h-3.5 w-3.5 mr-1" />
-                              <span>{format(new Date(booking.date), "MMMM d, yyyy")}</span>
+                  currentBookings.map((booking) => {
+                    const feedback = mentorFeedbackMap[booking.mentorId._id]
+                    return (
+                      <div
+                        key={booking._id}
+                        className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-secondary transition-colors"
+                      >
+                        <div className="flex items-center gap-4 mb-4 md:mb-0">
+                          <Avatar>
+                            <AvatarImage
+                              src={booking.mentorId.profileImage || "/placeholder.svg"}
+                              alt={booking.mentorId.name}
+                            />
+                            <AvatarFallback>{booking.mentorId.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="font-medium">Mentor: {booking.mentorId.name}</h3>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-primary">
+                              <div className="flex items-center">
+                                <Calendar className="h-3.5 w-3.5 mr-1" />
+                                <span>{format(new Date(booking.date), "MMMM d, yyyy")}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <Clock className="h-3.5 w-3.5 mr-1" />
+                                <span>
+                                  {booking.startTime} - {booking.endTime}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-center">
-                              <Clock className="h-3.5 w-3.5 mr-1" />
-                              <span>
-                                {booking.startTime} - {booking.endTime}
-                              </span>
-                            </div>
+                            {booking.status === "completed" && feedback && (
+                              <div className="mt-1">
+                                <div className="flex items-center gap-2">
+                                  <StarRating rating={feedback.rating} size="w-4 h-4" interactive={false} />
+                                  <span className="text-sm text-gray-500">Your rating</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
-                        {booking.status === "pending" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-500 border-red-500 hover:bg-red-50"
-                            onClick={() => openCancelDialog(booking)}
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            Cancel
+                        <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+                          {booking.status === "pending" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-500 border-red-500 hover:bg-red-50"
+                              onClick={() => openCancelDialog(booking)}
+                            >
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Cancel
+                            </Button>
+                          )}
+                          {booking.status === "pending" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-emerald-500 border-emerald-500 hover:bg-emerald-50"
+                              onClick={() => handleJoinMeeting(booking._id)}
+                            >
+                              Join Meeting
+                            </Button>
+                          )}
+                          {booking.status === "completed" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-amber-500 border-amber-500 hover:bg-amber-50"
+                              onClick={() => openFeedbackDialog(booking, feedback)}
+                            >
+                              <StarIcon className="h-4 w-4 mr-1" />
+                              {feedback ? "Edit Rating" : "Rate Mentor"}
+                            </Button>
+                          )}
+                          <Button variant="outline" size="sm" onClick={() => handleViewDetails(booking)}>
+                            View Details
                           </Button>
-                        )}
-                        {booking.status === "pending" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-emerald-500 border-emerald-500 hover:bg-emerald-50"
-                            onClick={() => handleJoinMeeting(booking._id)}
-                          >
-                            Join Meeting
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm" onClick={() => handleViewDetails(booking)}>
-                          View Details
-                        </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    )
+                  })
                 ) : (
                   <div className="text-center py-8">
                     <p className="text-gray-500">No {activeTab} bookings found.</p>
@@ -306,7 +460,6 @@ export function Mentors() {
         </CardContent>
       </Card>
 
-      {/* Booking Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -370,8 +523,25 @@ export function Mentors() {
                 <div className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5" />
                   <div>
-                    <p className="font-medium">Feedback</p>
+                    <p className="font-medium">Mentor's Feedback</p>
                     <p className="text-sm text-gray-500">{selectedBooking.feedback}</p>
+                  </div>
+                </div>
+              )}
+
+              {selectedBooking.status === "completed" && mentorFeedbackMap[selectedBooking.mentorId._id] && (
+                <div className="flex items-start gap-2">
+                  <StarIcon className="h-4 w-4 text-amber-500 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Your Feedback</p>
+                    <div className="mb-1">
+                      <StarRating
+                        rating={mentorFeedbackMap[selectedBooking.mentorId._id].rating}
+                        size="w-4 h-4"
+                        interactive={false}
+                      />
+                    </div>
+                    <p className="text-sm text-gray-500">{mentorFeedbackMap[selectedBooking.mentorId._id].feedback}</p>
                   </div>
                 </div>
               )}
@@ -408,11 +578,27 @@ export function Mentors() {
                 </Button>
               </>
             )}
+            {selectedBooking && selectedBooking.status === "completed" && (
+              <Button
+                onClick={() => {
+                  setIsDetailsOpen(false)
+                  openFeedbackDialog(selectedBooking, mentorFeedbackMap[selectedBooking.mentorId._id])
+                }}
+                className={
+                  mentorFeedbackMap[selectedBooking.mentorId._id]
+                    ? "bg-white hover:bg-gray-100"
+                    : "bg-amber-500 hover:bg-amber-600"
+                }
+                variant={mentorFeedbackMap[selectedBooking.mentorId._id] ? "outline" : "default"}
+              >
+                <StarIcon className="w-4 h-4 mr-2" />
+                {mentorFeedbackMap[selectedBooking.mentorId._id] ? "Edit Rating" : "Rate Mentor"}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Cancel Booking Dialog */}
       <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -443,6 +629,90 @@ export function Mentors() {
               disabled={isSubmitting || cancellationReason.trim() === ""}
             >
               {isSubmitting ? "Cancelling..." : "Confirm Cancellation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedBooking && mentorFeedbackMap[selectedBooking.mentorId._id]
+                ? "Edit Your Feedback"
+                : "Rate Your Mentor"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {selectedBooking && (
+              <>
+                <div className="flex items-center gap-3 mb-4">
+                  <Avatar>
+                    <AvatarImage
+                      src={selectedBooking.mentorId.profileImage || "/placeholder.svg"}
+                      alt={selectedBooking.mentorId.name}
+                    />
+                    <AvatarFallback>{selectedBooking.mentorId.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-medium">{selectedBooking.mentorId.name}</h3>
+                    <p className="text-sm text-gray-500">
+                      {format(new Date(selectedBooking.date), "MMMM d, yyyy")} • {selectedBooking.startTime} -{" "}
+                      {selectedBooking.endTime}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="rating" className="block text-sm font-medium">
+                    Rating
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <StarRating
+                      rating={userRating}
+                      hoverRating={hoverRating}
+                      onRatingChange={setUserRating}
+                      onHoverChange={setHoverRating}
+                      onMouseLeave={() => setHoverRating(0)}
+                      size="w-8 h-8"
+                    />
+                    <span className="text-sm text-gray-500 ml-2">
+                      {userRating > 0 ? `${userRating} out of 5 stars` : "Select a rating"}
+                    </span>
+                  </div>
+                  {userRating === 0 && <p className="text-sm text-red-500">Please select a rating</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="userFeedback" className="block text-sm font-medium">
+                    Your Feedback
+                  </Label>
+                  <Textarea
+                    id="userFeedback"
+                    placeholder="Share your experience with this mentor..."
+                    value={userFeedback}
+                    onChange={(e) => setUserFeedback(e.target.value)}
+                    className="min-h-[120px]"
+                  />
+                  {userFeedback.trim() === "" && <p className="text-sm text-red-500">Feedback is required</p>}
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsFeedbackDialogOpen(false)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmitFeedback}
+              disabled={isSubmitting || userFeedback.trim() === "" || userRating === 0}
+              className="bg-amber-500 hover:bg-amber-600"
+            >
+              {isSubmitting
+                ? "Submitting..."
+                : selectedBooking && mentorFeedbackMap[selectedBooking.mentorId._id]
+                  ? "Update Feedback"
+                  : "Submit Feedback"}
             </Button>
           </DialogFooter>
         </DialogContent>
