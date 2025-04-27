@@ -60,6 +60,8 @@ import { IFeedbackService } from "../core/interfaces/service/IFeedbackService";
 import { FeedbackService } from "../services/feedback.service";
 import { IFeedbackController } from "../core/interfaces/controller/IFeedbackController";
 import { FeedbackController } from "../controllers/feedback.controller";
+import { ICourseFeedbackRepository } from "../core/interfaces/repository/ICourseFeedbackRepository";
+import { CourseFeedbackRepository } from "../repositories/course.feedback.repository";
 
 
 
@@ -116,10 +118,10 @@ container.bind<IPurchasedTaskRepository>(TYPES.PurchaseTaskRepository).to(Purcha
 container.bind<IPurchaseCourseRepository>(TYPES.PurchaseCourseRepository).to(PurchaseCourseRepository)
 
 
-
 container.bind<IFeedbackController>(TYPES.FeedbackController).to(FeedbackController)
 container.bind<IFeedbackService>(TYPES.FeedbackService).to(FeedbackService)
 container.bind<IMentorFeedbackRepository>(TYPES.MentorFeedbackRepository).to(MentorFeedbackRepository)
+container.bind<ICourseFeedbackRepository>(TYPES.CourseFeedbackRepository).to(CourseFeedbackRepository)
 
 
 
