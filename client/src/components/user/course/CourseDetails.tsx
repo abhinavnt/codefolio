@@ -1,24 +1,39 @@
-
-import { ArrowLeft, BookOpen } from "lucide-react"
+import { ArrowLeft, BookOpen } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Star } from "lucide-react"
+import { Star } from 'lucide-react'
 import { courseData } from "@/data/dummy-data"
 import CourseHeader from "./Course-header"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { useSelector } from "react-redux"
 import type { RootState } from "@/redux/store"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import axiosInstance from "@/utils/axiosInstance"
 import type { Course } from "@/types/course"
+import CourseFeedback from "./Course-feedback"
+
+
+
+interface Review {
+  _id: string;
+  userId: {
+    name: string;
+    profileImageUrl?: string;
+  };
+  rating: number;
+  feedback: string;
+  createdAt: string;
+}
 
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [checkCourse, setCourses] = useState<Course[]>([])
+  // const [userFeedback, setUserFeedback] = useState<{ rating: number; feedback: string } | null>(null)
+  const [reviews, setReviews] = useState<Review[]>([])
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -34,9 +49,44 @@ export default function CourseDetail() {
     fetchCourses()
   }, [])
 
+  // useEffect(() => {
+  //   const fetchUserFeedback = async () => {
+  //     if (id) {
+  //       try {
+  //         const response = await axiosInstance.get(`/api/feedback/user?courseId=${id}`)
+  //         if (response.data) {
+  //           setUserFeedback(response.data)
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching user feedback:", error)
+  //       }
+  //     }
+  //   }
+    
+  //   if (checkCourse.some((enrolledCourse) => enrolledCourse.courseId === id)) {
+  //     fetchUserFeedback()
+  //   }
+  // }, [id, checkCourse])
+
+
   const { courses } = useSelector((state: RootState) => state.courses)
   const course = courses.find((c) => c._id === id)
-  console.log(course?._id, "course")
+  
+
+  const fetchReviews = useCallback(async () => {
+    if (id) {
+      try {
+        const response = await axiosInstance.get(`/api/feedback/course/${id}`)
+        setReviews(response.data)
+      } catch (error) {
+        console.error("Error fetching reviews:", error)
+      }
+    }
+  }, [id])
+
+  useEffect(() => {
+    fetchReviews()
+  }, [id, fetchReviews])
 
   if (!course) {
     return (
@@ -172,109 +222,55 @@ export default function CourseDetail() {
               </div>
             </TabsContent>
 
-            {/* <TabsContent value="curriculum">
-              <div className="space-y-4 mt-6">
-                <h3 className="text-xl font-bold mb-4">Curriculum</h3>
-
-                {courseData.curriculum.map((section, index) => (
-                  <div key={index} className="border rounded-lg overflow-hidden mb-4">
-                    <div className="flex items-center justify-between bg-gray-50 p-4">
-                      <div className="flex items-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M8 12L3 7L4.4 5.55L8 9.15L11.6 5.55L13 7L8 12Z" fill="#64748b" />
-                        </svg>
-                        <h4 className="font-medium">{section.title}</h4>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {section.lessons.length} lessons • {section.duration}
-                      </div>
-                    </div>
-                    <div className="p-4 space-y-3">
-                      {section.lessons.map((lesson, lessonIndex) => (
-                        <div key={lessonIndex} className="flex items-center justify-between py-2">
-                          <div className="flex items-center gap-3">
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path d="M6.5 11.5L11 8L6.5 4.5V11.5Z" fill="#10b981" />
-                            </svg>
-                            <span>{lesson.title}</span>
-                          </div>
-                          <span className="text-sm text-gray-500">{lesson.duration}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent> */}
-            {/* 
-            <TabsContent value="instructor">
-              <div className="mt-6">
-                <h3 className="text-xl font-bold mb-4">Meet Your Instructor</h3>
-                <div className="flex flex-col md:flex-row gap-6">
-                  <div className="flex-shrink-0">
-                    <img
-                      src="/placeholder.svg?height=150&width=150"
-                      alt="Instructor"
-                      width={150}
-                      height={150}
-                      className="rounded-full"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold">{courseData.instructor.name}</h4>
-                    <p className="text-gray-500 mb-3">{courseData.instructor.title}</p>
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-emerald-500 text-emerald-500" />
-                        ))}
-                      </div>
-                      <span className="text-sm text-gray-500">Instructor Rating</span>
-                    </div>
-                    <p className="text-gray-700">{courseData.instructor.bio}</p>
-                  </div>
-                </div>
-              </div>
-            </TabsContent> */}
+            
 
             <TabsContent value="reviews">
               <div className="mt-6">
                 <h3 className="text-xl font-bold mb-4">Student Reviews</h3>
+                
+                {checkCourse.some((enrolledCourse) => enrolledCourse.courseId === course._id) && (
+                  <div className="mb-8">
+                    <CourseFeedback 
+                      courseId={course._id} 
+                    />
+                  </div>
+                )}
+                
                 <div className="space-y-6">
-                  {courseData.reviews.map((review, index) => (
-                    <div key={index} className="border-b pb-6">
-                      <div className="flex items-center gap-4 mb-3">
-                        <img
-                          src="/placeholder.svg?height=50&width=50"
-                          alt={review.name}
-                          width={50}
-                          height={50}
-                          className="rounded-full"
-                        />
-                        <div>
-                          <h4 className="font-medium">{review.name}</h4>
-                          <div className="flex items-center gap-2">
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${i < review.rating ? "fill-emerald-500 text-emerald-500" : "fill-gray-200 text-gray-200"}`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-gray-500">{review.date}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-gray-700">{review.comment}</p>
-                    </div>
-                  ))}
+                {reviews.length > 0 ? (
+        reviews.map((review) => (
+          <div key={review._id} className="border-b pb-6">
+            <div className="flex items-center gap-4 mb-3">
+              <img
+                src={review.userId.profileImageUrl || "/placeholder.svg?height=50&width=50"}
+                alt={review.userId.name}
+                width={50}
+                height={50}
+                className="rounded-full"
+              />
+              <div>
+                <h4 className="font-medium">{review.userId.name}</h4>
+                <div className="flex items-center gap-2">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${i < review.rating ? "fill-emerald-500 text-emerald-500" : "fill-gray-200 text-gray-200"}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p className="text-gray-700">{review.feedback}</p>
+          </div>
+        ))
+      ) : (
+        <p>No reviews yet.</p>
+      )}
                 </div>
               </div>
             </TabsContent>

@@ -3,10 +3,16 @@ import { IFeedbackService } from "../core/interfaces/service/IFeedbackService";
 import { TYPES } from "../di/types";
 import { IMentorFeedbackRepository } from "../core/interfaces/repository/IMentorFeedbackRepository";
 import { IMentorFeedback } from "../models/MentorFeedback";
+import { ICourseFeedback } from "../models/CourseFeedback";
+import { Types } from "mongoose";
+import { ICourseFeedbackRepository } from "../core/interfaces/repository/ICourseFeedbackRepository";
 
 injectable();
 export class FeedbackService implements IFeedbackService {
-  constructor(@inject(TYPES.MentorFeedbackRepository) private mentorFeedbackRepository: IMentorFeedbackRepository) {}
+  constructor(
+    @inject(TYPES.MentorFeedbackRepository) private mentorFeedbackRepository: IMentorFeedbackRepository,
+    @inject(TYPES.CourseFeedbackRepository) private courseFeedbackRepository: ICourseFeedbackRepository
+  ) {}
 
   async submitFeedback(feedbackData: Partial<IMentorFeedback>): Promise<IMentorFeedback | null> {
     const { mentorId, userId, rating, feedback } = feedbackData;
@@ -59,5 +65,35 @@ export class FeedbackService implements IFeedbackService {
 
   async getFeedbackByUserId(userId: string): Promise<IMentorFeedback[]> {
     return this.mentorFeedbackRepository.findByUserId(userId);
+  }
+
+  async submitCourseFeedback(userId: string, courseId: string, rating: number, feedback: string): Promise<ICourseFeedback | null> {
+    try {
+      const existingFeedback = await this.courseFeedbackRepository.findOneByCourseIdAndUserId(courseId, userId);
+
+      if (existingFeedback) {
+        return this.courseFeedbackRepository.updateByCourseIdAndUserId(courseId, userId, { rating, feedback });
+      } else {
+        return this.courseFeedbackRepository.create({ courseId: new Types.ObjectId(courseId), userId: new Types.ObjectId(userId), rating, feedback });
+      }
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async getFeedbackByCourseAndUser(courseId: string, userId: string): Promise<ICourseFeedback | null> {
+    try {
+      return this.courseFeedbackRepository.findOneByCourseIdAndUserId(courseId, userId);
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async getFeedbackByCourseId(courseId: string): Promise<ICourseFeedback[]> {
+      try {
+        return this.courseFeedbackRepository.findByCourseId(courseId)
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error));
+      }
   }
 }
