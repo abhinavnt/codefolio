@@ -3,7 +3,9 @@ import asyncHandler from "express-async-handler";
 import { TYPES } from "../di/types";
 import { inject, injectable } from "inversify";
 import { IWishlistService } from "../core/interfaces/service/IWishlistService";
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
+import { ParamsDictionary } from "express-serve-static-core";
+import { ParsedQs } from "qs";
 
 @injectable()
 export class WishistController implements IWishlistController {
@@ -28,5 +30,15 @@ export class WishistController implements IWishlistController {
     const courseId = req.params.courseId;
     await this.wishlistService.removeCourseFromWishlist(userId, courseId);
     res.status(200).json({ success: true });
+  });
+
+  getWishlist = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = String(req.user?._id);
+    const wishlist = await this.wishlistService.getWishlist(userId);
+    if (wishlist) {
+      res.status(200).json(wishlist);
+    } else {
+      res.status(404).json({ message: "Wishlist not found" });
+    }
   });
 }

@@ -8,7 +8,7 @@ export class WishlistRepository extends BaseRepository<IWishlist> implements IWi
   }
 
   async getWishlistByUserId(userId: string): Promise<IWishlist | null> {
-    return this.findOne({ userId });
+    return this.findOne({ userId }).populate('courseIds')
   }
 
   async addCourseToWishlist(userId: string, courseId: string): Promise<IWishlist> {

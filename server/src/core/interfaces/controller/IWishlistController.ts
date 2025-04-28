@@ -4,4 +4,5 @@ export interface IWishlistController {
   getWishlistStatus: RequestHandler;
   addToWishlist: RequestHandler;
   removeFromWishlist: RequestHandler;
+  getWishlist: RequestHandler;
 }
