@@ -14,4 +14,6 @@ export interface ICourseService {
   deleteTask(id: string): Promise<void> 
   getCourseTasks(courseId:string):Promise<ITask[]|null>
   updateCourseAndTasks(courseId: string, courseData: Partial<ICourse>, tasksData: Partial<ITask>[]): Promise<ICourse | null>
+  findTaskById(taskId: string): Promise<IPurchasedCourseTask | null>
+  markTaskAsComplete(taskId: string, userId: string): Promise<IPurchasedCourseTask | null>
 }

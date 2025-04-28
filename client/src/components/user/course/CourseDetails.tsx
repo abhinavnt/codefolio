@@ -33,6 +33,7 @@ export default function CourseDetail() {
   const [isWishlisted, setIsWishlisted] = useState(false)
 
   const { courses } = useSelector((state: RootState) => state.courses)
+  
   const course = courses.find((c) => c._id === id)
 
   useEffect(() => {
@@ -225,14 +226,14 @@ export default function CourseDetail() {
                       <div key={review._id} className="border-b pb-6">
                         <div className="flex items-center gap-4 mb-3">
                           <img
-                            src={review.userId.profileImageUrl || "/placeholder.svg?height=50&width=50"}
-                            alt={review.userId.name}
+                           src={review.userId?.profileImageUrl ? review.userId.profileImageUrl : "/placeholder.svg?height=50&width=50"}
+                            alt={review.userId?.name}
                             width={50}
                             height={50}
                             className="rounded-full"
                           />
                           <div>
-                            <h4 className="font-medium">{review.userId.name}</h4>
+                            <h4 className="font-medium">{review.userId?.name}</h4>
                             <div className="flex items-center gap-2">
                               <div className="flex">
                                 {[...Array(5)].map((_, i) => (

@@ -225,4 +225,15 @@ export class CourseController implements ICourseController {
 
     res.json(updatedCourse);
   });
+
+
+  markTaskAsComplete=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+    const taskId = req.params.taskId;
+    const userId = String(req.user?._id);
+    const updatedTask = await this.courseService.markTaskAsComplete(taskId, userId)
+    res.status(200).json(updatedTask)
+  })
+
+
+
 }
