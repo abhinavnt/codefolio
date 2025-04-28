@@ -3,7 +3,7 @@ import { IFeedbackController } from "../core/interfaces/controller/IFeedbackCont
 import { TYPES } from "../di/types";
 import { IFeedbackService } from "../core/interfaces/service/IFeedbackService";
 import asyncHandler from "express-async-handler";
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import { Request, Response } from "express";
 
 injectable();
 export class FeedbackController implements IFeedbackController {
@@ -33,10 +33,7 @@ export class FeedbackController implements IFeedbackController {
   });
 
   getUserFeedbacks = asyncHandler(async (req: Request, res: Response) => {
-    console.log("iam from get user feedbacks controller");
-
     const userId = String(req.user?._id);
-    console.log("userid from controler getuser feeback", userId);
 
     const feedbacks = await this.feedbackService.getFeedbackByUserId(userId);
     res.status(200).json(feedbacks);

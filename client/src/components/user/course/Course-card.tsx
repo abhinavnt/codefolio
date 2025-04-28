@@ -10,10 +10,10 @@ interface CourseCardProps {
 
 export default function CourseCard({ course }: CourseCardProps) {
 
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate(); 
 
   const handleViewDetails = () => {
-    navigate(`/courses/${course._id}`); // Navigate to details page with course ID
+    navigate(`/courses/${course._id}`); 
   };
   return (
     <div className="group border rounded-lg overflow-hidden flex flex-col hover:shadow-md transition-shadow">

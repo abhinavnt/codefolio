@@ -1,108 +1,142 @@
-import { Clock, Star, Trash2 } from "lucide-react"
+import { useState, useEffect } from 'react';
+import { Clock, Star, Trash2 } from "lucide-react";
+import axiosInstance from '@/utils/axiosInstance';
+import { filterCourses } from '@/redux/features/CourseSlice';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+
+
+interface Course {
+  _id: string;
+  courseId: string;
+  title: string;
+  description: string;
+  category: string;
+  level: string;
+  duration: string;
+  image: string;
+  price: string;
+  rating: number;
+  enrolledStudents: string[];
+  status: "draft" | "published" | "archived";
+  tags: string[];
+  learningPoints: string[];
+  targetedAudience: string[];
+  courseRequirements: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Wishlist {
+  courseIds: Course[];
+}
 
 export function Wishlist() {
-  const wishlistItems = [
-    {
-      id: 1,
-      title: "Complete React Developer in 2023",
-      instructor: "Andrew Miller",
-      image: "/placeholder.svg?height=200&width=300",
-      rating: 4.8,
-      reviews: 2345,
-      duration: "28h 30m",
-      price: 89.99,
-      salePrice: 14.99,
-    },
-    {
-      id: 2,
-      title: "Advanced CSS and Sass: Flexbox, Grid, Animations",
-      instructor: "Jonas Schmedtmann",
-      image: "/placeholder.svg?height=200&width=300",
-      rating: 4.9,
-      reviews: 3456,
-      duration: "21h 15m",
-      price: 94.99,
-      salePrice: 16.99,
-    },
-    {
-      id: 3,
-      title: "The Complete JavaScript Course 2023",
-      instructor: "Jonas Schmedtmann",
-      image: "/placeholder.svg?height=200&width=300",
-      rating: 4.7,
-      reviews: 4567,
-      duration: "69h 30m",
-      price: 99.99,
-      salePrice: 17.99,
-    },
-  ]
+  const [wishlist, setWishlist] = useState<Wishlist | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const response = await axiosInstance.get('/api/wishlist');
+        setWishlist(response.data);
+      } catch (err: any) {
+        if (err.response && err.response.status === 404) {
+          setWishlist({ courseIds: [] });
+        } else {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWishlist();
+  }, []);
+
+  const handleViewDetails = (course: Course) => {
+    if (wishlist !== null) {
+      dispatch(filterCourses(wishlist.courseIds));
+    }
+    navigate(`/courses/${course._id}`)
+  };
+
+  const removeFromWishlist = async (courseId: string) => {
+    try {
+      await axiosInstance.delete(`/api/wishlist/${courseId}`);
+      const response = await axiosInstance.get('/api/wishlist');
+      setWishlist(response.data);
+    } catch (err: any) {
+      console.error('Failed to remove from wishlist', err);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!wishlist || wishlist.courseIds.length === 0) {
+    return (
+      <div className="border rounded-lg p-8 text-center">
+        <p className="text-gray-500 mb-4">Your wishlist is empty.</p>
+        <button className="bg-green-500 text-white px-4 py-2 rounded-md text-sm">
+          Browse Courses
+        </button>
+      </div>
+    );
+  }
+
+  const wishlistItems = wishlist.courseIds;
 
   return (
     <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4">
-      Comming soon
-      {/* <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-medium">My Wishlist</h1>
         <p className="text-sm text-gray-500">{wishlistItems.length} courses</p>
       </div>
 
-      {wishlistItems.length > 0 ? (
-        <div className="space-y-4">
-          {wishlistItems.map((item) => (
-            <div key={item.id} className="border bg-secondary rounded-lg overflow-hidden">
-              <div className="flex flex-col sm:flex-row">
-                <div className="sm:w-48 h-40 sm:h-auto relative">
-                  <img src={item.image || "/placeholder.svg"} alt={item.title} className="object-cover w-full h-full" />
+      <div className="space-y-4">
+        {wishlistItems.map((item: Course) => (
+          <div key={item._id} className="border bg-secondary rounded-lg overflow-hidden">
+            <div className="flex flex-col sm:flex-row">
+              <div className="sm:w-48 h-40 sm:h-auto relative">
+                <img src={item.image || "/placeholder.svg"} alt={item.title} className="object-cover w-full h-full" />
+              </div>
+              <div className="flex-1 p-4">
+                <div className="flex justify-between">
+                  <div>
+                    <h3 className="font-medium mb-1">{item.title}</h3>
+                    <div className="flex items-center gap-1 mb-2">
+                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                      <span className="mx-2 text-gray-300">|</span>
+                      <Clock className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-500">{item.duration}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <button
+                      onClick={() => removeFromWishlist(item._id)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                    <div className="mt-auto">
+                      <p className="text-lg font-bold">₹{item.price}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 p-4">
-                  <div className="flex justify-between">
-                    <div>
-                      <h3 className="font-medium mb-1">{item.title}</h3>
-                      <p className="text-sm text-gray-500 mb-2">by {item.instructor}</p>
-                      <div className="flex items-center gap-1 mb-2">
-                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        <span className="text-sm">{item.rating}</span>
-                        <span className="text-sm text-gray-500">({item.reviews.toLocaleString()} reviews)</span>
-                        <span className="mx-2 text-gray-300">|</span>
-                        <Clock className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-500">{item.duration}</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                      <div className="mt-auto">
-                        <p className="text-sm line-through text-gray-500">${item.price}</p>
-                        <p className="text-lg font-bold">${item.salePrice}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex justify-between items-center">
-                    <button className="bg-green-500 text-white px-4 py-2 rounded-md text-sm">Add to Cart</button>
-                    <p className="text-sm text-green-600">83% off! Sale ends in 2 days</p>
-                  </div>
+                <div className="mt-4 flex justify-between items-center">
+                  <button
+                    onClick={() => handleViewDetails(item)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+                  >
+                    View Details
+                  </button>
                 </div>
               </div>
             </div>
-          ))}
-
-          <div className="border-t pt-4 mt-6 flex justify-between items-center">
-            <p className="font-medium">
-              Total:{" "}
-              <span className="text-lg">
-                ${wishlistItems.reduce((sum, item) => sum + item.salePrice, 0).toFixed(2)}
-              </span>
-            </p>
-            <button className="bg-green-500 text-white px-6 py-2 rounded-md text-sm">Add All to Cart</button>
           </div>
-        </div>
-      ) : (
-        <div className="border rounded-lg p-8 text-center">
-          <p className="text-gray-500 mb-4">Your wishlist is empty.</p>
-          <button className="bg-green-500 text-white px-4 py-2 rounded-md text-sm">Browse Courses</button>
-        </div>
-      )} */}
+        ))}
+      </div>
     </div>
-  )
+  );
 }
-
