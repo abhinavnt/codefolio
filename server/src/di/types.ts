@@ -1,6 +1,4 @@
-import { BookingController } from "../controllers/mentor/booking.controller";
-import { BookingRepository } from "../repositories/booking.repositories";
-import { BookingService } from "../services/booking.service"; 
+
 
 
 export const TYPES={
@@ -18,6 +16,7 @@ export const TYPES={
     PurchaseCourseRepository:Symbol.for('PurchaseCourse'),
     MentorFeedbackRepository:Symbol.for('MentorFeedbackRepository'),
     CourseFeedbackRepository:Symbol.for('CourseFeedbackRepository'),
+    WishlistRepository:Symbol.for('WishlistRepository'),
 
 
     //services
@@ -30,6 +29,7 @@ export const TYPES={
     PaymentService:Symbol.for('PaymentService'),
     BookingService:Symbol.for('BookingService'),
     FeedbackService:Symbol.for('FeedbackService'),
+    WishlistService:Symbol.for('WishlistService'),
 
 
     //Controllers
@@ -41,6 +41,7 @@ export const TYPES={
     MentorController:Symbol.for('MentorController'),
     PaymentController:Symbol.for('PaymentController'),
     BookingController:Symbol.for('BookingController'),
-    FeedbackController:Symbol.for('FeedbackController')
+    FeedbackController:Symbol.for('FeedbackController'),
+    WishistController:Symbol.for(' WishistController')
 
 }

@@ -1,10 +1,10 @@
-import { ArrowLeft, BookOpen } from 'lucide-react'
+
+import { ArrowLeft, BookOpen, Heart, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Star } from 'lucide-react'
 import CourseHeader from "./Course-header"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { useSelector } from "react-redux"
@@ -14,17 +14,15 @@ import axiosInstance from "@/utils/axiosInstance"
 import type { Course } from "@/types/course"
 import CourseFeedback from "./Course-feedback"
 
-
-
 interface Review {
-  _id: string;
+  _id: string
   userId: {
-    name: string;
-    profileImageUrl?: string;
-  };
-  rating: number;
-  feedback: string;
-  createdAt: string;
+    name: string
+    profileImageUrl?: string
+  }
+  rating: number
+  feedback: string
+  createdAt: string
 }
 
 export default function CourseDetail() {
@@ -32,6 +30,7 @@ export default function CourseDetail() {
   const navigate = useNavigate()
   const [checkCourse, setCourses] = useState<Course[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
+  const [isWishlisted, setIsWishlisted] = useState(false)
 
   const { courses } = useSelector((state: RootState) => state.courses)
   const course = courses.find((c) => c._id === id)
@@ -41,15 +40,13 @@ export default function CourseDetail() {
       try {
         const response = await axiosInstance.get("/api/course/enrolled-courses")
         setCourses(response.data)
-        console.log(response.data, "respponse from the enrolled course");
-
+        console.log(response.data, "respponse from the enrolled course")
       } catch (error) {
         console.error("Error fetching courses:", error)
       }
     }
     fetchCourses()
   }, [])
-
 
   const fetchReviews = useCallback(async () => {
     if (id) {
@@ -65,6 +62,20 @@ export default function CourseDetail() {
   useEffect(() => {
     fetchReviews()
   }, [id, fetchReviews])
+
+  // Fetch initial wishlist status
+  useEffect(() => {
+    const fetchWishlistStatus = async () => {
+      if (!id) return;
+      try {
+        const response = await axiosInstance.get(`/api/wishlist/${id}`);
+        setIsWishlisted(response.data.isWishlisted);
+      } catch (error) {
+        console.error("Error fetching wishlist status:", error);
+      }
+    };
+    fetchWishlistStatus();
+  }, [id]);
 
   if (!course) {
     return (
@@ -90,6 +101,21 @@ export default function CourseDetail() {
     navigate(`/checkout/${course._id}`)
   }
 
+  const handleWishlist = async () => {
+    if (!id) return;
+    try {
+      if (isWishlisted) {
+        await axiosInstance.delete(`/api/wishlist/${id}`);
+        setIsWishlisted(false);
+      } else {
+        await axiosInstance.post(`/api/wishlist/${id}`);
+        setIsWishlisted(true);
+      }
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Button variant="ghost" className="mb-6 flex items-center gap-2" onClick={() => navigate("/courses")}>
@@ -109,7 +135,6 @@ export default function CourseDetail() {
               height={400}
               className="w-full object-cover rounded-lg"
             />
-
           </div>
 
           <Tabs defaultValue="overview" className="mt-8">
@@ -184,17 +209,13 @@ export default function CourseDetail() {
               </div>
             </TabsContent>
 
-
-
             <TabsContent value="reviews">
               <div className="mt-6">
                 <h3 className="text-xl font-bold mb-4">Student Reviews</h3>
 
                 {checkCourse.some((enrolledCourse) => enrolledCourse.courseId === course._id) && (
                   <div className="mb-8">
-                    <CourseFeedback
-                      courseId={course._id}
-                    />
+                    <CourseFeedback courseId={course._id} />
                   </div>
                 )}
 
@@ -262,11 +283,18 @@ export default function CourseDetail() {
 
                 <p className="text-sm text-gray-500 text-center mb-6">30-day money-back guarantee</p>
 
-
-
                 <Separator className="my-6" />
 
                 <div className="flex justify-center space-x-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleWishlist}
+                    className={isWishlisted ? "text-red-500 border-red-500 hover:bg-red-50" : ""}
+                  >
+                    <Heart className={`mr-2 h-4 w-4 ${isWishlisted ? "fill-red-500" : ""}`} />
+                    {isWishlisted ? "Wishlisted" : "Wishlist"}
+                  </Button>
 
                   <Button variant="outline" size="sm">
                     <svg
@@ -287,7 +315,6 @@ export default function CourseDetail() {
                     </svg>
                     Share
                   </Button>
-
                 </div>
               </div>
             </Card>

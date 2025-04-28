@@ -62,6 +62,12 @@ import { IFeedbackController } from "../core/interfaces/controller/IFeedbackCont
 import { FeedbackController } from "../controllers/feedback.controller";
 import { ICourseFeedbackRepository } from "../core/interfaces/repository/ICourseFeedbackRepository";
 import { CourseFeedbackRepository } from "../repositories/course.feedback.repository";
+import { IWishlistRepository } from "../core/interfaces/repository/IWishlistRepository";
+import { WishlistRepository } from "../repositories/wishlist.repository";
+import { IWishlistService } from "../core/interfaces/service/IWishlistService";
+import { WishlistService } from "../services/wishlist.service";
+import { IWishlistController } from "../core/interfaces/controller/IWishlistController";
+import { WishistController } from "../controllers/wishlist.controller";
 
 
 
@@ -124,6 +130,9 @@ container.bind<IMentorFeedbackRepository>(TYPES.MentorFeedbackRepository).to(Men
 container.bind<ICourseFeedbackRepository>(TYPES.CourseFeedbackRepository).to(CourseFeedbackRepository)
 
 
+container.bind<IWishlistController>(TYPES.WishistController).to(WishistController)
+container.bind<IWishlistService>(TYPES.WishlistService).to(WishlistService)
+container.bind<IWishlistRepository>(TYPES.WishlistRepository).to(WishlistRepository)
 
 
 
