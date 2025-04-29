@@ -1,14 +1,15 @@
+"use client";
 
-import { useState } from "react"
-import { Search, Calendar } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState, useEffect } from "react";
+import { Search, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -17,158 +18,81 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
+import axiosInstance from "@/utils/axiosInstance";
+import { Link } from "react-router-dom";
 
-// Dummy data for enrolled users
-const enrolledUsers = [
-  {
-    id: 1,
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    course: "Web Development Fundamentals",
-    enrollmentDate: "2023-06-15",
-    progress: 75,
-    status: "Active",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 2,
-    name: "Samantha Lee",
-    email: "samantha.lee@example.com",
-    course: "Advanced React Patterns",
-    enrollmentDate: "2023-07-10",
-    progress: 45,
-    status: "Active",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 3,
-    name: "Michael Chen",
-    email: "michael.chen@example.com",
-    course: "Data Science Essentials",
-    enrollmentDate: "2023-05-20",
-    progress: 90,
-    status: "Completed",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 4,
-    name: "Emily Rodriguez",
-    email: "emily.rodriguez@example.com",
-    course: "UI/UX Design Principles",
-    enrollmentDate: "2023-08-05",
-    progress: 30,
-    status: "Active",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 5,
-    name: "David Kim",
-    email: "david.kim@example.com",
-    course: "Mobile App Development",
-    enrollmentDate: "2023-07-25",
-    progress: 15,
-    status: "Inactive",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 6,
-    name: "Jessica Taylor",
-    email: "jessica.taylor@example.com",
-    course: "DevOps for Beginners",
-    enrollmentDate: "2023-06-30",
-    progress: 60,
-    status: "Active",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 7,
-    name: "Ryan Patel",
-    email: "ryan.patel@example.com",
-    course: "Cybersecurity Fundamentals",
-    enrollmentDate: "2023-08-15",
-    progress: 20,
-    status: "Active",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 8,
-    name: "Olivia Wilson",
-    email: "olivia.wilson@example.com",
-    course: "Game Development with Unity",
-    enrollmentDate: "2023-07-05",
-    progress: 85,
-    status: "Active",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 9,
-    name: "Ethan Brown",
-    email: "ethan.brown@example.com",
-    course: "Blockchain Development",
-    enrollmentDate: "2023-08-10",
-    progress: 10,
-    status: "Inactive",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 10,
-    name: "Sophia Garcia",
-    email: "sophia.garcia@example.com",
-    course: "Cloud Computing Essentials",
-    enrollmentDate: "2023-06-20",
-    progress: 95,
-    status: "Completed",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 11,
-    name: "William Martinez",
-    email: "william.martinez@example.com",
-    course: "Machine Learning Basics",
-    enrollmentDate: "2023-07-15",
-    progress: 50,
-    status: "Active",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 12,
-    name: "Ava Thompson",
-    email: "ava.thompson@example.com",
-    course: "IoT Development",
-    enrollmentDate: "2023-08-01",
-    progress: 25,
-    status: "Active",
-    avatar: "/placeholder.svg",
-  },
-]
+interface UserCourse {
+  _id: string;
+  userId: { _id: string; name: string; email: string };
+  courseId: string;
+  courseData: {
+    title: string;
+    description: string;
+    category: string;
+    level: string;
+    duration: string;
+    image: string;
+    price: string;
+  };
+  paymentDetails: {
+    paymentDate: string;
+  };
+}
 
 export function EnrolledUsers() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [courseFilter, setCourseFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 5
+  const [searchTerm, setSearchTerm] = useState("");
+  const [courseFilter, setCourseFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [courses, setCourses] = useState<UserCourse[]>([]);
+  const [total, setTotal] = useState(0);
+  const itemsPerPage = 5;
+  const [loading, setLoading] = useState(true);
 
-  // Filter enrolled users based on search term and filters
-  const filteredUsers = enrolledUsers.filter((user) => {
-    const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCourse = courseFilter === "all" || user.course.toLowerCase().includes(courseFilter.toLowerCase())
-    const matchesStatus = statusFilter === "all" || user.status.toLowerCase() === statusFilter.toLowerCase()
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("/api/course/enrolled-courses/admin", {
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+            search: searchTerm,
+            courseFilter: courseFilter === "all" ? undefined : courseFilter,
+            statusFilter: statusFilter === "all" ? undefined : statusFilter,
+          },
+        });
+        setCourses(response.data.courses);
+        setTotal(response.data.total);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return matchesSearch && matchesCourse && matchesStatus
-  })
+    fetchCourses();
+  }, [currentPage, searchTerm, courseFilter, statusFilter]);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(total / itemsPerPage);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
+    setCurrentPage(page);
+  };
+
+  const getProgress = (course: UserCourse): number => {
+    // Note: This is a placeholder. Actual progress calculation would require task data.
+    // You might need to fetch tasks for each course to calculate accurate progress.
+    return 0; // Replace with actual logic if tasks are pre-fetched
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    );
   }
 
   return (
@@ -177,7 +101,7 @@ export function EnrolledUsers() {
         <h2 className="text-2xl font-bold tracking-tight">Course Enrolled Users</h2>
         <Button>Export Data</Button>
       </div>
-{/* 
+
       <Card>
         <CardHeader>
           <CardTitle>Enrollment Management</CardTitle>
@@ -189,7 +113,7 @@ export function EnrolledUsers() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
               <Input
                 type="search"
-                placeholder="Search users..."
+                placeholder="Search users or courses..."
                 className="pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -242,37 +166,36 @@ export function EnrolledUsers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentItems.length === 0 ? (
+                {courses.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-6">
                       No enrolled users found. Try adjusting your filters.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  currentItems.map((user) => (
-                    <TableRow key={user.id}>
+                  courses.map((course) => (
+                    <TableRow key={course._id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
                           <Avatar className="hidden sm:flex">
-                            <AvatarImage src={user.avatar} alt={user.name} />
                             <AvatarFallback>
-                              {user.name
+                              {course.userId.name
                                 .split(" ")
                                 .map((n) => n[0])
                                 .join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{user.name}</div>
-                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                            <div className="font-medium">{course.userId.name}</div>
+                            <div className="text-sm text-muted-foreground">{course.userId.email}</div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">{user.course}</TableCell>
+                      <TableCell className="hidden md:table-cell">{course.courseData.title}</TableCell>
                       <TableCell className="hidden md:table-cell">
                         <div className="flex items-center">
                           <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                          {user.enrollmentDate}
+                          {new Date(course.paymentDetails.paymentDate).toISOString().split("T")[0]}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -280,29 +203,35 @@ export function EnrolledUsers() {
                           <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div
                               className="bg-emerald-500 h-2.5 rounded-full"
-                              style={{ width: `${user.progress}%` }}
+                              style={{ width: `${getProgress(course)}%` }}
                             ></div>
                           </div>
-                          <span className="text-sm">{user.progress}%</span>
+                          <span className="text-sm">{getProgress(course)}%</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            user.status === "Active"
+                            getProgress(course) === 100
+                              ? "secondary"
+                              : getProgress(course) > 0
                               ? "default"
-                              : user.status === "Completed"
-                                ? "secondary"
-                                : "destructive"
+                              : "destructive"
                           }
                         >
-                          {user.status}
+                          {getProgress(course) === 100
+                            ? "Completed"
+                            : getProgress(course) > 0
+                            ? "Active"
+                            : "Inactive"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
+                        <Link to={`/admin/user-course-tasks/${course.userId._id}/${course.courseId}`}>
+                          <Button variant="outline" size="sm">
+                            View Details
+                          </Button>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))
@@ -313,8 +242,8 @@ export function EnrolledUsers() {
         </CardContent>
         <CardFooter className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredUsers.length)} of{" "}
-            {filteredUsers.length} enrolled users
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(currentPage * itemsPerPage, total)} of {total} enrolled users
           </div>
           <Pagination>
             <PaginationContent>
@@ -326,24 +255,29 @@ export function EnrolledUsers() {
               </PaginationItem>
 
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                // Show first page, last page, and pages around current page
-                if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+                ) {
                   return (
                     <PaginationItem key={page}>
-                      <PaginationLink isActive={page === currentPage} onClick={() => handlePageChange(page)}>
+                      <PaginationLink
+                        isActive={page === currentPage}
+                        onClick={() => handlePageChange(page)}
+                      >
                         {page}
                       </PaginationLink>
                     </PaginationItem>
-                  )
+                  );
                 }
 
-                // Show ellipsis for gaps
                 if (page === 2 && currentPage > 3) {
                   return (
                     <PaginationItem key="ellipsis-start">
                       <PaginationEllipsis />
                     </PaginationItem>
-                  )
+                  );
                 }
 
                 if (page === totalPages - 1 && currentPage < totalPages - 2) {
@@ -351,10 +285,10 @@ export function EnrolledUsers() {
                     <PaginationItem key="ellipsis-end">
                       <PaginationEllipsis />
                     </PaginationItem>
-                  )
+                  );
                 }
 
-                return null
+                return null;
               })}
 
               <PaginationItem>
@@ -366,8 +300,7 @@ export function EnrolledUsers() {
             </PaginationContent>
           </Pagination>
         </CardFooter>
-      </Card> */}
+      </Card>
     </div>
-  )
+  );
 }
-

@@ -68,6 +68,12 @@ import { IWishlistService } from "../core/interfaces/service/IWishlistService";
 import { WishlistService } from "../services/wishlist.service";
 import { IWishlistController } from "../core/interfaces/controller/IWishlistController";
 import { WishistController } from "../controllers/wishlist.controller";
+import { IMentorAvailabilityReposiotry } from "../core/interfaces/repository/IMentoryAvailbilityRepository";
+import { MentorAvailabilityRepository } from "../repositories/mentorAvailbility.repository";
+import { IMentorAvailabilityService } from "../core/interfaces/service/IMentorAvailabilityService";
+import { MentorAvailabilityService } from "../services/mentorAvailability.service";
+import { IMentorAvailabilityController } from "../core/interfaces/controller/IMentorAvailabiltyController";
+import { MentorAvailabilityController } from "../controllers/mentorAvailabilty.controller";
 
 
 
@@ -133,6 +139,11 @@ container.bind<ICourseFeedbackRepository>(TYPES.CourseFeedbackRepository).to(Cou
 container.bind<IWishlistController>(TYPES.WishistController).to(WishistController)
 container.bind<IWishlistService>(TYPES.WishlistService).to(WishlistService)
 container.bind<IWishlistRepository>(TYPES.WishlistRepository).to(WishlistRepository)
+
+
+container.bind<IMentorAvailabilityController>(TYPES.MentorAvailabilityController).to(MentorAvailabilityController)
+container.bind<IMentorAvailabilityService>(TYPES.MentorAvailabilityService).to(MentorAvailabilityService)
+container.bind<IMentorAvailabilityReposiotry>(TYPES.MentorAvailabilityRepository).to(MentorAvailabilityRepository)
 
 
 

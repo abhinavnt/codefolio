@@ -132,7 +132,6 @@ export class courseService implements ICourseService {
     }
   }
 
-  //admin
   async getCoursesAdmin(
     search: string,
     category: string,
@@ -219,6 +218,10 @@ export class courseService implements ICourseService {
     }
     task.completed = true;
     return await task.save();
+  }
+
+  async getAllPurchasedCoursesAdmin(page: number, limit: number, search?: string, courseFilter?: string, statusFilter?: string): Promise<{ courses: ICoursePurchased[]; total: number; }> {
+    return this.purchaseCourseRepository.findAllCourses(page, limit, search, courseFilter, statusFilter)
   }
   
 }

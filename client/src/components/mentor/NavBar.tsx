@@ -108,7 +108,7 @@ export function Navbar() {
                 Wallet
               </Button>
               <Button variant="ghost" className="justify-start">
-                Settings
+              Official Reviews
               </Button>
               <Button variant="ghost" className="justify-start text-red-500">
                 <LogOut className="mr-2 h-4 w-4" />

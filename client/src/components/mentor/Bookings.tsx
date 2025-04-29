@@ -38,7 +38,7 @@ interface Booking {
   cancellationReason?: string
 }
 
-export function Bookings({ mentorId }: { mentorId: string }) {
+export function Bookings({ mentorId }: { mentorId?: string }) {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [activeTab, setActiveTab] = useState<"pending" | "completed" | "cancelled">("pending")

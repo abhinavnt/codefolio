@@ -10,8 +10,10 @@ export interface IPurchasedCourseTask extends Document {
   order: number;
   duration: string;
   status: "active" | "inactive";
+  reviewStatus: "PASS" | "FAIL";
   resources: string[];
-  completed: boolean; // Retained for compatibility, can be phased out later
+  completed: boolean;
+  reviewScheduled: boolean;
   attempts: {
     submissionDate: Date;
     review?: {
@@ -38,8 +40,10 @@ const purchasedCourseTasksSchema = new Schema<IPurchasedCourseTask>(
     order: { type: Number, required: true },
     duration: { type: String },
     status: { type: String, enum: ["active", "inactive"], default: "active" },
+    reviewStatus: { type: String, enum: ["PASS", "FAIL"], default: "FAIL" },
     resources: [{ type: String }],
     completed: { type: Boolean, default: false },
+    reviewScheduled: {type: Boolean,default: false, required: true,},
     attempts: [
       {
         submissionDate: { type: Date, required: true },
@@ -57,7 +61,4 @@ const purchasedCourseTasksSchema = new Schema<IPurchasedCourseTask>(
   { timestamps: true }
 );
 
-export const PurchasedCourseTasks = mongoose.model<IPurchasedCourseTask>(
-  "PurchasedCourseTasks",
-  purchasedCourseTasksSchema
-);
+export const PurchasedCourseTasks = mongoose.model<IPurchasedCourseTask>("PurchasedCourseTasks", purchasedCourseTasksSchema);
