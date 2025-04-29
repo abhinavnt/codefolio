@@ -16,4 +16,12 @@ export interface ICourseService {
   updateCourseAndTasks(courseId: string, courseData: Partial<ICourse>, tasksData: Partial<ITask>[]): Promise<ICourse | null>
   findTaskById(taskId: string): Promise<IPurchasedCourseTask | null>
   markTaskAsComplete(taskId: string, userId: string): Promise<IPurchasedCourseTask | null>
+  getAllPurchasedCoursesAdmin(
+    page: number,
+    limit: number,
+    search?: string,
+    courseFilter?: string,
+    statusFilter?: string
+  ): Promise<{ courses: ICoursePurchased[]; total: number }>
+
 }

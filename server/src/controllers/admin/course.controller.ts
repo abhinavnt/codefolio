@@ -148,7 +148,6 @@ export class CourseController implements ICourseController {
     console.log("userid courseid", userId, courseId);
 
     const tasks = await this.courseService.findTaskByUserIdAndCourseId(userId, courseId);
-    console.log("tasks from coursetasksgeting", tasks);
 
     res.status(200).json(tasks);
   });
@@ -226,14 +225,28 @@ export class CourseController implements ICourseController {
     res.json(updatedCourse);
   });
 
-
-  markTaskAsComplete=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
+  markTaskAsComplete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const taskId = req.params.taskId;
     const userId = String(req.user?._id);
-    const updatedTask = await this.courseService.markTaskAsComplete(taskId, userId)
-    res.status(200).json(updatedTask)
+    const updatedTask = await this.courseService.markTaskAsComplete(taskId, userId);
+    res.status(200).json(updatedTask);
+  });
+
+  getAllPurchasedCoursesAdmin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const search = req.query.search as string;
+    const courseFilter = req.query.courseFilter as string;
+    const statusFilter = req.query.statusFilter as string;
+
+    const { courses, total } = await this.courseService.getAllPurchasedCoursesAdmin(page, limit, search, courseFilter, statusFilter);
+
+    res.json({ courses, total });
+  });
+
+  getUserTasksAdmin=asyncHandler(async(req:Request,res:Response)=>{
+    const { userId, courseId } = req.params
+    const tasks = await this.courseService.findTaskByUserIdAndCourseId(userId, courseId);
+    res.status(200).json(tasks);
   })
-
-
-
 }

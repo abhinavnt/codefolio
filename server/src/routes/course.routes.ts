@@ -30,5 +30,9 @@ router.get("/courses/:id/edit", authMiddleware([UserRole.ADMIN]), courseControll
 
 router.put("/courses/:id", authMiddleware([UserRole.ADMIN]), upload.fields([{ name: "image", maxCount: 1 }]), courseController.updateCourseAdmin);
 
+ router.get("/enrolled-courses/admin",authMiddleware([UserRole.ADMIN]),courseController.getAllPurchasedCoursesAdmin)
+
+ router.get("/enrolled-courses/:userId/:courseId/tasks",authMiddleware([UserRole.ADMIN]),courseController.getUserTasksAdmin)
+
 
 export default router;

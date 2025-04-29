@@ -12,4 +12,6 @@ export interface ICourseController {
   getCourseWithTasks:RequestHandler
   updateCourseAdmin:RequestHandler
   markTaskAsComplete:RequestHandler
+  getAllPurchasedCoursesAdmin:RequestHandler
+  getUserTasksAdmin:RequestHandler
 }

@@ -13,6 +13,7 @@ import { CourseManagement } from "@/components/admin/items/CourseManagment"
 import ProtectedRoute from "@/components/auth/ProtectedRoute"
 import AdminLogin from "@/pages/admin/AdminLogin"
 import { EditCourse } from "@/components/admin/items/EditCourse"
+import { UserCourseTasks } from "@/components/admin/items/UsersCourseTask"
 
 export function AdminRoutes() {
     console.log('admin routil kayritundllooo');
@@ -35,6 +36,7 @@ export function AdminRoutes() {
         <Route path="course-management" element={<CourseManagement />} />
         <Route path="settings" element={<Settings />} />
         <Route path="courses/edit/:id" element={<EditCourse/>}/>
+        <Route path="user-course-tasks/:userId/:courseId" element={<UserCourseTasks />} />
         </Route>
 
       </Route>
