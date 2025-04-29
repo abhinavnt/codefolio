@@ -207,4 +207,18 @@ export class courseService implements ICourseService {
       throw new Error(error instanceof Error ? error.message : String(error));
     }
   }
+
+  async findTaskById(taskId: string): Promise<IPurchasedCourseTask | null> {
+    return await this.purchaseTaskRepository.findTaskById(taskId)
+  }
+
+  async markTaskAsComplete(taskId: string, userId: string): Promise<IPurchasedCourseTask | null> {
+    const task = await this.purchaseTaskRepository.findTaskById(taskId);
+    if (!task || task.userId.toString() !== userId) {
+      throw new Error("Task not found or unauthorized");
+    }
+    task.completed = true;
+    return await task.save();
+  }
+  
 }
