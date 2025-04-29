@@ -17,7 +17,8 @@ export const TYPES={
     MentorFeedbackRepository:Symbol.for('MentorFeedbackRepository'),
     CourseFeedbackRepository:Symbol.for('CourseFeedbackRepository'),
     WishlistRepository:Symbol.for('WishlistRepository'),
-
+    MentorAvailabilityRepository:Symbol.for("MentorAvailabilityRepository"),
+     
 
     //services
     AdminService:Symbol.for('AdminService'),
@@ -30,7 +31,7 @@ export const TYPES={
     BookingService:Symbol.for('BookingService'),
     FeedbackService:Symbol.for('FeedbackService'),
     WishlistService:Symbol.for('WishlistService'),
-
+    MentorAvailabilityService:Symbol.for('MentorAvailabilityService'),
 
     //Controllers
     UserController:Symbol.for('UserController'),
@@ -42,6 +43,7 @@ export const TYPES={
     PaymentController:Symbol.for('PaymentController'),
     BookingController:Symbol.for('BookingController'),
     FeedbackController:Symbol.for('FeedbackController'),
-    WishistController:Symbol.for(' WishistController')
+    WishistController:Symbol.for(' WishistController'),
+    MentorAvailabilityController:Symbol.for('MentorAvailabilityController')
 
 }

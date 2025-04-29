@@ -12,6 +12,7 @@ import { ConductedReviews } from "./Conducted-reviews"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { IMentor } from "@/types/mentor"
 import { MainDashboard } from "./Main-dashboard"
+import { SpecificDateAvailabilityScheduler } from "./TimeSell"
 
 // Dummy mentor data
 const dummyMentor = {
@@ -62,7 +63,7 @@ export function MentorDashboard() {
             <TabsTrigger value="availability">Availability</TabsTrigger>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="wallet">Wallet</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="settings">Official Reviews Slot</TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard">
             <MainDashboard mentor={mentor} />
@@ -86,10 +87,7 @@ export function MentorDashboard() {
             <Wallet />
           </TabsContent>
           <TabsContent value="settings">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-2xl font-bold mb-4">Settings</h2>
-              <p className="text-gray-500">Account settings will be available soon.</p>
-            </div>
+            <SpecificDateAvailabilityScheduler/>
           </TabsContent>
         </Tabs>
       </div>

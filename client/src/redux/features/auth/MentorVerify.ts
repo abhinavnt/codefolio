@@ -14,6 +14,7 @@ export interface IAvailableTimeSlot {
   
 
 interface IMentor{
+    _id:string;
     userId: string;
     profileImage?: string;
     name: string;
