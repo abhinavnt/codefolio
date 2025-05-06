@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react"
 import axiosInstance from "@/utils/axiosInstance"
-import { ArrowLeft, CheckCircle, Clock, FileText, Lock, Play, Star, X } from "lucide-react"
-import { Link, useParams } from "react-router-dom"
+import { ArrowLeft, CheckCircle, Clock, FileText, Lock, Play, Star, X, Calendar } from "lucide-react"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import {
   Pagination,
   PaginationContent,
@@ -15,134 +15,151 @@ import {
 } from "@/components/ui/pagination"
 
 interface Task {
-  _id: string
-  title: string
-  description: string
-  video: string
-  lessons: string[]
-  order: number
-  duration: string
-  status: "PASS" | "FAIL"
-  resources: string[]
-  completed: boolean
+  _id: string;
+  title: string;
+  description: string;
+  video: string;
+  lessons: string[];
+  order: number;
+  duration: string;
+  status: "PASS" | "FAIL";
+  resources: string[];
+  completed: boolean;
+  reviewScheduled: boolean;
+  meetId?: string;
   attempts: {
-    submissionDate: Date
+    submissionDate: Date;
+    startTime: string;
+    endTime: string;
+    reviewDate: string;
     review?: {
-      mentorId: string
-      theoryMarks: number
-      practicalMarks: number
-      result: "pass" | "fail"
-      reviewDate: Date
-    }
-  }[]
+      mentorId: string;
+      theoryMarks: number;
+      practicalMarks: number;
+      result: "pass" | "fail";
+      reviewDate: Date;
+    };
+  }[];
 }
 
 interface CourseData {
-  title: string
-  description: string
-  category: string
-  level: string
-  duration: string
-  image: string
-  price: string
+  title: string;
+  description: string;
+  category: string;
+  level: string;
+  duration: string;
+  image: string;
+  price: string;
 }
 
 export function CourseTasks() {
-  const params = useParams()
-  const courseId = params?.courseId as string
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [course, setCourse] = useState<CourseData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [completionPercentage, setCompletionPercentage] = useState(0)
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
-
+  const params = useParams();
+  const courseId = params?.courseId as string;
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [course, setCourse] = useState<CourseData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false); 
+  const [completionPercentage, setCompletionPercentage] = useState(0);
+  const navigate = useNavigate()
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(1)
-  const tasksPerPage = 9
+  const [currentPage, setCurrentPage] = useState(1);
+  const tasksPerPage = 9;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const tasksResponse = await axiosInstance.get(`/api/course/course-tasks/${courseId}`)
+        const tasksResponse = await axiosInstance.get(`/api/course/course-tasks/${courseId}`);
+        const courseResponse = await axiosInstance.get(`/api/user/course/${courseId}`);
+        setCourse(courseResponse.data.course);
+        console.log(courseResponse.data, "course from course response");
 
-        const courseResponse = await axiosInstance.get(`/api/user/course/${courseId}`)
-        setCourse(courseResponse.data.course)
-        console.log(courseResponse.data, "course from course respons")
+        const sortedTasks = tasksResponse.data.sort((a: Task, b: Task) => a.order - b.order);
+        setTasks(sortedTasks);
 
-        console.log(course, "course from tasks page")
-
-        const sortedTasks = tasksResponse.data.sort((a: Task, b: Task) => a.order - b.order)
-        setTasks(sortedTasks)
-
-        // ompletion percentage
-        const completedCount = sortedTasks.filter((task: Task) => task.completed).length
-        const percentage = sortedTasks.length > 0 ? Math.round((completedCount / sortedTasks.length) * 100) : 0
-        setCompletionPercentage(percentage)
+        // Completion percentage
+        const completedCount = sortedTasks.filter((task: Task) => task.completed).length;
+        const percentage = sortedTasks.length > 0 ? Math.round((completedCount / sortedTasks.length) * 100) : 0;
+        setCompletionPercentage(percentage);
       } catch (error) {
-        console.error("Error fetching data:", error)
+        console.error("Error fetching data:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [courseId])
+    fetchData();
+  }, [courseId]);
 
-  const isTaskUnlocked = (task: Task, allTasks: Task[]): boolean=> {
-    if (task.order === 1) return true
-
-    // Check if all previous tasks have PASS status
-    const previousTasks = allTasks.filter((t) => t.order < task.order)
-    return previousTasks.every((t) => t.status === "PASS")
-  }
+  const isTaskUnlocked = (task: Task, allTasks: Task[]): boolean => {
+    if (task.order === 1) return true;
+    const previousTasks = allTasks.filter((t) => t.order < task.order);
+    return previousTasks.every((t) => t.status === "PASS");
+  };
 
   const handleTaskClick = (task: Task) => {
     if (isTaskUnlocked(task, tasks)) {
-      setSelectedTask(task)
-      setIsModalOpen(true)
+      setSelectedTask(task);
+      setIsModalOpen(true);
     }
-  }
+  };
 
   const closeModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   const openConfirmModal = () => {
-    setIsConfirmModalOpen(true)
-  }
+    setIsConfirmModalOpen(true);
+  };
 
   const closeConfirmModal = () => {
-    setIsConfirmModalOpen(false)
-  }
+    setIsConfirmModalOpen(false);
+  };
+
+  const openScheduleModal = (task: Task) => {
+    setSelectedTask(task);
+    setIsScheduleModalOpen(true);
+  };
+
+  const closeScheduleModal = () => {
+    setIsScheduleModalOpen(false);
+  };
 
   const handleMarkAsComplete = async () => {
-    if (!selectedTask) return
-    closeConfirmModal()
+    if (!selectedTask) return;
+    closeConfirmModal();
     try {
-      const response = await axiosInstance.put(`/api/course/course-tasks/${selectedTask._id}/complete`)
-      const updatedTask = response.data
-      const updatedTasks = tasks.map((task) => (task._id === updatedTask._id ? updatedTask : task))
-      setTasks(updatedTasks)
-      setSelectedTask(updatedTask)
-      closeModal()
+      const response = await axiosInstance.put(`/api/course/course-tasks/${selectedTask._id}/complete`);
+      const updatedTask = response.data;
+      const updatedTasks = tasks.map((task) => (task._id === updatedTask._id ? updatedTask : task));
+      setTasks(updatedTasks);
+      setSelectedTask(updatedTask);
+      closeModal();
     } catch (error) {
-      console.error("Error marking task as complete:", error)
+      console.error("Error marking task as complete:", error);
     }
-  }
+  };
+
+ 
+  const handleJoinMeet = (meetId: string) => {
+    console.log("Joining meet with ID:", meetId);
+
+    navigate(`/video-call/${meetId}`)
+  };
 
   // Pagination
-  const indexOfLastTask = currentPage * tasksPerPage
-  const indexOfFirstTask = indexOfLastTask - tasksPerPage
-  const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask)
-  const totalPages = Math.ceil(tasks.length / tasksPerPage)
+  const indexOfLastTask = currentPage * tasksPerPage;
+  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+  const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
+  const totalPages = Math.ceil(tasks.length / tasksPerPage);
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  const pageNumbers = []
+  const pageNumbers = [];
   for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i)
+    pageNumbers.push(i);
   }
 
   if (loading) {
@@ -150,7 +167,7 @@ export function CourseTasks() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -191,16 +208,6 @@ export function CourseTasks() {
                   <span className="text-sm text-gray-500">{course.category}</span>
                 </div>
               </div>
-
-              {/* <div className="mt-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Course Progress</span>
-                  <span className="text-sm font-medium">{completionPercentage}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${completionPercentage}%` }}></div>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>
@@ -208,8 +215,9 @@ export function CourseTasks() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {currentTasks.map((task) => {
-          const isUnlocked = isTaskUnlocked(task, tasks)
-          const weekNumber = task.order
+          const isUnlocked = isTaskUnlocked(task, tasks);
+          const weekNumber = task.order;
+          const latestAttempt = task.attempts.length > 0 ? task.attempts[task.attempts.length - 1] : null;
 
           return (
             <div
@@ -249,15 +257,22 @@ export function CourseTasks() {
                   </div>
 
                   <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      task.status === "PASS"
+                    className={`text-xs px-2 py-1 rounded-full ${task.status === "PASS"
                         ? "bg-green-100 text-green-800"
-                        : isUnlocked
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
-                    }`}
+                        : task.reviewScheduled
+                          ? "bg-blue-100 text-blue-800"
+                          : isUnlocked
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-gray-100 text-gray-800"
+                      }`}
                   >
-                    {task.status === "PASS" ? "Passed" : isUnlocked ? "In Progress" : "Locked"}
+                    {task.status === "PASS"
+                      ? "Passed"
+                      : task.reviewScheduled
+                        ? "Review Scheduled"
+                        : isUnlocked
+                          ? "In Progress"
+                          : "Locked"}
                   </span>
                 </div>
 
@@ -281,9 +296,38 @@ export function CourseTasks() {
                     </div>
                   )}
                 </div>
+
+                {/* Show Review Schedule and Join Meet Button if reviewScheduled is true */}
+                {task.reviewScheduled && latestAttempt && (
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); 
+                          openScheduleModal(task);
+                        }}
+                        className="flex items-center gap-1 text-blue-500 hover:underline text-sm"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        View Review Schedule
+                      </button>
+                      {task.meetId && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); 
+                            handleJoinMeet(task.meetId!);
+                          }}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
+                        >
+                          Join Meet
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
@@ -311,7 +355,7 @@ export function CourseTasks() {
                         {number}
                       </PaginationLink>
                     </PaginationItem>
-                  )
+                  );
                 }
 
                 if (number === 2 && currentPage > 3) {
@@ -319,7 +363,7 @@ export function CourseTasks() {
                     <PaginationItem key="ellipsis-start">
                       <PaginationEllipsis />
                     </PaginationItem>
-                  )
+                  );
                 }
 
                 if (number === totalPages - 1 && currentPage < totalPages - 2) {
@@ -327,10 +371,10 @@ export function CourseTasks() {
                     <PaginationItem key="ellipsis-end">
                       <PaginationEllipsis />
                     </PaginationItem>
-                  )
+                  );
                 }
 
-                return null
+                return null;
               })}
 
               <PaginationItem>
@@ -344,6 +388,7 @@ export function CourseTasks() {
         </div>
       )}
 
+      {/* Task Details Modal */}
       {isModalOpen && selectedTask && (
         <div
           className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
@@ -432,6 +477,52 @@ export function CourseTasks() {
         </div>
       )}
 
+      {/* Review Schedule Modal */}
+      {isScheduleModalOpen && selectedTask && (
+        <div
+          className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
+          onClick={closeScheduleModal}
+        >
+          <div
+            className="bg-white rounded-lg max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Review Schedule</h3>
+              <button onClick={closeScheduleModal} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            {selectedTask.attempts.length > 0 ? (
+              (() => {
+                const latestAttempt = selectedTask.attempts[selectedTask.attempts.length - 1];
+                return (
+                  <div>
+                    <p className="text-gray-600 mb-2">
+                      <strong>Date:</strong> {latestAttempt.reviewDate}
+                    </p>
+                    <p className="text-gray-600 mb-4">
+                      <strong>Time:</strong> {latestAttempt.startTime} - {latestAttempt.endTime}
+                    </p>
+                    {selectedTask.meetId && (
+                      <button
+                        onClick={() => handleJoinMeet(selectedTask.meetId!)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md w-full"
+                      >
+                        Join Meet
+                      </button>
+                    )}
+                  </div>
+                );
+              })()
+            ) : (
+              <p className="text-gray-600">No review scheduled yet.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Completion Modal */}
       {isConfirmModalOpen && (
         <div
           className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
@@ -460,5 +551,5 @@ export function CourseTasks() {
         </div>
       )}
     </div>
-  )
+  );
 }

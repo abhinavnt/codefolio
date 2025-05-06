@@ -17,5 +17,9 @@ router.get('/',authMiddleware([UserRole.USER]),mentorAvailabilityController.getA
 router.post('/',authMiddleware([UserRole.USER]),mentorAvailabilityController.addAvailability)
 router.put("/:id",authMiddleware([UserRole.USER]),mentorAvailabilityController.editAvailability)
 
+//admin
+router.get('/available-slots',authMiddleware([UserRole.ADMIN]),mentorAvailabilityController.getAllAvailableSlots)
+router.post('/book',authMiddleware([UserRole.ADMIN]),mentorAvailabilityController.bookSlot)
+
 
 export default router

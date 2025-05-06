@@ -104,16 +104,22 @@ export function SpecificDateAvailabilityScheduler() {
                 const response = await fetchMentorSpecificDateAvailability(mentorId)
                 if (!response) return
 
-                const specificDates = response.data.map((entry: any) => ({
-                    _id: entry._id,
-                    date: new Date(entry.specificDateAvailability.date),
-                    timeSlots: entry.specificDateAvailability.timeSlots.map((slot: any) => ({
-                        id: Date.now().toString() + Math.random(),
-                        startTime: slot.startTime,
-                        endTime: slot.endTime,
-                        booked: slot.booked,
-                    })),
-                }))
+                const specificDates = response.data.map((entry: any) => {
+                    // Normalize the date to UTC midnight
+                    const normalizedDate = new Date(
+                        new Date(entry.specificDateAvailability.date).toISOString().split("T")[0] + "T00:00:00.000Z"
+                    );
+                    return {
+                        _id: entry._id,
+                        date: normalizedDate,
+                        timeSlots: entry.specificDateAvailability.timeSlots.map((slot: any) => ({
+                            id: Date.now().toString() + Math.random(),
+                            startTime: slot.startTime,
+                            endTime: slot.endTime,
+                            booked: slot.booked,
+                        })),
+                    }
+                })
                 setAvailabilityData(specificDates)
             } catch (error) {
                 console.error("Error fetching specific date availability:", error)
@@ -221,7 +227,9 @@ export function SpecificDateAvailabilityScheduler() {
             }
             setAvailabilityData(updatedData)
         } else {
-            setAvailabilityData([...availabilityData, { date: selectedDate, timeSlots: [newTimeSlot] }])
+            // Normalize the selectedDate to UTC midnight before adding to availabilityData
+            const normalizedDate = new Date(selectedDate.toISOString().split("T")[0] + "T00:00:00.000Z");
+            setAvailabilityData([...availabilityData, { date: normalizedDate, timeSlots: [newTimeSlot] }])
         }
         setIsDialogOpen(false)
     }
@@ -369,15 +377,22 @@ export function SpecificDateAvailabilityScheduler() {
 
         setIsLoading(true)
         try {
-            const specificDateAvailability = availabilityData.map((day) => ({
-                _id: day._id,
-                date: day.date,
-                timeSlots: day.timeSlots.map((slot) => ({
-                    startTime: slot.startTime,
-                    endTime: slot.endTime,
-                    booked: slot.booked,
-                })),
-            }))
+            const specificDateAvailability = availabilityData.map((day) => {
+                // Normalize the date to UTC midnight (YYYY-MM-DD 00:00:00.000Z)
+                const normalizedDate = new Date(day.date.toISOString().split("T")[0] + "T00:00:00.000Z")
+                return {
+                    _id: day._id,
+                    date: normalizedDate,
+                    timeSlots: day.timeSlots.map((slot) => ({
+                        startTime: slot.startTime,
+                        endTime: slot.endTime,
+                        booked: slot.booked,
+                    })),
+                }
+            })
+
+            // Log the data being sent to the backend for debugging
+            console.log("Saving availability:", specificDateAvailability)
 
             // Separate new and existing entries
             const newEntries = specificDateAvailability.filter((day) => !day._id)
@@ -546,7 +561,9 @@ export function SpecificDateAvailabilityScheduler() {
                                                 }`}
                                             onClick={() => {
                                                 if (!isPast || isToday) {
-                                                    setSelectedDate(date)
+                                                    // Normalize the selected date to UTC midnight
+                                                    const normalizedSelectedDate = new Date(date.toISOString().split("T")[0] + "T00:00:00.000Z");
+                                                    setSelectedDate(normalizedSelectedDate)
                                                 } else {
                                                     toast.error("Cannot select dates in the past")
                                                 }

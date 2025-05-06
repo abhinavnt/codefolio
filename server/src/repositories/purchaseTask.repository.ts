@@ -19,4 +19,20 @@ export class PurchaseTaskRepository extends BaseRepository<IPurchasedCourseTask>
   async findTaskById(taskId: string): Promise<IPurchasedCourseTask | null> {
     return this.findById(new mongoose.Types.ObjectId(taskId))
   }
+
+  async findByUserIdandTaskId(userId: string, taskId: string): Promise<IPurchasedCourseTask | null> {
+      return this.findOne({userId,_id:taskId})
+  }
+
+  async updateByUserIdAndTaskId(userId: string, taskId: string, update: { $set?: Partial<IPurchasedCourseTask>; $push?: { attempts: { submissionDate: Date; startTime: string; endTime: string;reviewDate:string }; }; }): Promise<IPurchasedCourseTask | null> {
+    const updatedTask = await this.findOneAndUpdate(
+      { userId, _id: taskId },
+      update,
+      { new: true }
+    );
+
+    return updatedTask;
+  }
+
+  
 }

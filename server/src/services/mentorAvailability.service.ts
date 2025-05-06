@@ -3,10 +3,16 @@ import { IMentorAvailabilityService } from "../core/interfaces/service/IMentorAv
 import { TYPES } from "../di/types";
 import { IMentorAvailabilityReposiotry } from "../core/interfaces/repository/IMentoryAvailbilityRepository";
 import { isAfter, parse } from "date-fns";
+import { IMentorSpecificDateAvailability } from "../models/MentorAvailability";
+import { IPurchasedTaskRepository } from "../core/interfaces/repository/IPurchaseTaskReposioty";
+import { v4 as uuidv4 } from "uuid";
 
 @injectable()
 export class MentorAvailabilityService implements IMentorAvailabilityService {
-  constructor(@inject(TYPES.MentorAvailabilityRepository) private mentorAvailabilityReposiotry: IMentorAvailabilityReposiotry) {}
+  constructor(
+    @inject(TYPES.MentorAvailabilityRepository) private mentorAvailabilityReposiotry: IMentorAvailabilityReposiotry,
+    @inject(TYPES.PurchaseTaskRepository) private purchaseTaskRepository: IPurchasedTaskRepository
+  ) {}
 
   async getMentorAvailability(mentorId: string): Promise<any> {
     const availability = await this.mentorAvailabilityReposiotry.findByMentorId(mentorId);
@@ -68,7 +74,6 @@ export class MentorAvailabilityService implements IMentorAvailabilityService {
     };
   }
 
-
   async editMentorAvailability(
     id: string,
     specificDateAvailability: { date: Date; timeSlots: { startTime: string; endTime: string; booked: boolean }[] }
@@ -90,11 +95,7 @@ export class MentorAvailabilityService implements IMentorAvailabilityService {
         const end1 = parse(slot1.endTime, "HH:mm", new Date());
         const start2 = parse(slot2.startTime, "HH:mm", new Date());
         const end2 = parse(slot2.endTime, "HH:mm", new Date());
-        if (
-          (start1 <= start2 && start2 < end1) ||
-          (start1 < end2 && end2 <= end1) ||
-          (start2 <= start1 && start1 < end2)
-        ) {
+        if ((start1 <= start2 && start2 < end1) || (start1 < end2 && end2 <= end1) || (start2 <= start1 && start1 < end2)) {
           throw new Error(`Overlapping time slots on ${specificDateAvailability.date}.`);
         }
       }
@@ -117,7 +118,60 @@ export class MentorAvailabilityService implements IMentorAvailabilityService {
     };
   }
 
+  async getAllAvailableSlots(): Promise<any[]> {
+    const availabilities = await this.mentorAvailabilityReposiotry.findAllWithMentor();
+    return availabilities.flatMap((availability) => {
+      const mentor = availability.mentorId as any;
+      return availability.specificDateAvailability.timeSlots
+        .filter((slot) => !slot.booked)
+        .map((slot) => ({
+          mentorId: mentor._id,
+          mentorName: mentor.name,
+          date: availability.specificDateAvailability.date,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        }));
+    });
+  }
 
+  async bookTimeSlot(
+    mentorId: string,
+    date: string,
+    startTime: string,
+    endTime: string,
+    userId: string,
+    taskId: string
+  ): Promise<IMentorSpecificDateAvailability> {
+    if (!mentorId || !date || !startTime || !endTime || !userId || !taskId) {
+      throw new Error("All fields (mentorId, date, startTime, endTime, userId, taskId) are required");
+    }
 
+    const roomId = uuidv4();
 
+    const result = await this.mentorAvailabilityReposiotry.bookAvailbleTimeSlot(mentorId, date, startTime, endTime, userId, taskId, roomId);
+    if (!result) {
+      throw new Error("Time slot is already booked or not available");
+    }
+
+    const updateTask = await this.purchaseTaskRepository.updateByUserIdAndTaskId(userId, taskId, {
+      $set: {
+        reviewScheduled: true,
+        meetId: roomId,
+      },
+      $push: {
+        attempts: {
+          submissionDate: new Date(),
+          startTime,
+          endTime,
+          reviewDate:date
+        },
+      },
+    });
+
+    if (!updateTask) {
+      throw new Error("Task is not found in purchase task");
+    }
+
+    return result;
+  }
 }

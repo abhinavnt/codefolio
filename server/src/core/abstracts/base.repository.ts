@@ -71,5 +71,9 @@ import {
     async findByIdAndDelete(id: string): Promise<T | null> {
       return this.model.findByIdAndDelete(id);
     }
+
+    async aggregate(pipeline: any[]): Promise<any[]> {
+      return this.model.aggregate(pipeline).exec();
+    }
     
   }
