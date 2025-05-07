@@ -47,4 +47,15 @@ export class PaymentController implements IPaymentController {
 
     res.status(200).json(paymentDetails);
   });
+
+  getPurchaseHistory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = String(req.user?._id);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const purchases = await this.paymentService.getPurchaseHistory(userId);
+    res.status(200).json(purchases);
+  });
 }

@@ -8,6 +8,7 @@ import { ITaskRepository } from "../core/interfaces/repository/ITaskRepository";
 import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
 import { ICourse } from "../models/Course";
 import { IPurchasedTaskRepository } from "../core/interfaces/repository/IPurchaseTaskReposioty";
+import { IPurchaseHistoryRepository } from "../core/interfaces/repository/IPurchaseHistory.repository";
 
 @injectable()
 export class PaymentService implements IPaymentService {
@@ -15,7 +16,8 @@ export class PaymentService implements IPaymentService {
     @inject(TYPES.PaymentRepository) private paymentRepository: IPaymentRepository,
     @inject(TYPES.TaskRepository) private taskRepository: ITaskRepository,
     @inject(TYPES.CourseRepository) private courseRepository: ICourseRepository,
-    @inject(TYPES.PurchaseTaskRepository) private purchaseTaskRepository: IPurchasedTaskRepository
+    @inject(TYPES.PurchaseTaskRepository) private purchaseTaskRepository: IPurchasedTaskRepository,
+    @inject(TYPES.PurchaseHistoryRepository) private purchaseHistoryRepository: IPurchaseHistoryRepository
   ) {}
 
   async createCheckoutSession({
@@ -63,6 +65,17 @@ export class PaymentService implements IPaymentService {
       };
 
       if (!paymentDetails.isPaid) {
+        await this.purchaseHistoryRepository.createPurchaseHistory({
+          userId,
+          purchaseType: "course",
+          itemId: paymentDetails.courseId,
+          invoiceId: `INV-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          title: courseData.title,
+          image: courseData.image,
+          price: paymentDetails.amount,
+          status: "Failed",
+          purchaseDate: new Date(),
+        });
         throw new Error("Payment not completed");
       }
 
@@ -126,9 +139,34 @@ export class PaymentService implements IPaymentService {
 
       await this.courseRepository.addStudentToCourse(courseData._id as string, userId);
 
+      await this.purchaseHistoryRepository.createPurchaseHistory({
+        userId,
+        purchaseType: "course",
+        itemId: paymentDetails.courseId,
+        invoiceId: `INV-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        title: courseData.title,
+        image: courseData.image,
+        price: paymentDetails.amount,
+        status: "Completed",
+        purchaseDate: new Date(),
+      });
+
       return paymentDetails;
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));
     }
+  }
+
+  //purchase history
+  async getPurchaseHistory(userId: string): Promise<any[]> {
+    const purchases = await this.purchaseHistoryRepository.findByUserId(userId);
+    return purchases.map((purchase) => ({
+      id: purchase.invoiceId,
+      date: purchase.purchaseDate.toISOString().split("T")[0],
+      course: purchase.title,
+      image: purchase.image || "/placeholder.svg?height=80&width=120",
+      price: purchase.price,
+      status: purchase.status,
+    }));
   }
 }

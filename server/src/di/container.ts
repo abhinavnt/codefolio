@@ -74,6 +74,8 @@ import { IMentorAvailabilityService } from "../core/interfaces/service/IMentorAv
 import { MentorAvailabilityService } from "../services/mentorAvailability.service";
 import { IMentorAvailabilityController } from "../core/interfaces/controller/IMentorAvailabiltyController";
 import { MentorAvailabilityController } from "../controllers/mentorAvailabilty.controller";
+import { IPurchaseHistoryRepository } from "../core/interfaces/repository/IPurchaseHistory.repository";
+import { PurchaseHistoryRepository } from "../repositories/purchase.history.repository";
 
 
 
@@ -146,7 +148,7 @@ container.bind<IMentorAvailabilityService>(TYPES.MentorAvailabilityService).to(M
 container.bind<IMentorAvailabilityReposiotry>(TYPES.MentorAvailabilityRepository).to(MentorAvailabilityRepository)
 
 
-
+container.bind<IPurchaseHistoryRepository>(TYPES.PurchaseHistoryRepository).to(PurchaseHistoryRepository)
 
 
 

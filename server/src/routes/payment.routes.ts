@@ -15,4 +15,6 @@ router.post("/create-checkout-session", authMiddleware([UserRole.USER]), payment
 
 router.post("/verify-payment", authMiddleware([UserRole.USER]), paymentController.verifyPayment);
 
+router.get('/purchase-history',authMiddleware([UserRole.USER]),paymentController.getPurchaseHistory)
+
 export default router;
