@@ -98,15 +98,15 @@ export default function FilterSidebar() {
     debouncedApplyFilters()
   }
 
-  const handleToolChange = (tool: string, checked: boolean) => {
-    dispatch(setTool({ tool, checked }))
-    debouncedApplyFilters()
-  }
+  // const handleToolChange = (tool: string, checked: boolean) => {
+  //   dispatch(setTool({ tool, checked }))
+  //   debouncedApplyFilters()
+  // }
 
-  const handleRatingChange = (rating: number, checked: boolean) => {
-    dispatch(setRating({ rating, checked }))
-    debouncedApplyFilters()
-  }
+  // const handleRatingChange = (rating: number, checked: boolean) => {
+  //   dispatch(setRating({ rating, checked }))
+  //   debouncedApplyFilters()
+  // }
 
   const handleLevelChange = (level: string, checked: boolean) => {
     dispatch(setCourseLevel({ level, checked }))
@@ -122,14 +122,14 @@ export default function FilterSidebar() {
     debouncedApplyFilters()
   }
 
-  const handleDurationChange = (duration: string, checked: boolean) => {
-    dispatch(setDuration({ duration, checked }))
-    debouncedApplyFilters()
-  }
+  // const handleDurationChange = (duration: string, checked: boolean) => {
+  //   dispatch(setDuration({ duration, checked }))
+  //   debouncedApplyFilters()
+  // }
 
   const handleResetFilters = () => {
     dispatch(resetFilters())
-    setLocalPriceRange([0, 100000]) 
+    setLocalPriceRange([0, 100000])
     dispatch(applyFilters())
   }
 
@@ -163,7 +163,7 @@ export default function FilterSidebar() {
         ))}
       </FilterSection>
 
-      <FilterSection title="Tools">
+      {/* <FilterSection title="Tools">
         {filters.availableTools.map((tool) => (
           <div key={tool.id} className="flex items-center space-x-2">
             <Checkbox
@@ -177,9 +177,9 @@ export default function FilterSidebar() {
             </Label>
           </div>
         ))}
-      </FilterSection>
+      </FilterSection> */}
 
-      <FilterSection title="Rating">
+      {/* <FilterSection title="Rating">
         {[4, 3, 2, 1].map((rating) => (
           <div key={rating} className="flex items-center space-x-2">
             <Checkbox
@@ -200,7 +200,7 @@ export default function FilterSidebar() {
             </Label>
           </div>
         ))}
-      </FilterSection>
+      </FilterSection> */}
 
       <FilterSection title="Course Level">
         {filters.availableLevels.map((level) => (
@@ -212,7 +212,7 @@ export default function FilterSidebar() {
             />
             <Label htmlFor={`level-${level.id}`} className="text-sm font-normal cursor-pointer flex-1">
               {level.name}
-              <span className="text-muted-foreground ml-1">({level.count})</span>
+              {/* <span className="text-muted-foreground ml-1">({level.count})</span> */}
             </Label>
           </div>
         ))}
@@ -257,7 +257,7 @@ export default function FilterSidebar() {
         </div>
       </FilterSection>
 
-      <FilterSection title="Duration">
+      {/* <FilterSection title="Duration">
         {filters.availableDurations.map((duration) => (
           <div key={duration.id} className="flex items-center space-x-2">
             <Checkbox
@@ -271,7 +271,7 @@ export default function FilterSidebar() {
             </Label>
           </div>
         ))}
-      </FilterSection>
+      </FilterSection> */}
     </div>
   )
 }

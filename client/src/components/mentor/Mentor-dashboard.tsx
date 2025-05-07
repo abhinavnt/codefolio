@@ -57,12 +57,12 @@ export function MentorDashboard() {
         <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 md:grid-cols-8 mb-8">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-            <TabsTrigger value="conducted">Conducted</TabsTrigger>
+            {/* <TabsTrigger value="conducted">Conducted</TabsTrigger> */}
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="availability">Availability</TabsTrigger>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="wallet">Wallet</TabsTrigger>
+            <TabsTrigger value="upcoming">Upcoming Official Reviews</TabsTrigger>
             <TabsTrigger value="settings">Official Reviews Slot</TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard">

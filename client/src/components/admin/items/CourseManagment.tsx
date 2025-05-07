@@ -109,7 +109,7 @@ export function CourseManagement() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-2xl font-bold tracking-tight">Course Management</h2>
-        <Button onClick={() => navigate("/admin/courses/add")}>Add New Course</Button>
+        {/* <Button onClick={() => navigate("/admin/courses/add")}>Add New Course</Button> */}
       </div>
 
       <Card>
@@ -130,7 +130,7 @@ export function CourseManagement() {
               />
             </div>
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <Label htmlFor="category-filter">Category:</Label>
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger id="category-filter" className="w-40">
@@ -146,7 +146,7 @@ export function CourseManagement() {
                     <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               <div className="flex items-center space-x-2">
                 <Label htmlFor="status-filter">Status:</Label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>

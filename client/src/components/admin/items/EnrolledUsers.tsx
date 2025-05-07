@@ -94,7 +94,7 @@ export function EnrolledUsers() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-2xl font-bold tracking-tight">Course Enrolled Users</h2>
-        <Button>Export Data</Button>
+        {/* <Button>Export Data</Button> */}
       </div>
 
       <Card>
@@ -123,15 +123,15 @@ export function EnrolledUsers() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Courses</SelectItem>
-                    <SelectItem value="web">Web Development</SelectItem>
+                    <SelectItem value="Mern">Web Development</SelectItem>
                     <SelectItem value="react">React</SelectItem>
                     <SelectItem value="data">Data Science</SelectItem>
-                    <SelectItem value="ui">UI/UX Design</SelectItem>
+                    <SelectItem value="flutter">UI/UX Design</SelectItem>
                     <SelectItem value="mobile">Mobile Development</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <Label htmlFor="status-filter">Status:</Label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger id="status-filter" className="w-32">
@@ -144,7 +144,7 @@ export function EnrolledUsers() {
                     <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
             </div>
           </div>
 

@@ -1,4 +1,3 @@
-
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,11 +17,29 @@ import { MentorCard } from "./Mentor-card";
 import { fetchMentors } from "@/redux/features/MentorSlice";
 import type { RootState, AppDispatch } from "@/redux/store";
 
+// Custom debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export default function MentorListing() {
   const dispatch = useDispatch<AppDispatch>();
   const { mentors, pagination, loading, error } = useSelector((state: RootState) => state.mentors);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // Debounce search query with 500ms delay
   const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState<{
     rating?: number;
@@ -31,8 +48,7 @@ export default function MentorListing() {
   }>({});
 
   useEffect(() => {
-    
-    dispatch(fetchMentors({ page: pagination.page, search: searchQuery, filters }));
+    dispatch(fetchMentors({ page: pagination.page, search: debouncedSearchQuery, filters }));
 
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -46,11 +62,11 @@ export default function MentorListing() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [dispatch, pagination.page, searchQuery, filters]);
+  }, [dispatch, pagination.page, debouncedSearchQuery, filters]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(fetchMentors({ page: 1, search: searchQuery, filters }));
+    dispatch(fetchMentors({ page: 1, search: debouncedSearchQuery, filters }));
   };
 
   const toggleFilters = () => {
@@ -59,11 +75,11 @@ export default function MentorListing() {
 
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
-    dispatch(fetchMentors({ page: 1, search: searchQuery, filters: newFilters }));
+    dispatch(fetchMentors({ page: 1, search: debouncedSearchQuery, filters: newFilters }));
   };
 
   const handlePageChange = (page: number) => {
-    dispatch(fetchMentors({ page, search: searchQuery, filters }));
+    dispatch(fetchMentors({ page, search: debouncedSearchQuery, filters }));
   };
 
   return (
@@ -115,7 +131,7 @@ export default function MentorListing() {
                   reviews: mentor.reviewTakenCount || 0,
                   imageUrl: mentor.profileImage || "/placeholder.svg",
                   expertise: mentor.title?.[0] || "Mentor",
-                  username:mentor.username||"mentor"
+                  username: mentor.username || "mentor",
                 }}
               />
             ))}
