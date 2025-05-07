@@ -8,12 +8,14 @@ import { TYPES } from "../di/types";
 import { IMentorRepository } from "../core/interfaces/repository/IMentorRepository";
 import { IBookingRepository } from "../core/interfaces/repository/IBookingRepository";
 import { IBooking } from "../models/Booking";
+import { IPurchaseHistoryRepository } from "../core/interfaces/repository/IPurchaseHistory.repository";
 
 injectable();
 export class BookingService implements IBookingService {
   constructor(
     @inject(TYPES.BookingRepository) private bookingRepository: IBookingRepository,
-    @inject(TYPES.MentorRepository) private mentorRepository: IMentorRepository
+    @inject(TYPES.MentorRepository) private mentorRepository: IMentorRepository,
+    @inject(TYPES.PurchaseHistoryRepository) private purchaseHistoryRepository: IPurchaseHistoryRepository
   ) {}
 
   async getAvailability(
@@ -62,6 +64,19 @@ export class BookingService implements IBookingService {
     });
 
     console.log(session, "session from service");
+
+    await this.purchaseHistoryRepository.createPurchaseHistory({
+      userId,
+      purchaseType: "mentorSlot",
+      itemId: String(mentor._id),
+      invoiceId: `INV-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      title: `Mentor Session with ${mentorusername} on ${date}`,
+      price: 500,
+      status: "Completed",
+      purchaseDate: new Date(),
+    });
+
+    console.log("purchase created from service");
 
     return { url: session.url!, sessionId: session.id! };
   }

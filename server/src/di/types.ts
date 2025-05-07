@@ -18,6 +18,7 @@ export const TYPES={
     CourseFeedbackRepository:Symbol.for('CourseFeedbackRepository'),
     WishlistRepository:Symbol.for('WishlistRepository'),
     MentorAvailabilityRepository:Symbol.for("MentorAvailabilityRepository"),
+    PurchaseHistoryRepository:Symbol.for("PurchaseHistoryRepository"),
      
 
     //services

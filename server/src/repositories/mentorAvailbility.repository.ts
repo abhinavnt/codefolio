@@ -32,18 +32,8 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
     timeSlotId: string,
     updatedTimeSlot: { startTime: string; endTime: string; booked: boolean }
   ): Promise<IMentorSpecificDateAvailability | null> {
-    // Normalize date to start of day in UTC
     const normalizedDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 
-    // Log inputs for debugging
-    console.log("editTimeSlot inputs:", {
-      mentorId,
-      normalizedDate: normalizedDate.toISOString(),
-      timeSlotId,
-      updatedTimeSlot,
-    });
-
-    // First, verify the document exists and contains the timeSlotId
     const filterCheck = {
       mentorId,
       "specificDateAvailability.date": normalizedDate,
@@ -55,14 +45,6 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
       console.log("No document found for filter:", filterCheck);
       throw new Error("No document found with matching mentorId, date, or timeSlotId. Verify the inputs and database data.");
     }
-
-    // Log the found document for debugging
-    console.log("Found document:", {
-      _id: existingDoc._id,
-      mentorId: existingDoc.mentorId,
-      date: existingDoc.specificDateAvailability.date,
-      timeSlots: existingDoc.specificDateAvailability.timeSlots,
-    });
 
     // Perform the update
     const filter = {
@@ -80,25 +62,15 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
     };
 
     const options = {
-      new: true, // Return the updated document
+      new: true,
     };
 
     try {
-      // Log the query for debugging
-      console.log("MongoDB query:", { filter, update, options });
-
       const result = await this.findOneAndUpdate(filter, update, options);
       if (!result) {
         console.log("No document updated for filter:", filter);
         throw new Error("Failed to update the time slot. No matching document found.");
       }
-
-      console.log("Update successful, result:", {
-        _id: result._id,
-        mentorId: result.mentorId,
-        date: result.specificDateAvailability.date,
-        timeSlots: result.specificDateAvailability.timeSlots,
-      });
 
       return result;
     } catch (error: any) {

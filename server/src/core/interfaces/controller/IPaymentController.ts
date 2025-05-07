@@ -7,4 +7,5 @@ export interface IPaymentController{
 
     createCheckoutSession:RequestHandler
     verifyPayment:RequestHandler
+    getPurchaseHistory:RequestHandler
 }
