@@ -19,24 +19,33 @@ export class MentorAvailabilityController implements IMentorAvailabilityControll
     res.status(200).json(availability);
   });
 
-  addAvailability = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { mentorId, specificDateAvailability } = req.body;
-    if (!mentorId || !specificDateAvailability) {
-      res.status(400).json({ error: "Mentor ID and specificDateAvailability are required" });
+  addTimeSlot = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { mentorId, date, timeSlot } = req.body;
+    if (!mentorId || !date || !timeSlot) {
+      res.status(400).json({ error: "Mentor ID, date, and timeSlot are required" });
       return;
     }
-    const result = await this.mentorAvailability.addMentorAvailability(mentorId, specificDateAvailability);
+    const result = await this.mentorAvailability.addMentorTimeSlot(mentorId, new Date(date), timeSlot);
     res.status(200).json(result);
   });
 
-  editAvailability = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-    const { specificDateAvailability } = req.body;
-    if (!id || !specificDateAvailability) {
-      res.status(400).json({ error: "ID and specificDateAvailability are required" });
+  editTimeSlot = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { mentorId, date, timeSlotId, timeSlot } = req.body;
+    if (!mentorId || !date || !timeSlotId || !timeSlot) {
+      res.status(400).json({ error: "Mentor ID, date, timeSlotId, and timeSlot are required" });
       return;
     }
-    const result = await this.mentorAvailability.editMentorAvailability(id, specificDateAvailability);
+    const result = await this.mentorAvailability.editMentorTimeSlot(mentorId, new Date(date), timeSlotId, timeSlot);
+    res.status(200).json(result);
+  });
+
+  deleteTimeSlot = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { mentorId, date, timeSlotId } = req.body;
+    if (!mentorId || !date || !timeSlotId) {
+      res.status(400).json({ error: "Mentor ID, date, and timeSlotId are required" });
+      return;
+    }
+    const result = await this.mentorAvailability.deleteMentorTimeSlot(mentorId, new Date(date), timeSlotId);
     res.status(200).json(result);
   });
 
@@ -47,11 +56,61 @@ export class MentorAvailabilityController implements IMentorAvailabilityControll
 
   bookSlot = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { mentorId, userId, taskId, date, startTime, endTime } = req.body;
-    console.log(req.body);
+    console.log(req.body, "log from reqbody");
     console.log(mentorId, userId, taskId, date, startTime, endTime, "reqbody");
 
     const result = await this.mentorAvailability.bookTimeSlot(mentorId, date, startTime, endTime, userId, taskId);
 
     res.status(200).json({ message: "Time slot booked successfully", data: result });
+  });
+
+  getReviews = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const mentorId = req.params.mentorId;
+
+    const status = req.query.status as string;
+
+    if (!["upcoming", "completed", "canceled"].includes(status)) {
+      res.status(400).json({ message: "Invalid status" });
+      return;
+    }
+    const reviews = await this.mentorAvailability.getReviewsByStatus(mentorId, status);
+    res.status(200).json(reviews);
+  });
+
+  completeReview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { mentorId, date, timeSlotId } = req.params;
+
+    const { practicalMarks, theoryMarks, feedback } = req.body;
+
+    await this.mentorAvailability.markReviewAsCompleted(
+      mentorId,
+      new Date(date),
+      timeSlotId,
+      { practical: practicalMarks, theory: theoryMarks },
+      feedback
+    );
+
+    res.status(201).json({ message: "Review marked as completed" });
+  });
+
+  cancelReview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { mentorId, date, timeSlotId } = req.params;
+    await this.mentorAvailability.markReviewAsCanceled(mentorId, new Date(date), timeSlotId);
+    res.status(201).json({ message: "Review canceled" });
+  });
+
+  editReview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { mentorId, date, timeSlotId } = req.params;
+
+    const { practicalMarks, theoryMarks, feedback } = req.body;
+
+    await this.mentorAvailability.editCompletedReview(
+      mentorId,
+      new Date(date),
+      timeSlotId,
+      { practical: practicalMarks, theory: theoryMarks },
+      feedback
+    );
+    res.status(201).json({ message: "Review updated" });
   });
 }

@@ -106,10 +106,7 @@ export function Courses() {
                     <Clock className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-500">{course.courseData.duration} weeks</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: `10%` }}></div>
-                  </div>
-                  <p className="text-right text-xs text-gray-500 mt-1">{10}% complete</p>
+                  
                 </div>
               </div>
             ))}

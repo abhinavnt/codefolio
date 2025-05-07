@@ -1,4 +1,3 @@
-"use client"
 
 import { useEffect, useState } from "react"
 import axiosInstance from "@/utils/axiosInstance"
@@ -42,6 +41,7 @@ interface Task {
 }
 
 interface CourseData {
+  _id: string
   title: string
   description: string
   category: string
@@ -95,14 +95,14 @@ export function UserCourseTasks() {
         const sortedTasks = tasksResponse.data.sort((a: Task, b: Task) => a.order - b.order)
         setTasks(sortedTasks)
 
-        const courseResponse = await axiosInstance.get(`/api/course/enrolled-courses/admin`, {
-          params: { userId, courseId },
-        })
-        if (courseResponse.data.courses.length > 0) {
-          const courseData = courseResponse.data.courses[0]
-          setCourse(courseData.courseData)
-          setUser({ name: courseData.userId.name, email: courseData.userId.email })
-        }
+        const courseResponse = await axiosInstance.get(`/api/course/enrolled-courses/${courseId}/${userId}/admin`)
+        console.log(courseResponse, "course responses from new controler");
+
+
+
+        setCourse(courseResponse.data.courseData)
+        setUser({ name: courseResponse.data.userId.name, email: courseResponse.data.userId.email })
+
 
         const completedCount = sortedTasks.filter((task: Task) => task.completed).length
         const percentage = sortedTasks.length > 0 ? Math.round((completedCount / sortedTasks.length) * 100) : 0
@@ -180,8 +180,7 @@ export function UserCourseTasks() {
   const confirmBookSlot = async () => {
     if (!slotToBook) return
     try {
-      // Use the already normalized date (YYYY-MM-DD format)
-      const formattedDate = slotToBook.date // Already in YYYY-MM-DD format (e.g., "2025-05-07")
+      const formattedDate = slotToBook.date
       const payload = {
         mentorId: slotToBook.mentorId,
         userId,
@@ -570,11 +569,10 @@ export function UserCourseTasks() {
                         <button
                           key={date}
                           onClick={() => handleDateFilter(date)}
-                          className={`px-4 py-2 rounded-md whitespace-nowrap text-sm ${
-                            selectedDate === date
-                              ? "bg-green-500 text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
+                          className={`px-4 py-2 rounded-md whitespace-nowrap text-sm ${selectedDate === date
+                            ? "bg-green-500 text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            }`}
                         >
                           {formatDate(date)}
                         </button>
@@ -626,11 +624,10 @@ export function UserCourseTasks() {
                         <button
                           onClick={() => slotsCurrentPage > 1 && paginateSlots(slotsCurrentPage - 1)}
                           disabled={slotsCurrentPage === 1}
-                          className={`p-2 rounded-full ${
-                            slotsCurrentPage === 1
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "text-gray-700 hover:bg-gray-100"
-                          }`}
+                          className={`p-2 rounded-full ${slotsCurrentPage === 1
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "text-gray-700 hover:bg-gray-100"
+                            }`}
                         >
                           <ChevronLeft className="w-5 h-5" />
                         </button>
@@ -640,11 +637,10 @@ export function UserCourseTasks() {
                             <button
                               key={number}
                               onClick={() => paginateSlots(number)}
-                              className={`w-8 h-8 flex items-center justify-center rounded-full text-sm ${
-                                slotsCurrentPage === number
-                                  ? "bg-green-500 text-white"
-                                  : "text-gray-700 hover:bg-gray-100"
-                              }`}
+                              className={`w-8 h-8 flex items-center justify-center rounded-full text-sm ${slotsCurrentPage === number
+                                ? "bg-green-500 text-white"
+                                : "text-gray-700 hover:bg-gray-100"
+                                }`}
                             >
                               {number}
                             </button>
@@ -654,11 +650,10 @@ export function UserCourseTasks() {
                         <button
                           onClick={() => slotsCurrentPage < totalSlotsPages && paginateSlots(slotsCurrentPage + 1)}
                           disabled={slotsCurrentPage === totalSlotsPages}
-                          className={`p-2 rounded-full ${
-                            slotsCurrentPage === totalSlotsPages
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "text-gray-700 hover:bg-gray-100"
-                          }`}
+                          className={`p-2 rounded-full ${slotsCurrentPage === totalSlotsPages
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "text-gray-700 hover:bg-gray-100"
+                            }`}
                         >
                           <ChevronRight className="w-5 h-5" />
                         </button>

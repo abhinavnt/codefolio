@@ -16,7 +16,7 @@ router.get("/enrolled-courses", authMiddleware([UserRole.USER, UserRole.ADMIN]),
 
 router.get("/course-tasks/:courseId", authMiddleware([UserRole.USER, UserRole.ADMIN]), courseController.getUserCourseTasks);
 
-router.put('/course-tasks/:taskId/complete',authMiddleware([UserRole.USER]),courseController.markTaskAsComplete)
+router.put("/course-tasks/:taskId/complete", authMiddleware([UserRole.USER]), courseController.markTaskAsComplete);
 
 //its not using
 router.put("/tasks/:id", authMiddleware([UserRole.ADMIN]), courseController.updateTask);
@@ -30,9 +30,10 @@ router.get("/courses/:id/edit", authMiddleware([UserRole.ADMIN]), courseControll
 
 router.put("/courses/:id", authMiddleware([UserRole.ADMIN]), upload.fields([{ name: "image", maxCount: 1 }]), courseController.updateCourseAdmin);
 
- router.get("/enrolled-courses/admin",authMiddleware([UserRole.ADMIN]),courseController.getAllPurchasedCoursesAdmin)
+router.get("/enrolled-courses/admin", authMiddleware([UserRole.ADMIN]), courseController.getAllPurchasedCoursesAdmin);
 
- router.get("/enrolled-courses/:userId/:courseId/tasks",authMiddleware([UserRole.ADMIN]),courseController.getUserTasksAdmin)
+router.get("/enrolled-courses/:userId/:courseId/tasks", authMiddleware([UserRole.ADMIN]), courseController.getUserTasksAdmin);
 
+router.get("/enrolled-courses/:courseId/:userId/admin", authMiddleware([UserRole.ADMIN]), courseController.findPurchasedCourseById);
 
 export default router;

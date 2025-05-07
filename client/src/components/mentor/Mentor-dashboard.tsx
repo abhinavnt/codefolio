@@ -7,7 +7,7 @@ import { Availability } from "./Availability"
 // import { MainDashboa } 
 import { Bookings } from "./Bookings" 
 import { Wallet } from "./Wallet" 
-import { UpcomingReviews } from "./Upcomming-review" 
+import { MentorReviews } from "./Upcomming-review" 
 import { ConductedReviews } from "./Conducted-reviews" 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { IMentor } from "@/types/mentor"
@@ -69,7 +69,7 @@ export function MentorDashboard() {
             <MainDashboard mentor={mentor} />
           </TabsContent>
           <TabsContent value="upcoming">
-            <UpcomingReviews />
+            <MentorReviews />
           </TabsContent>
           <TabsContent value="conducted">
             <ConductedReviews />

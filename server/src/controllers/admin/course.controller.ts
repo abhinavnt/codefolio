@@ -1,16 +1,12 @@
 import { inject, injectable } from "inversify";
 import cloudinary from "../../config/cloudinary";
 import { ICourseController } from "../../core/interfaces/controller/ICourseController";
-import { courseService } from "../../services/course.service";
-import { Request, RequestHandler, Response } from "express";
+import { Request, Response } from "express";
 import { TYPES } from "../../di/types";
 import { ICourseService } from "../../core/interfaces/service/ICourseService";
 import asyncHandler from "express-async-handler";
-import { ParamsDictionary } from "express-serve-static-core";
-import { ParsedQs } from "qs";
 import { ITask } from "../../models/Tasks";
 import { ICourse } from "../../models/Course";
-// const CourseService = new courseService();
 
 @injectable()
 export class CourseController implements ICourseController {
@@ -244,9 +240,18 @@ export class CourseController implements ICourseController {
     res.json({ courses, total });
   });
 
-  getUserTasksAdmin=asyncHandler(async(req:Request,res:Response)=>{
-    const { userId, courseId } = req.params
+  getUserTasksAdmin = asyncHandler(async (req: Request, res: Response) => {
+    const { userId, courseId } = req.params;
     const tasks = await this.courseService.findTaskByUserIdAndCourseId(userId, courseId);
     res.status(200).json(tasks);
-  })
+  });
+
+  findPurchasedCourseById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    console.log("reached new controller");
+
+    const { courseId, userId } = req.params;
+    const course = await this.courseService.findCourseById(courseId, userId);
+
+    res.status(200).json(course);
+  });
 }

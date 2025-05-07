@@ -16,4 +16,13 @@ export interface IPurchasedTaskRepository{
         taskId: string,
         update: { $set?: Partial<IPurchasedCourseTask>; $push?: { attempts: { submissionDate: Date; startTime: string; endTime: string,reviewDate:string } } }
       ): Promise<IPurchasedCourseTask | null>
+
+      updateTaskReview(
+        taskId: string,
+        startTime: string,
+        endTime: string,
+        mentorId: string,
+        theoryMarks: number,
+        practicalMarks: number
+      ): Promise<void>
 }

@@ -9,4 +9,5 @@ export interface IPurchaseCourseRepository {
     courseFilter?: string,
     statusFilter?: string
   ): Promise<{ courses: ICoursePurchased[]; total: number }>;
+  findCourseById(courseId:string,userId:string):Promise<ICoursePurchased|null>
 }

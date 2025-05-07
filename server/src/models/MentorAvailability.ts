@@ -1,15 +1,17 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ITimeSlot {
+  _id?: mongoose.Types.ObjectId
   startTime: string;
   endTime: string;
   booked: boolean;
-  userId?: string; // Reference to the user who booked the slot
-  taskId?: string; // Reference to the task associated with the booking
-  practicalMarks?: number; // Marks for practical assessment
-  theoryMarks?: number; // Marks for theoretical assessment
-  feedback?: string; // Feedback provided by the mentor
+  userId?: string;
+  taskId?: string;
+  practicalMarks?: number;
+  theoryMarks?: number;
+  feedback?: string;
   roomId?: string;
+  status?: 'upcoming' | 'completed' | 'canceled';
 }
 
 export interface ISpecificDateAvailability {
@@ -32,6 +34,7 @@ const TimeSlotSchema = new Schema({
   theoryMarks: { type: Number },
   feedback: { type: String },
   roomId: { type: String },
+  status: { type: String, enum: ['upcoming', 'completed', 'canceled'], default: 'upcoming' },
 });
 
 const SpecificDateAvailabilitySchema = new Schema({
