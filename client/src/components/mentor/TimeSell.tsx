@@ -18,16 +18,13 @@ import {
     Edit,
     InfoIcon,
     Plus,
-    Save,
     Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
-import {
-    addMentorSpecificDateAvailability,
-    editMentorSpecificDateAvailability,
-    fetchMentorSpecificDateAvailability,
-} from "@/services/mentorSpecificDateService"
+import { fetchMentorSpecificDateAvailability } from "@/services/mentorSpecificDateService"
 import { type RootState, useAppSelector } from "@/redux/store"
+import axiosInstance from "@/utils/axiosInstance"
+
 
 interface TimeSlot {
     id: string
@@ -43,30 +40,9 @@ interface SpecificDateAvailability {
 }
 
 const timeOptions = [
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-    "18:30",
-    "19:00",
-    "19:30",
+    "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+    "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
 ]
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -82,7 +58,6 @@ export function SpecificDateAvailabilityScheduler() {
     const [endTimeError, setEndTimeError] = useState<string | null>(null)
     const [timeSlotError, setTimeSlotError] = useState<string | null>(null)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
-    const [showSaveConfirmation, setShowSaveConfirmation] = useState(false)
     const [timeSlotToDelete, setTimeSlotToDelete] = useState<string | null>(null)
     const [mentorId, setMentorId] = useState<string | null>(null)
     const [currentWeekStart, setCurrentWeekStart] = useState<Date>(startOfWeek(new Date()))
@@ -104,16 +79,21 @@ export function SpecificDateAvailabilityScheduler() {
                 const response = await fetchMentorSpecificDateAvailability(mentorId)
                 if (!response) return
 
-                const specificDates = response.data.map((entry: any) => ({
-                    _id: entry._id,
-                    date: new Date(entry.specificDateAvailability.date),
-                    timeSlots: entry.specificDateAvailability.timeSlots.map((slot: any) => ({
-                        id: Date.now().toString() + Math.random(),
-                        startTime: slot.startTime,
-                        endTime: slot.endTime,
-                        booked: slot.booked,
-                    })),
-                }))
+                const specificDates = response.data.map((entry: any) => {
+                    const normalizedDate = new Date(
+                        new Date(entry.specificDateAvailability.date).toISOString().split("T")[0] + "T00:00:00.000Z"
+                    )
+                    return {
+                        _id: entry._id,
+                        date: normalizedDate,
+                        timeSlots: entry.specificDateAvailability.timeSlots.map((slot: any) => ({
+                            id: slot._id.toString(), // Use MongoDB _id
+                            startTime: slot.startTime,
+                            endTime: slot.endTime,
+                            booked: slot.booked,
+                        })),
+                    }
+                })
                 setAvailabilityData(specificDates)
             } catch (error) {
                 console.error("Error fetching specific date availability:", error)
@@ -195,62 +175,97 @@ export function SpecificDateAvailabilityScheduler() {
         return true
     }
 
-    const handleAddTimeSlot = () => {
+    const handleAddTimeSlot = async () => {
         if (!selectedDate || isBefore(selectedDate, new Date())) {
             toast.error("Cannot add time slots for past dates")
             return
         }
-
         if (!validateTimeSelection(newStartTime, newEndTime, selectedDate)) {
             return
         }
-
-        const newTimeSlot: TimeSlot = {
-            id: Date.now().toString(),
-            startTime: newStartTime,
-            endTime: newEndTime,
-            booked: false,
+        const newTimeSlot = { startTime: newStartTime, endTime: newEndTime, booked: false }
+        try {
+            const response = await axiosInstance.post("/api/mentor-availability/add-time-slot", {
+                mentorId,
+                date: selectedDate.toISOString(),
+                timeSlot: newTimeSlot,
+            })
+            const result = response.data
+            setAvailabilityData((prev) => {
+                const existingDayIndex = prev.findIndex((day) => isSameDay(day.date, selectedDate))
+                const normalizedDate = new Date(
+                    result.data.specificDateAvailability.date.toString().split("T")[0] + "T00:00:00.000Z"
+                )
+                const updatedTimeSlots = result.data.specificDateAvailability.timeSlots.map((slot: any) => ({
+                    id: slot._id.toString(),
+                    startTime: slot.startTime,
+                    endTime: slot.endTime,
+                    booked: slot.booked,
+                }))
+                if (existingDayIndex >= 0) {
+                    return prev.map((day, index) =>
+                        index === existingDayIndex
+                            ? { ...day, timeSlots: updatedTimeSlots }
+                            : day
+                    )
+                } else {
+                    return [
+                        ...prev,
+                        {
+                            _id: result.data._id,
+                            date: normalizedDate,
+                            timeSlots: updatedTimeSlots,
+                        },
+                    ]
+                }
+            })
+            setIsDialogOpen(false)
+            toast.success("Time slot added successfully")
+        } catch (error: any) {
+            console.error("Error adding time slot:", error)
+            toast.error(error.response?.data?.error || "Failed to add time slot")
         }
-
-        const existingDayIndex = availabilityData.findIndex((day) => isSameDay(day.date, selectedDate))
-        if (existingDayIndex >= 0) {
-            const updatedData = [...availabilityData]
-            updatedData[existingDayIndex] = {
-                ...updatedData[existingDayIndex],
-                timeSlots: [...updatedData[existingDayIndex].timeSlots, newTimeSlot],
-            }
-            setAvailabilityData(updatedData)
-        } else {
-            setAvailabilityData([...availabilityData, { date: selectedDate, timeSlots: [newTimeSlot] }])
-        }
-        setIsDialogOpen(false)
     }
 
-    const handleEditTimeSlot = () => {
+    const handleEditTimeSlot = async () => {
         if (!selectedDate || !editingTimeSlot || editingTimeSlot.booked) {
             toast.error("Cannot edit booked time slots")
             return
         }
-
         if (!validateTimeSelection(newStartTime, newEndTime, selectedDate, editingTimeSlot.id)) {
             return
         }
-
-        const dayIndex = availabilityData.findIndex((day) => isSameDay(day.date, selectedDate))
-        if (dayIndex >= 0) {
-            const updatedData = [...availabilityData]
-            const timeSlotIndex = updatedData[dayIndex].timeSlots.findIndex((slot) => slot.id === editingTimeSlot.id)
-            if (timeSlotIndex >= 0) {
-                updatedData[dayIndex].timeSlots[timeSlotIndex] = {
-                    ...editingTimeSlot,
-                    startTime: newStartTime,
-                    endTime: newEndTime,
-                }
-                setAvailabilityData(updatedData)
-            }
+        const updatedTimeSlot = { startTime: newStartTime, endTime: newEndTime, booked: editingTimeSlot.booked }
+        try {
+            const response = await axiosInstance.post("/api/mentor-availability/edit-time-slot", {
+                mentorId,
+                date: selectedDate.toISOString(),
+                timeSlotId: editingTimeSlot.id,
+                timeSlot: updatedTimeSlot,
+            })
+            const result = response.data
+            setAvailabilityData((prev) =>
+                prev.map((day) =>
+                    isSameDay(day.date, selectedDate)
+                        ? {
+                              ...day,
+                              timeSlots: result.data.specificDateAvailability.timeSlots.map((slot: any) => ({
+                                  id: slot._id.toString(),
+                                  startTime: slot.startTime,
+                                  endTime: slot.endTime,
+                                  booked: slot.booked,
+                              })),
+                          }
+                        : day
+                )
+            )
+            setIsDialogOpen(false)
+            setEditingTimeSlot(null)
+            toast.success("Time slot updated successfully")
+        } catch (error: any) {
+            console.error("Error editing time slot:", error)
+            toast.error(error.response?.data?.error || "Failed to edit time slot")
         }
-        setIsDialogOpen(false)
-        setEditingTimeSlot(null)
     }
 
     const openEditDialog = (timeSlot: TimeSlot) => {
@@ -267,29 +282,38 @@ export function SpecificDateAvailabilityScheduler() {
         setIsDialogOpen(true)
     }
 
-    const confirmDeleteTimeSlot = () => {
+    const confirmDeleteTimeSlot = async () => {
         if (!selectedDate || !timeSlotToDelete) return
-
-        const dayIndex = availabilityData.findIndex((day) => isSameDay(day.date, selectedDate))
-        if (dayIndex >= 0) {
-            const timeSlot = availabilityData[dayIndex].timeSlots.find((slot) => slot.id === timeSlotToDelete)
-            if (timeSlot?.booked) {
-                toast.error("Cannot delete booked time slots")
-                return
-            }
-
-            const updatedData = [...availabilityData]
-            updatedData[dayIndex] = {
-                ...updatedData[dayIndex],
-                timeSlots: updatedData[dayIndex].timeSlots.filter((slot) => slot.id !== timeSlotToDelete),
-            }
-            if (updatedData[dayIndex].timeSlots.length === 0) {
-                updatedData.splice(dayIndex, 1)
-            }
-            setAvailabilityData(updatedData)
+        try {
+            const response = await axiosInstance.post("/api/mentor-availability/delete-time-slot", {
+                mentorId,
+                date: selectedDate.toISOString(),
+                timeSlotId: timeSlotToDelete,
+            })
+            const result = response.data
+            setAvailabilityData((prev) => {
+                const updated = prev.map((day) =>
+                    isSameDay(day.date, selectedDate)
+                        ? {
+                              ...day,
+                              timeSlots: result.data.specificDateAvailability.timeSlots.map((slot: any) => ({
+                                  id: slot._id.toString(),
+                                  startTime: slot.startTime,
+                                  endTime: slot.endTime,
+                                  booked: slot.booked,
+                              })),
+                          }
+                        : day
+                )
+                return updated.filter((day) => day.timeSlots.length > 0 || !isSameDay(day.date, selectedDate))
+            })
+            setShowDeleteConfirmation(false)
+            setTimeSlotToDelete(null)
+            toast.success("Time slot deleted successfully")
+        } catch (error: any) {
+            console.error("Error deleting time slot:", error)
+            toast.error(error.response?.data?.error || "Failed to delete time slot")
         }
-        setShowDeleteConfirmation(false)
-        setTimeSlotToDelete(null)
     }
 
     const openAddDialog = () => {
@@ -361,52 +385,6 @@ export function SpecificDateAvailabilityScheduler() {
         setShowDeleteConfirmation(true)
     }
 
-    const handleSaveAvailability = async () => {
-        if (!mentorId) {
-            toast.error("Mentor ID is missing. Please try again later.")
-            return
-        }
-
-        setIsLoading(true)
-        try {
-            const specificDateAvailability = availabilityData.map((day) => ({
-                _id: day._id,
-                date: day.date,
-                timeSlots: day.timeSlots.map((slot) => ({
-                    startTime: slot.startTime,
-                    endTime: slot.endTime,
-                    booked: slot.booked,
-                })),
-            }))
-
-            // Separate new and existing entries
-            const newEntries = specificDateAvailability.filter((day) => !day._id)
-            const existingEntries = specificDateAvailability.filter((day) => day._id)
-
-            // Handle new entries
-            if (newEntries.length > 0) {
-                await addMentorSpecificDateAvailability(mentorId, newEntries)
-            }
-
-            // Handle existing entries
-            for (const entry of existingEntries) {
-                await editMentorSpecificDateAvailability(entry._id!, {
-                    date: entry.date,
-                    timeSlots: entry.timeSlots,
-                })
-            }
-
-            toast.success("Specific date availability updated successfully")
-            setShowSaveConfirmation(false)
-        } catch (error) {
-            console.error("Error saving specific date availability:", error)
-            toast.error("Error saving availability. Please check your connection and try again.")
-            setShowSaveConfirmation(false)
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
     const getAvailableDates = () => {
         return availabilityData.map((day) => format(day.date, "yyyy-MM-dd"))
     }
@@ -461,15 +439,6 @@ export function SpecificDateAvailabilityScheduler() {
                         <h1 className="text-3xl font-bold text-gray-900">Availability Schedule for Official Reviews</h1>
                         <p className="text-gray-600 mt-2">Manage your mentoring session time slots</p>
                     </div>
-                    <Button
-                        onClick={() => setShowSaveConfirmation(true)}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-md shadow-sm flex items-center gap-2 transition-all duration-200"
-                        disabled={availabilityData.length === 0 || isLoading}
-                    >
-                        <Save className="h-4 w-4" />
-                        Save Changes
-                        {isLoading && <span className="ml-2 animate-spin">⏳</span>}
-                    </Button>
                 </div>
 
                 {/* Main Content */}
@@ -536,17 +505,21 @@ export function SpecificDateAvailabilityScheduler() {
                                     return (
                                         <div
                                             key={index}
-                                            className={`aspect-square flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all ${isSelected
+                                            className={`aspect-square flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all ${
+                                                isSelected
                                                     ? "bg-emerald-500 text-white"
                                                     : isToday
-                                                        ? "bg-emerald-100 text-emerald-800"
-                                                        : isPast
-                                                            ? "opacity-50 bg-gray-100 text-gray-400"
-                                                            : "hover:bg-emerald-50 text-gray-700"
-                                                }`}
+                                                    ? "bg-emerald-100 text-emerald-800"
+                                                    : isPast
+                                                    ? "opacity-50 bg-gray-100 text-gray-400"
+                                                    : "hover:bg-emerald-50 text-gray-700"
+                                            }`}
                                             onClick={() => {
                                                 if (!isPast || isToday) {
-                                                    setSelectedDate(date)
+                                                    const normalizedSelectedDate = new Date(
+                                                        date.toISOString().split("T")[0] + "T00:00:00.000Z"
+                                                    )
+                                                    setSelectedDate(normalizedSelectedDate)
                                                 } else {
                                                     toast.error("Cannot select dates in the past")
                                                 }
@@ -666,23 +639,30 @@ export function SpecificDateAvailabilityScheduler() {
                                                                 .map((timeSlot) => (
                                                                     <div
                                                                         key={timeSlot.id}
-                                                                        className={`relative group p-4 rounded-lg border ${timeSlot.booked
+                                                                        className={`relative group p-4 rounded-lg border ${
+                                                                            timeSlot.booked
                                                                                 ? "bg-amber-50 border-amber-200"
                                                                                 : "bg-white border-gray-200 hover:border-emerald-300"
-                                                                            } transition-all duration-200 shadow-sm`}
+                                                                        } transition-all duration-200 shadow-sm`}
                                                                     >
                                                                         <div className="flex items-center justify-between">
                                                                             <div className="flex items-center gap-3">
                                                                                 <div
-                                                                                    className={`p-2 rounded-full ${timeSlot.booked ? "bg-amber-100" : "bg-emerald-100"}`}
+                                                                                    className={`p-2 rounded-full ${
+                                                                                        timeSlot.booked ? "bg-amber-100" : "bg-emerald-100"
+                                                                                    }`}
                                                                                 >
                                                                                     <Clock
-                                                                                        className={`h-4 w-4 ${timeSlot.booked ? "text-amber-600" : "text-emerald-600"}`}
+                                                                                        className={`h-4 w-4 ${
+                                                                                            timeSlot.booked ? "text-amber-600" : "text-emerald-600"
+                                                                                        }`}
                                                                                     />
                                                                                 </div>
                                                                                 <div>
                                                                                     <div
-                                                                                        className={`font-medium ${timeSlot.booked ? "text-amber-800" : "text-gray-800"}`}
+                                                                                        className={`font-medium ${
+                                                                                            timeSlot.booked ? "text-amber-800" : "text-gray-800"
+                                                                                        }`}
                                                                                     >
                                                                                         {timeSlot.startTime} - {timeSlot.endTime}
                                                                                     </div>
@@ -692,7 +672,7 @@ export function SpecificDateAvailabilityScheduler() {
                                                                                         hour
                                                                                         {Number.parseInt(timeSlot.endTime.split(":")[0]) -
                                                                                             Number.parseInt(timeSlot.startTime.split(":")[0]) !==
-                                                                                            1
+                                                                                        1
                                                                                             ? "s"
                                                                                             : ""}
                                                                                         {timeSlot.endTime.split(":")[1] !== timeSlot.startTime.split(":")[1] &&
@@ -701,7 +681,9 @@ export function SpecificDateAvailabilityScheduler() {
                                                                                 </div>
                                                                             </div>
                                                                             {timeSlot.booked ? (
-                                                                                <Badge className="bg-amber-100 text-amber-800 border-amber-200">Booked</Badge>
+                                                                                <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                                                                                    Booked
+                                                                                </Badge>
                                                                             ) : (
                                                                                 <div className="flex gap-1">
                                                                                     <Button
@@ -912,43 +894,6 @@ export function SpecificDateAvailabilityScheduler() {
                         </Button>
                         <Button variant="destructive" onClick={confirmDeleteTimeSlot} className="bg-red-600 hover:bg-red-700">
                             Delete
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            {/* Save Confirmation Dialog */}
-            <Dialog
-                open={showSaveConfirmation}
-                onOpenChange={(open) => {
-                    setShowSaveConfirmation(open)
-                }}
-            >
-                <DialogContent className="sm:max-w-[425px] rounded-lg">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl text-emerald-700">Save Availability</DialogTitle>
-                        <DialogDescription className="text-gray-600">
-                            Are you sure you want to save your availability settings?
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-100 my-4">
-                        <div className="flex items-center">
-                            <InfoIcon className="h-5 w-5 text-emerald-600 mr-2" />
-                            <p className="text-emerald-700">This will update your availability for the selected dates.</p>
-                        </div>
-                    </div>
-                    <DialogFooter className="gap-2 sm:gap-0">
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                setShowSaveConfirmation(false)
-                            }}
-                            className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                        >
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSaveAvailability} className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                            Save
                         </Button>
                     </DialogFooter>
                 </DialogContent>

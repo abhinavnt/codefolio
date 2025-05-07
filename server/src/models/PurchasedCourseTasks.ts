@@ -16,6 +16,9 @@ export interface IPurchasedCourseTask extends Document {
   reviewScheduled: boolean;
   attempts: {
     submissionDate: Date;
+    startTime: string; 
+    endTime: string;
+    reviewDate:string;
     review?: {
       mentorId: Types.ObjectId;
       theoryMarks: number;
@@ -47,6 +50,9 @@ const purchasedCourseTasksSchema = new Schema<IPurchasedCourseTask>(
     attempts: [
       {
         submissionDate: { type: Date, required: true },
+        startTime: { type: String, required: true },
+        endTime: { type: String, required: true },
+        reviewDate:{type:String,required:true},
         review: {
           mentorId: { type: Schema.Types.ObjectId, ref: "Mentor" },
           theoryMarks: { type: Number },

@@ -1,9 +1,11 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect, useState } from "react"
 import axiosInstance from "@/utils/axiosInstance"
-import { ArrowLeft, CheckCircle, Clock, FileText, Lock, Play, Star, X } from "lucide-react"
-import { Link, useParams } from "react-router-dom"
+import { ArrowLeft, CheckCircle, Clock, FileText, Lock, Play, Star, X, Calendar } from "lucide-react"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import {
   Pagination,
   PaginationContent,
@@ -22,11 +24,17 @@ interface Task {
   lessons: string[]
   order: number
   duration: string
-  status: "PASS" | "FAIL"
+  status: "active" | "inactive"
+  reviewStatus: "PASS" | "FAIL"
   resources: string[]
   completed: boolean
+  reviewScheduled: boolean
+  meetId?: string
   attempts: {
     submissionDate: Date
+    startTime: string
+    endTime: string
+    reviewDate: string
     review?: {
       mentorId: string
       theoryMarks: number
@@ -55,28 +63,27 @@ export function CourseTasks() {
   const [loading, setLoading] = useState(true)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [completionPercentage, setCompletionPercentage] = useState(0)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
-
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false)
+  const [completionPercentage, setCompletionPercentage] = useState(0)
+  const navigate = useNavigate()
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
   const tasksPerPage = 9
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const tasksResponse = await axiosInstance.get(`/api/course/course-tasks/${courseId}`)
-
         const courseResponse = await axiosInstance.get(`/api/user/course/${courseId}`)
         setCourse(courseResponse.data.course)
-        console.log(courseResponse.data, "course from course respons")
-
-        console.log(course, "course from tasks page")
+        console.log(courseResponse.data, "course from course response")
 
         const sortedTasks = tasksResponse.data.sort((a: Task, b: Task) => a.order - b.order)
         setTasks(sortedTasks)
 
-        // ompletion percentage
+        // Completion percentage
         const completedCount = sortedTasks.filter((task: Task) => task.completed).length
         const percentage = sortedTasks.length > 0 ? Math.round((completedCount / sortedTasks.length) * 100) : 0
         setCompletionPercentage(percentage)
@@ -90,12 +97,10 @@ export function CourseTasks() {
     fetchData()
   }, [courseId])
 
-  const isTaskUnlocked = (task: Task, allTasks: Task[]): boolean=> {
+  const isTaskUnlocked = (task: Task, allTasks: Task[]): boolean => {
     if (task.order === 1) return true
-
-    // Check if all previous tasks have PASS status
     const previousTasks = allTasks.filter((t) => t.order < task.order)
-    return previousTasks.every((t) => t.status === "PASS")
+    return previousTasks.every((t) => t.reviewStatus === "PASS")
   }
 
   const handleTaskClick = (task: Task) => {
@@ -117,6 +122,15 @@ export function CourseTasks() {
     setIsConfirmModalOpen(false)
   }
 
+  const openScheduleModal = (task: Task) => {
+    setSelectedTask(task)
+    setIsScheduleModalOpen(true)
+  }
+
+  const closeScheduleModal = () => {
+    setIsScheduleModalOpen(false)
+  }
+
   const handleMarkAsComplete = async () => {
     if (!selectedTask) return
     closeConfirmModal()
@@ -130,6 +144,29 @@ export function CourseTasks() {
     } catch (error) {
       console.error("Error marking task as complete:", error)
     }
+  }
+
+  const handleJoinMeet = (meetId: string) => {
+    console.log("Joining meet with ID:", meetId)
+
+    navigate(`/video-call/${meetId}`)
+  }
+
+  const getLatestAttempt = (task: Task) => {
+    if (task.attempts && task.attempts.length > 0) {
+      return task.attempts[task.attempts.length - 1]
+    }
+    return null
+  }
+
+  const openDetailsModal = (task: Task, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSelectedTask(task)
+    setIsDetailsModalOpen(true)
+  }
+
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false)
   }
 
   // Pagination
@@ -191,16 +228,6 @@ export function CourseTasks() {
                   <span className="text-sm text-gray-500">{course.category}</span>
                 </div>
               </div>
-
-              {/* <div className="mt-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Course Progress</span>
-                  <span className="text-sm font-medium">{completionPercentage}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${completionPercentage}%` }}></div>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>
@@ -210,6 +237,7 @@ export function CourseTasks() {
         {currentTasks.map((task) => {
           const isUnlocked = isTaskUnlocked(task, tasks)
           const weekNumber = task.order
+          const latestAttempt = getLatestAttempt(task)
 
           return (
             <div
@@ -218,13 +246,13 @@ export function CourseTasks() {
               className={`
                 bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300
                 ${isUnlocked ? "hover:shadow-lg transform hover:-translate-y-1 cursor-pointer" : "opacity-80 cursor-not-allowed"}
-                ${task.status === "PASS" ? "border-l-4 border-green-500" : isUnlocked ? "border-l-4 border-yellow-400" : "border-l-4 border-gray-300"}
+                ${task.reviewStatus === "PASS" ? "border-l-4 border-green-500" : isUnlocked ? "border-l-4 border-yellow-400" : "border-l-4 border-gray-300"}
               `}
             >
               <div className="p-5">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-medium text-lg">Week {weekNumber}</h3>
-                  {task.status === "PASS" ? (
+                  {task.reviewStatus === "PASS" ? (
                     <div className="bg-green-100 p-1 rounded-full">
                       <CheckCircle className="w-5 h-5 text-green-500" />
                     </div>
@@ -249,15 +277,22 @@ export function CourseTasks() {
                   </div>
 
                   <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      task.status === "PASS"
+                    className={`text-xs px-2 py-1 rounded-full ${task.reviewStatus === "PASS"
                         ? "bg-green-100 text-green-800"
-                        : isUnlocked
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
-                    }`}
+                        : task.reviewScheduled
+                          ? "bg-blue-100 text-blue-800"
+                          : isUnlocked
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-gray-100 text-gray-800"
+                      }`}
                   >
-                    {task.status === "PASS" ? "Passed" : isUnlocked ? "In Progress" : "Locked"}
+                    {task.reviewStatus === "PASS"
+                      ? "Passed"
+                      : task.reviewScheduled
+                        ? "Review Scheduled"
+                        : isUnlocked
+                          ? "In Progress"
+                          : "Locked"}
                   </span>
                 </div>
 
@@ -281,6 +316,48 @@ export function CourseTasks() {
                     </div>
                   )}
                 </div>
+
+                {/* Show Review Schedule and Join Meet Button if reviewScheduled is true */}
+                {task.reviewScheduled && latestAttempt && (
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openScheduleModal(task)
+                        }}
+                        className="flex items-center gap-1 text-blue-500 hover:underline text-sm"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        View Review Schedule
+                      </button>
+                      {task.meetId && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleJoinMeet(task.meetId!)
+                          }}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
+                        >
+                          Join Meet
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Show Details button if task is completed but review is not scheduled */}
+                {task.completed && !task.reviewScheduled && (
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <button
+                      onClick={(e) => openDetailsModal(task, e)}
+                      className="flex items-center gap-1 text-green-500 hover:underline text-sm"
+                    >
+                      <FileText className="w-4 h-4" />
+                      View Details
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )
@@ -344,6 +421,7 @@ export function CourseTasks() {
         </div>
       )}
 
+      {/* Task Details Modal */}
       {isModalOpen && selectedTask && (
         <div
           className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
@@ -421,7 +499,7 @@ export function CourseTasks() {
                 </button>
               )}
 
-              {isTaskUnlocked(selectedTask, tasks) && selectedTask.completed && selectedTask.status !== "PASS" && (
+              {isTaskUnlocked(selectedTask, tasks) && selectedTask.completed && selectedTask.reviewStatus !== "PASS" && (
                 <div className="bg-blue-50 border border-blue-200 rounded-md p-4 flex items-center gap-3">
                   <Clock className="w-5 h-5 text-blue-500" />
                   <p className="text-blue-700">Review scheduling soon. Your submission is being processed.</p>
@@ -432,6 +510,49 @@ export function CourseTasks() {
         </div>
       )}
 
+      {/* Review Schedule Modal */}
+      {isScheduleModalOpen && selectedTask && (
+        <div
+          className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
+          onClick={closeScheduleModal}
+        >
+          <div className="bg-white rounded-lg max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Review Schedule</h3>
+              <button onClick={closeScheduleModal} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            {selectedTask.attempts.length > 0 ? (
+              (() => {
+                const latestAttempt = selectedTask.attempts[selectedTask.attempts.length - 1]
+                return (
+                  <div>
+                    <p className="text-gray-600 mb-2">
+                      <strong>Date:</strong> {latestAttempt.reviewDate}
+                    </p>
+                    <p className="text-gray-600 mb-4">
+                      <strong>Time:</strong> {latestAttempt.startTime} - {latestAttempt.endTime}
+                    </p>
+                    {selectedTask.meetId && (
+                      <button
+                        onClick={() => handleJoinMeet(selectedTask.meetId!)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md w-full"
+                      >
+                        Join Meet
+                      </button>
+                    )}
+                  </div>
+                )
+              })()
+            ) : (
+              <p className="text-gray-600">No review scheduled yet.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Completion Modal */}
       {isConfirmModalOpen && (
         <div
           className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
@@ -456,6 +577,78 @@ export function CourseTasks() {
                 Confirm
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Details Modal */}
+      {isDetailsModalOpen && selectedTask && (
+        <div
+          className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
+          onClick={closeDetailsModal}
+        >
+          <div className="bg-white rounded-lg max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Task Details</h3>
+              <button onClick={closeDetailsModal} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {selectedTask.attempts.length > 0 ? (
+              (() => {
+                const latestAttempt = selectedTask.attempts[selectedTask.attempts.length - 1]
+                return (
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-medium mb-2">Submission Details</h4>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Submission Date:</span>{" "}
+                        {new Date(latestAttempt.submissionDate).toLocaleDateString()}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Time Slot:</span> {latestAttempt.startTime} -{" "}
+                        {latestAttempt.endTime}
+                      </p>
+                    </div>
+
+                    {latestAttempt.review ? (
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Review Results</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-white p-3 rounded border">
+                            <p className="text-xs text-gray-500">Theory Marks</p>
+                            <p className="text-lg font-medium">{latestAttempt.review.theoryMarks}</p>
+                          </div>
+                          <div className="bg-white p-3 rounded border">
+                            <p className="text-xs text-gray-500">Practical Marks</p>
+                            <p className="text-lg font-medium">{latestAttempt.review.practicalMarks}</p>
+                          </div>
+                        </div>
+                        <div className="mt-3">
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Result:</span>{" "}
+                            <span
+                              className={latestAttempt.review.result === "pass" ? "text-green-600" : "text-red-600"}
+                            >
+                              {latestAttempt.review.result === "pass" ? "Pass" : "Fail"}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Review Date:</span>{" "}
+                            {new Date(latestAttempt.review.reviewDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-600">No review results available yet.</p>
+                    )}
+                  </div>
+                )
+              })()
+            ) : (
+              <p className="text-gray-600">No submission details available.</p>
+            )}
           </div>
         </div>
       )}

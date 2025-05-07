@@ -223,5 +223,9 @@ export class courseService implements ICourseService {
   async getAllPurchasedCoursesAdmin(page: number, limit: number, search?: string, courseFilter?: string, statusFilter?: string): Promise<{ courses: ICoursePurchased[]; total: number; }> {
     return this.purchaseCourseRepository.findAllCourses(page, limit, search, courseFilter, statusFilter)
   }
+
+  findCourseById(courseId: string,userId:string): Promise<ICoursePurchased | null> {
+      return this.purchaseCourseRepository.findCourseById(courseId,userId)
+  }
   
 }

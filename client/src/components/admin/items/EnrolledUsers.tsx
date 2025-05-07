@@ -81,11 +81,6 @@ export function EnrolledUsers() {
     setCurrentPage(page);
   };
 
-  const getProgress = (course: UserCourse): number => {
-    // Note: This is a placeholder. Actual progress calculation would require task data.
-    // You might need to fetch tasks for each course to calculate accurate progress.
-    return 0; // Replace with actual logic if tasks are pre-fetched
-  };
 
   if (loading) {
     return (
@@ -160,8 +155,6 @@ export function EnrolledUsers() {
                   <TableHead>User</TableHead>
                   <TableHead className="hidden md:table-cell">Course</TableHead>
                   <TableHead className="hidden md:table-cell">Enrollment Date</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -197,34 +190,6 @@ export function EnrolledUsers() {
                           <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                           {new Date(course.paymentDetails.paymentDate).toISOString().split("T")[0]}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
-                            <div
-                              className="bg-emerald-500 h-2.5 rounded-full"
-                              style={{ width: `${getProgress(course)}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm">{getProgress(course)}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            getProgress(course) === 100
-                              ? "secondary"
-                              : getProgress(course) > 0
-                              ? "default"
-                              : "destructive"
-                          }
-                        >
-                          {getProgress(course) === 100
-                            ? "Completed"
-                            : getProgress(course) > 0
-                            ? "Active"
-                            : "Inactive"}
-                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <Link to={`/admin/user-course-tasks/${course.userId._id}/${course.courseId}`}>

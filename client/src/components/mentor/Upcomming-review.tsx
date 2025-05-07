@@ -1,254 +1,287 @@
-"use client"
 
-import { useState } from "react"
+
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, ExternalLink, MessageSquare, User, Video } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import axiosInstance from "@/utils/axiosInstance"
+import { RootState, useAppSelector } from "@/redux/store"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
-interface Student {
+interface Review {
   id: string
-  name: string
-  email: string
-  avatar: string
-  jobTitle: string
-  company: string
-}
-
-interface UpcomingReview {
-  id: string
-  student: Student
   date: string
-  time: string
-  duration: string
-  topic: string
-  type: "resume" | "interview" | "portfolio" | "career"
+  startTime: string
+  endTime: string
+  student: {
+    id: string
+    name: string
+    email: string
+    avatar: string
+    jobTitle: string
+    company: string
+  }
+  task: {
+    id: string
+    title: string
+    type: string
+  }
+  status: "upcoming" | "completed" | "canceled"
+  practicalMarks?: number
+  theoryMarks?: number
+  feedback?: string
   meetingLink?: string
-  notes?: string
-  status: "scheduled" | "confirmed" | "pending"
 }
 
-// Dummy data for upcoming reviews
-const dummyUpcomingReviews: UpcomingReview[] = [
-  {
-    id: "ur1",
-    student: {
-      id: "s1",
-      name: "Alex Johnson",
-      email: "alex.johnson@example.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-      jobTitle: "Frontend Developer",
-      company: "Tech Innovations",
-    },
-    date: "Today",
-    time: "14:30",
-    duration: "45 min",
-    topic: "React Performance Optimization",
-    type: "portfolio",
-    meetingLink: "https://meet.google.com/abc-defg-hij",
-    status: "confirmed",
-  },
-  {
-    id: "ur2",
-    student: {
-      id: "s2",
-      name: "Samantha Lee",
-      email: "samantha.lee@example.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-      jobTitle: "UX Designer",
-      company: "Creative Solutions",
-    },
-    date: "Tomorrow",
-    time: "10:00",
-    duration: "60 min",
-    topic: "Portfolio Review for Senior UX Position",
-    type: "portfolio",
-    meetingLink: "https://zoom.us/j/123456789",
-    status: "confirmed",
-  },
-  {
-    id: "ur3",
-    student: {
-      id: "s3",
-      name: "Michael Chen",
-      email: "michael.chen@example.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-      jobTitle: "Software Engineer",
-      company: "Global Tech",
-    },
-    date: "Oct 25",
-    time: "15:45",
-    duration: "30 min",
-    topic: "Resume Review for FAANG Applications",
-    type: "resume",
-    status: "scheduled",
-  },
-  {
-    id: "ur4",
-    student: {
-      id: "s4",
-      name: "Emily Rodriguez",
-      email: "emily.rodriguez@example.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-      jobTitle: "Product Manager",
-      company: "Startup Inc.",
-    },
-    date: "Oct 26",
-    time: "11:30",
-    duration: "45 min",
-    topic: "Mock Interview for Senior PM Role",
-    type: "interview",
-    status: "pending",
-  },
-  {
-    id: "ur5",
-    student: {
-      id: "s5",
-      name: "David Kim",
-      email: "david.kim@example.com",
-      avatar: "/placeholder.svg?height=40&width=40",
-      jobTitle: "Backend Developer",
-      company: "Data Systems",
-    },
-    date: "Oct 27",
-    time: "09:15",
-    duration: "60 min",
-    topic: "System Design Interview Preparation",
-    type: "interview",
-    meetingLink: "https://teams.microsoft.com/l/meetup-join/abc123",
-    status: "confirmed",
-  },
-]
-
-export function UpcomingReviews() {
-  const [selectedReview, setSelectedReview] = useState<UpcomingReview | null>(null)
+export function MentorReviews() {
+  const [tab, setTab] = useState<"upcoming" | "completed" | "canceled">("upcoming")
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalType, setModalType] = useState<"complete" | "edit" | null>(null)
+  const [practicalMarks, setPracticalMarks] = useState("")
+  const [theoryMarks, setTheoryMarks] = useState("")
+  const [feedback, setFeedback] = useState("")
 
-  const getTypeIcon = (type: UpcomingReview["type"]) => {
+  const { mentor } = useAppSelector((state: RootState) => state.mentor)
+
+  const navigate=useNavigate()
+
+
+  useEffect(() => {
+    fetchReviews(tab);
+  }, [tab])
+
+  const fetchReviews = async (status: string) => {
+    try {
+      const response = await axiosInstance.get(`/api/mentor-availability/${mentor?._id}/reviews?status=${status}`);
+      console.log(response.data);
+      
+      setReviews(response.data);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+  }
+
+
+
+  const handleJoinMeet = (meetId: string) => {
+    console.log("Joining meet with ID:", meetId);
+
+    navigate(`/video-call/${meetId}`)
+  };
+
+  const getTypeLabel = (type: string) => {
     switch (type) {
-      case "resume":
-        return <User className="h-4 w-4" />
-      case "interview":
-        return <Video className="h-4 w-4" />
-      case "portfolio":
-        return <ExternalLink className="h-4 w-4" />
-      case "career":
-        return <MessageSquare className="h-4 w-4" />
+      case "resume": return "Resume Review"
+      case "interview": return "Mock Interview"
+      case "portfolio": return "Portfolio Review"
+      case "career": return "Career Advice"
+      default: return type
     }
   }
 
-  const getTypeLabel = (type: UpcomingReview["type"]) => {
-    switch (type) {
-      case "resume":
-        return "Resume Review"
-      case "interview":
-        return "Mock Interview"
-      case "portfolio":
-        return "Portfolio Review"
-      case "career":
-        return "Career Advice"
+  const handleComplete = (review: Review) => {
+    setSelectedReview(review);
+    setPracticalMarks("");
+    setTheoryMarks("");
+    setFeedback("");
+    setModalType("complete");
+    setIsModalOpen(true);
+  }
+
+  const handleEdit = (review: Review) => {
+    setSelectedReview(review);
+    setPracticalMarks(review.practicalMarks?.toString() || "");
+    setTheoryMarks(review.theoryMarks?.toString() || "");
+    setFeedback(review.feedback || "");
+    setModalType("edit");
+    setIsModalOpen(true);
+  }
+
+  const handleCancel = async (review: Review) => {
+    try {
+      await fetch(`/api/mentor-availability/${mentor?._id}/dates/${review.date}/timeSlots/${review.id}/cancel`, {
+        method: "POST",
+      });
+      fetchReviews(tab);
+    } catch (error) {
+      console.error("Error canceling review:", error);
     }
   }
 
-  const getStatusBadge = (status: UpcomingReview["status"]) => {
-    switch (status) {
-      case "confirmed":
-        return <Badge className="bg-emerald-500">Confirmed</Badge>
-      case "scheduled":
-        return <Badge className="bg-blue-500">Scheduled</Badge>
-      case "pending":
-        return (
-          <Badge variant="outline" className="text-amber-500 border-amber-500">
-            Pending
-          </Badge>
-        )
+  const handleSubmit = async () => {
+    if (!selectedReview) return;
+    const url = modalType === "complete"
+      ? `/api/mentor-availability/${mentor?._id}/dates/${selectedReview.date}/timeSlots/${selectedReview.id}/complete`
+      : `/api/mentor-availability/${mentor?._id}/dates/${selectedReview.date}/timeSlots/${selectedReview.id}/edit`;
+    const data = {
+      practicalMarks: parseInt(practicalMarks),
+      theoryMarks: parseInt(theoryMarks),
+      feedback,
+    };
+    try {
+      if (modalType === "complete") {
+        await axiosInstance.post(url, data);
+        toast.success("Marked as Completed")
+      } else {
+        await axiosInstance.put(url, data);
+        toast.success("Review Edited")
+      }
+      setIsModalOpen(false);
+      fetchReviews(tab);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("Error submitting review:")
     }
+  };
+
+  const handleViewDetails = (review: Review) => {
+    setSelectedReview(review);
+    setIsDetailsOpen(true);
   }
 
-  const handleViewDetails = (review: UpcomingReview) => {
-    setSelectedReview(review)
-    setIsDetailsOpen(true)
-  }
-
-  const handleConnect = (review: UpcomingReview) => {
-    // In a real app, this would open the meeting link
-    window.open(review.meetingLink, "_blank")
-  }
+  const renderReview = (review: Review) => (
+    <div
+      key={review.id}
+      className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+    >
+      <div className="flex items-start gap-4 mb-4 md:mb-0">
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={review.student.avatar} alt={review.student.name} />
+          <AvatarFallback>{review.student.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium">{review.student.name}</h3>
+            <Badge>{review.status}</Badge>
+          </div>
+          <p className="text-sm text-gray-500">
+            {review.student.jobTitle} at {review.student.company}
+          </p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
+            <div className="flex items-center">
+              <Calendar className="h-3 w-3 mr-1" />
+              <span>{new Date(review.date).toLocaleDateString()}</span>
+            </div>
+            <div className="flex items-center">
+              <Clock className="h-3 w-3 mr-1" />
+              <span>{review.startTime} - {review.endTime}</span>
+            </div>
+            {/* <div className="flex items-center">
+              {getTypeIcon(review.task.type)}
+              <span className="ml-1">{getTypeLabel(review.task.type)}</span>
+            </div> */}
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 self-end md:self-auto">
+        {tab === "upcoming" && (
+          <>
+            <Button variant="outline" size="sm" onClick={() => handleComplete(review)}>
+              Complete
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleCancel(review)}>
+              Cancel
+            </Button>
+          </>
+        )}
+        {tab === "completed" && (
+          <Button variant="outline" size="sm" onClick={() => handleEdit(review)}>
+            Edit
+          </Button>
+        )}
+        <Button variant="outline" size="sm" onClick={() => handleViewDetails(review)}>
+          Details
+        </Button>
+        {review.status === "upcoming" && review.meetingLink && (
+          <Button
+            size="sm"
+            className="bg-emerald-500 hover:bg-emerald-600"
+           onClick={(e) => {
+                      e.stopPropagation(); 
+                      handleJoinMeet(review.meetingLink!);
+                    }}
+          >
+            Connect
+          </Button>
+        )}
+      </div>
+    </div>
+  )
 
   return (
-   
     <Card>
       <CardHeader>
-        <CardTitle>Upcoming Reviews</CardTitle>
-        <CardDescription>Your scheduled mentoring sessions and reviews</CardDescription>
+        <CardTitle>Mentor Reviews</CardTitle>
+        <CardDescription>Manage your mentoring sessions and reviews</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {dummyUpcomingReviews.map((review) => (
-            <div
-              key={review.id}
-              className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-start gap-4 mb-4 md:mb-0">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={review.student.avatar} alt={review.student.name} />
-                  <AvatarFallback>{review.student.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium">{review.student.name}</h3>
-                    {getStatusBadge(review.status)}
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {review.student.jobTitle} at {review.student.company}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
-                    <div className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>{review.date}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>
-                        {review.time} ({review.duration})
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      {getTypeIcon(review.type)}
-                      <span className="ml-1">{getTypeLabel(review.type)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 self-end md:self-auto">
-                <Button variant="outline" size="sm" onClick={() => handleViewDetails(review)}>
-                  Details
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-emerald-500 hover:bg-emerald-600"
-                  disabled={!review.meetingLink || review.status === "pending"}
-                  onClick={() => handleConnect(review)}
-                >
-                  Connect
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Tabs value={tab} onValueChange={(value) => setTab(value as "upcoming" | "completed" | "canceled")}>
+          <TabsList>
+            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="canceled">Canceled</TabsTrigger>
+          </TabsList>
+          <TabsContent value="upcoming">{reviews.map(renderReview)}</TabsContent>
+          <TabsContent value="completed">{reviews.map(renderReview)}</TabsContent>
+          <TabsContent value="canceled">{reviews.map(renderReview)}</TabsContent>
+        </Tabs>
       </CardContent>
 
-      {/* Review Details Dialog */}
+      {/* Modal for Complete/Edit */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{modalType === "complete" ? "Complete Review" : "Edit Review"}</DialogTitle>
+            <DialogDescription>
+              {modalType === "complete" ? "Enter marks and feedback for the review" : "Update marks and feedback"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Practical Marks</label>
+              <Input
+                type="number"
+                value={practicalMarks}
+                onChange={(e) => setPracticalMarks(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Theory Marks</label>
+              <Input
+                type="number"
+                value={theoryMarks}
+                onChange={(e) => setTheoryMarks(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Feedback</label>
+              <Textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmit}>Submit</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Review Details</DialogTitle>
-            <DialogDescription>Information about the upcoming review session</DialogDescription>
+            <DialogDescription>Information about the review session</DialogDescription>
           </DialogHeader>
-
           {selectedReview && (
             <div className="space-y-4">
               <div className="flex items-center gap-4">
@@ -264,48 +297,53 @@ export function UpcomingReviews() {
                   </p>
                 </div>
               </div>
-
               <div className="space-y-2 border-t pt-4">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Date & Time:</span>
                   <span className="text-sm">
-                    {selectedReview.date} at {selectedReview.time} ({selectedReview.duration})
+                    {new Date(selectedReview.date).toLocaleDateString()} at {selectedReview.startTime} - {selectedReview.endTime}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Review Type:</span>
-                  <span className="text-sm">{getTypeLabel(selectedReview.type)}</span>
+                  {/* <span className="text-sm">{getTypeLabel(selectedReview.task.type)}</span> */}
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Status:</span>
-                  <span className="text-sm">
-                    {selectedReview.status.charAt(0).toUpperCase() + selectedReview.status.slice(1)}
-                  </span>
+                  <span className="text-sm">{selectedReview.status}</span>
                 </div>
                 <div className="pt-2">
                   <span className="text-sm font-medium">Topic:</span>
-                  <p className="text-sm mt-1">{selectedReview.topic}</p>
+                  <p className="text-sm mt-1">{selectedReview.task.title}</p>
                 </div>
-                {selectedReview.notes && (
+                {selectedReview.feedback && (
                   <div className="pt-2">
-                    <span className="text-sm font-medium">Notes:</span>
-                    <p className="text-sm mt-1">{selectedReview.notes}</p>
+                    <span className="text-sm font-medium">Feedback:</span>
+                    <p className="text-sm mt-1">{selectedReview.feedback}</p>
+                  </div>
+                )}
+                {(selectedReview.practicalMarks || selectedReview.theoryMarks) && (
+                  <div className="pt-2">
+                    <span className="text-sm font-medium">Marks:</span>
+                    <p className="text-sm mt-1">
+                      Practical: {selectedReview.practicalMarks || "N/A"}, Theory: {selectedReview.theoryMarks || "N/A"}
+                    </p>
                   </div>
                 )}
               </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                {selectedReview.status !== "pending" && (
-                  <Button variant="outline" className="text-red-500 border-red-500 hover:bg-red-50">
-                    Cancel Session
-                  </Button>
-                )}
-                {selectedReview.meetingLink && selectedReview.status === "confirmed" && (
-                  <Button className="bg-emerald-500 hover:bg-emerald-600" onClick={() => handleConnect(selectedReview)}>
+              {selectedReview.meetingLink && selectedReview.status === "upcoming" && (
+                <div className="flex justify-end pt-2">
+                  <Button
+                    className="bg-emerald-500 hover:bg-emerald-600"
+                    onClick={(e) => {
+                      e.stopPropagation(); 
+                      handleJoinMeet(selectedReview.meetingLink!);
+                    }}
+                  >
                     Join Meeting
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
@@ -313,4 +351,3 @@ export function UpcomingReviews() {
     </Card>
   )
 }
-

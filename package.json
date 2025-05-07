@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "workspaces": ["client", "server", "scripts"],
+  "workspaces": [
+    "client",
+    "server",
+    "scripts"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/abhinavnt/codefolio.git"

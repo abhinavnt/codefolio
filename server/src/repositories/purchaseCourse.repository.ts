@@ -1,4 +1,4 @@
-import { FilterQuery } from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 import { BaseRepository } from "../core/abstracts/base.repository";
 import { IPurchaseCourseRepository } from "../core/interfaces/repository/IPurchasedCourse";
 import { CoursePurchased, ICoursePurchased } from "../models/CoursePurchased";
@@ -45,4 +45,12 @@ export class PurchaseCourseRepository extends BaseRepository<ICoursePurchased> i
 
 
   }
+
+  async findCourseById(courseId: string, userId: string): Promise<ICoursePurchased | null> {
+    return await this.findOne({
+        courseId: new mongoose.Types.ObjectId(courseId),
+        userId: new mongoose.Types.ObjectId(userId)
+    });
+}
+
 }
