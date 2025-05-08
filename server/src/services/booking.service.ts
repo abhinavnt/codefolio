@@ -9,13 +9,15 @@ import { IMentorRepository } from "../core/interfaces/repository/IMentorReposito
 import { IBookingRepository } from "../core/interfaces/repository/IBookingRepository";
 import { IBooking } from "../models/Booking";
 import { IPurchaseHistoryRepository } from "../core/interfaces/repository/IPurchaseHistory.repository";
+import { IMentorWalletRepository } from "../core/interfaces/repository/IMentorWalletRepository";
 
 injectable();
 export class BookingService implements IBookingService {
   constructor(
     @inject(TYPES.BookingRepository) private bookingRepository: IBookingRepository,
     @inject(TYPES.MentorRepository) private mentorRepository: IMentorRepository,
-    @inject(TYPES.PurchaseHistoryRepository) private purchaseHistoryRepository: IPurchaseHistoryRepository
+    @inject(TYPES.PurchaseHistoryRepository) private purchaseHistoryRepository: IPurchaseHistoryRepository,
+    @inject(TYPES.MentorWalletRepository) private mentorWalletRepository: IMentorWalletRepository
   ) {}
 
   async getAvailability(
@@ -77,6 +79,17 @@ export class BookingService implements IBookingService {
     });
 
     console.log("purchase created from service");
+
+    await this.mentorWalletRepository.createTransaction({
+      mentorId: String(mentor._id),
+      date: new Date(),
+      description: `Payment for session with user on ${date}`,
+      amount,
+      type: "credit",
+    });
+
+    console.log('transaction save ayi');
+    
 
     return { url: session.url!, sessionId: session.id! };
   }

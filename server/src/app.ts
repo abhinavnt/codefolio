@@ -15,6 +15,7 @@ import courseRoutes from "./routes/course.routes";
 import feedbackRoutes from "./routes/feedback.routes";
 import wishlistRoutes from "./routes/wishlist.routes";
 import mentorAvailabilityRoutes from './routes/mentorAvailability.routes'
+import walletRoutes from './routes/wallet.routes'
 import passport from "./config/passport";
 import { errorHandler } from "./middlewares/errorMiddleware";
 const rfs = require("rotating-file-stream");
@@ -67,6 +68,7 @@ app.use("/api/course", courseRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/mentor-availability",mentorAvailabilityRoutes)
+app.use("/api/wallet/",walletRoutes)
 
 app.use(errorHandler);
 

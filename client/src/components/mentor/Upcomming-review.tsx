@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, ExternalLink, MessageSquare, User, Video } from "lucide-react"
+import { Calendar, Clock, } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
@@ -53,7 +53,7 @@ export function MentorReviews() {
 
   const { mentor } = useAppSelector((state: RootState) => state.mentor)
 
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export function MentorReviews() {
     try {
       const response = await axiosInstance.get(`/api/mentor-availability/${mentor?._id}/reviews?status=${status}`);
       console.log(response.data);
-      
+
       setReviews(response.data);
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -79,15 +79,7 @@ export function MentorReviews() {
     navigate(`/video-call/${meetId}`)
   };
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case "resume": return "Resume Review"
-      case "interview": return "Mock Interview"
-      case "portfolio": return "Portfolio Review"
-      case "career": return "Career Advice"
-      default: return type
-    }
-  }
+
 
   const handleComplete = (review: Review) => {
     setSelectedReview(review);
@@ -206,10 +198,10 @@ export function MentorReviews() {
           <Button
             size="sm"
             className="bg-emerald-500 hover:bg-emerald-600"
-           onClick={(e) => {
-                      e.stopPropagation(); 
-                      handleJoinMeet(review.meetingLink!);
-                    }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleJoinMeet(review.meetingLink!);
+            }}
           >
             Connect
           </Button>
@@ -336,7 +328,7 @@ export function MentorReviews() {
                   <Button
                     className="bg-emerald-500 hover:bg-emerald-600"
                     onClick={(e) => {
-                      e.stopPropagation(); 
+                      e.stopPropagation();
                       handleJoinMeet(selectedReview.meetingLink!);
                     }}
                   >

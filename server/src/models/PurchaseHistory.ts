@@ -34,6 +34,5 @@ const PurchaseHistorySchema = new Schema<IPurchaseHistory>(
 );
 
 // Ensure unique combination of user, purchaseType, and itemId
-PurchaseHistorySchema.index({ userId: 1, purchaseType: 1, itemId: 1 }, { unique: true });
 
 export const PurchaseHistoryModel = mongoose.model<IPurchaseHistory>("PurchaseHistory", PurchaseHistorySchema);
