@@ -66,7 +66,7 @@ export function MentorDashboard() {
             <TabsTrigger value="settings">Official Reviews Slot</TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard">
-            <MainDashboard mentor={mentor} />
+            <MainDashboard  />
           </TabsContent>
           <TabsContent value="upcoming">
             <MentorReviews />

@@ -19,7 +19,7 @@ const MentorLoadingPage: React.FC = () => {
     if (status === 'succeeded') {
         setTimeout(()=>{
             navigate('/mentor'); 
-        },5000)
+        },1000)
     } else if (status === 'failed' && error) {
       navigate('/profile', { state: { error } }); 
     }
