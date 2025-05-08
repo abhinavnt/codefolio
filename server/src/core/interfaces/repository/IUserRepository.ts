@@ -14,4 +14,5 @@ export interface IUserRepository {
     updateUserMentorApplicationStatus(userId: string, status: string): Promise<IUser | null>
     getallUsers(page:number,limit:number):Promise<{allUsers:IUser[],total:number}>
     toggleUserStatus(userId:string):Promise<IUser|null>
+    getDashboardTotalUsers(): Promise<number>
 }

@@ -14,4 +14,11 @@ export interface ICourseRepository {
   updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> 
   getAllCourses(query: any, skip: number, limit: number): Promise<ICourse[]>
   countCourses(query: any): Promise<number>
+  getDashboardEnrolledCourses(): Promise<number>
+  getDashboardActiveCourses(): Promise<number>
+  getDashboardTotalStudents(): Promise<number>
+  getDashboardTotalEarning(): Promise<number>
+  getDashboardEnrollmentsByCategory(): Promise<{ category: string; count: number }[]>
+  getDashboardMonthlyRevenue(): Promise<{ month: string; revenue: number }[]>
+  getDashboardCoursesSold(): Promise<number>
 }

@@ -12,4 +12,5 @@ export interface IMentorWalletRepository {
     }): Promise<IMentorWallet>;
     getTransactions(mentorId: string, page: number, limit: number): Promise<{ transactions: IMentorWallet[]; total: number }>;
     getBalance(mentorId: string): Promise<number>;
+    getDashboardWalletTransactions(mentorId: string):Promise<any>
   }

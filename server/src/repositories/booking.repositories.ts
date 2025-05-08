@@ -83,4 +83,11 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
   async updateBooking(bookingId: string, updateData: Partial<IBooking>): Promise<IBooking | null> {
     return await this.model.findByIdAndUpdate(bookingId, updateData, { new: true }).exec();
   }
+
+
+  async getMentorDashboardBookings(mentorId: string): Promise<any> {
+    return this.find({ mentorId })
+    .sort({ date: -1 })
+    .lean()
+  }
 }

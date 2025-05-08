@@ -52,5 +52,11 @@ export class MentorWalletRepository extends BaseRepository<IMentorWallet> implem
     return result.length > 0 ? result[0].total : 0;
   }
 
+  async getDashboardWalletTransactions(mentorId: string): Promise<any> {
+    return this.find({ mentorId })
+    .sort({ date: -1 })
+    .limit(50)
+    .lean()
+  }
   
 }
