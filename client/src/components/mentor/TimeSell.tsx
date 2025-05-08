@@ -248,14 +248,14 @@ export function SpecificDateAvailabilityScheduler() {
                 prev.map((day) =>
                     isSameDay(day.date, selectedDate)
                         ? {
-                              ...day,
-                              timeSlots: result.data.specificDateAvailability.timeSlots.map((slot: any) => ({
-                                  id: slot._id.toString(),
-                                  startTime: slot.startTime,
-                                  endTime: slot.endTime,
-                                  booked: slot.booked,
-                              })),
-                          }
+                            ...day,
+                            timeSlots: result.data.specificDateAvailability.timeSlots.map((slot: any) => ({
+                                id: slot._id.toString(),
+                                startTime: slot.startTime,
+                                endTime: slot.endTime,
+                                booked: slot.booked,
+                            })),
+                        }
                         : day
                 )
             )
@@ -295,14 +295,14 @@ export function SpecificDateAvailabilityScheduler() {
                 const updated = prev.map((day) =>
                     isSameDay(day.date, selectedDate)
                         ? {
-                              ...day,
-                              timeSlots: result.data.specificDateAvailability.timeSlots.map((slot: any) => ({
-                                  id: slot._id.toString(),
-                                  startTime: slot.startTime,
-                                  endTime: slot.endTime,
-                                  booked: slot.booked,
-                              })),
-                          }
+                            ...day,
+                            timeSlots: result.data.specificDateAvailability.timeSlots.map((slot: any) => ({
+                                id: slot._id.toString(),
+                                startTime: slot.startTime,
+                                endTime: slot.endTime,
+                                booked: slot.booked,
+                            })),
+                        }
                         : day
                 )
                 return updated.filter((day) => day.timeSlots.length > 0 || !isSameDay(day.date, selectedDate))
@@ -383,10 +383,6 @@ export function SpecificDateAvailabilityScheduler() {
 
         setTimeSlotToDelete(timeSlotId)
         setShowDeleteConfirmation(true)
-    }
-
-    const getAvailableDates = () => {
-        return availabilityData.map((day) => format(day.date, "yyyy-MM-dd"))
     }
 
     const hasAvailabilityOnDate = (date: Date) => {
@@ -505,15 +501,14 @@ export function SpecificDateAvailabilityScheduler() {
                                     return (
                                         <div
                                             key={index}
-                                            className={`aspect-square flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all ${
-                                                isSelected
+                                            className={`aspect-square flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all ${isSelected
                                                     ? "bg-emerald-500 text-white"
                                                     : isToday
-                                                    ? "bg-emerald-100 text-emerald-800"
-                                                    : isPast
-                                                    ? "opacity-50 bg-gray-100 text-gray-400"
-                                                    : "hover:bg-emerald-50 text-gray-700"
-                                            }`}
+                                                        ? "bg-emerald-100 text-emerald-800"
+                                                        : isPast
+                                                            ? "opacity-50 bg-gray-100 text-gray-400"
+                                                            : "hover:bg-emerald-50 text-gray-700"
+                                                }`}
                                             onClick={() => {
                                                 if (!isPast || isToday) {
                                                     const normalizedSelectedDate = new Date(
@@ -567,8 +562,10 @@ export function SpecificDateAvailabilityScheduler() {
                                 </div>
                                 <div>
                                     <h3 className="font-medium text-gray-900 mb-1">About Availability</h3>
+                                    <h3 className="text-red-700">Set availability for official interview sessions.</h3>
                                     <p className="text-sm text-gray-600">
-                                        Set your available time slots for mentoring sessions. Students will be able to book these slots.
+
+                                        During these sessions, students will be assigned to you by our team. You’ll receive ₹500 for each interview conducted. Update your schedule and start guiding future professionals!
                                     </p>
                                 </div>
                             </div>
@@ -639,30 +636,26 @@ export function SpecificDateAvailabilityScheduler() {
                                                                 .map((timeSlot) => (
                                                                     <div
                                                                         key={timeSlot.id}
-                                                                        className={`relative group p-4 rounded-lg border ${
-                                                                            timeSlot.booked
+                                                                        className={`relative group p-4 rounded-lg border ${timeSlot.booked
                                                                                 ? "bg-amber-50 border-amber-200"
                                                                                 : "bg-white border-gray-200 hover:border-emerald-300"
-                                                                        } transition-all duration-200 shadow-sm`}
+                                                                            } transition-all duration-200 shadow-sm`}
                                                                     >
                                                                         <div className="flex items-center justify-between">
                                                                             <div className="flex items-center gap-3">
                                                                                 <div
-                                                                                    className={`p-2 rounded-full ${
-                                                                                        timeSlot.booked ? "bg-amber-100" : "bg-emerald-100"
-                                                                                    }`}
+                                                                                    className={`p-2 rounded-full ${timeSlot.booked ? "bg-amber-100" : "bg-emerald-100"
+                                                                                        }`}
                                                                                 >
                                                                                     <Clock
-                                                                                        className={`h-4 w-4 ${
-                                                                                            timeSlot.booked ? "text-amber-600" : "text-emerald-600"
-                                                                                        }`}
+                                                                                        className={`h-4 w-4 ${timeSlot.booked ? "text-amber-600" : "text-emerald-600"
+                                                                                            }`}
                                                                                     />
                                                                                 </div>
                                                                                 <div>
                                                                                     <div
-                                                                                        className={`font-medium ${
-                                                                                            timeSlot.booked ? "text-amber-800" : "text-gray-800"
-                                                                                        }`}
+                                                                                        className={`font-medium ${timeSlot.booked ? "text-amber-800" : "text-gray-800"
+                                                                                            }`}
                                                                                     >
                                                                                         {timeSlot.startTime} - {timeSlot.endTime}
                                                                                     </div>
@@ -672,7 +665,7 @@ export function SpecificDateAvailabilityScheduler() {
                                                                                         hour
                                                                                         {Number.parseInt(timeSlot.endTime.split(":")[0]) -
                                                                                             Number.parseInt(timeSlot.startTime.split(":")[0]) !==
-                                                                                        1
+                                                                                            1
                                                                                             ? "s"
                                                                                             : ""}
                                                                                         {timeSlot.endTime.split(":")[1] !== timeSlot.startTime.split(":")[1] &&

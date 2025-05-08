@@ -72,14 +72,14 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
                 }}
               />
               <Label htmlFor={`expertise-${item.id}`} className="text-sm font-normal cursor-pointer flex-1">
-                {item.name} <span className="text-muted-foreground ml-1">({item.count})</span>
+                {item.name} 
               </Label>
             </div>
           ))}
         </div>
       </FilterSection>
 
-      <FilterSection title="Rating">
+      {/* <FilterSection title="Rating">
         <div className="space-y-2">
           {[5, 4, 3, 2, 1].map((rating) => (
             <div key={rating} className="flex items-center space-x-2">
@@ -108,9 +108,9 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
             </div>
           ))}
         </div>
-      </FilterSection>
+      </FilterSection> */}
 
-      <FilterSection title="Available Time Slots">
+      {/* <FilterSection title="Available Time Slots">
         <div className="space-y-2">
           {timeSlots.map((slot) => (
             <div key={slot.id} className="flex items-center space-x-2">
@@ -132,9 +132,9 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
             </div>
           ))}
         </div>
-      </FilterSection>
+      </FilterSection> */}
 
-      <FilterSection title="Price">
+      {/* <FilterSection title="Price">
         <div className="px-2 pt-6 pb-2">
           <Slider
             defaultValue={[500]}
@@ -179,7 +179,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
             </div>
           </div>
         </div>
-      </FilterSection>
+      </FilterSection> */}
     </div>
   )
 }

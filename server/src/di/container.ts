@@ -76,6 +76,12 @@ import { IMentorAvailabilityController } from "../core/interfaces/controller/IMe
 import { MentorAvailabilityController } from "../controllers/mentorAvailabilty.controller";
 import { IPurchaseHistoryRepository } from "../core/interfaces/repository/IPurchaseHistory.repository";
 import { PurchaseHistoryRepository } from "../repositories/purchase.history.repository";
+import { IMentorWalletRepository } from "../core/interfaces/repository/IMentorWalletRepository";
+import { MentorWalletRepository } from "../repositories/mentor.wallet.repository";
+import { IWalletService } from "../core/interfaces/service/IWalletService";
+import { WalletService } from "../services/wallet.service";
+import { IWalletController } from "../core/interfaces/controller/IWalletController";
+import { WalletController } from "../controllers/wallet.controller";
 
 
 
@@ -149,6 +155,10 @@ container.bind<IMentorAvailabilityReposiotry>(TYPES.MentorAvailabilityRepository
 
 
 container.bind<IPurchaseHistoryRepository>(TYPES.PurchaseHistoryRepository).to(PurchaseHistoryRepository)
+container.bind<IMentorWalletRepository>(TYPES.MentorWalletRepository).to(MentorWalletRepository)
+
+container.bind<IWalletService>(TYPES.WalletService).to(WalletService)
+container.bind<IWalletController>(TYPES.WalletController).to(WalletController)
 
 
 

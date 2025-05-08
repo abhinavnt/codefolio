@@ -46,13 +46,13 @@ const handleLogout= async ()=>{
             <span className="sr-only">Toggle menu</span>
           </Button>
           <div className="hidden md:block">
-            <h1 className="text-xl font-semibold ">Good Morning</h1>
+            {/* <h1 className="text-xl font-semibold ">Good Morning</h1> */}
             <p className="text-sm ">Welcome to Codefolio Admin</p>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="relative hidden md:block">
+          {/* <div className="relative hidden md:block">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
             <Input type="search" placeholder="Search..." className="w-64 pl-8" />
           </div>
@@ -60,7 +60,7 @@ const handleLogout= async ()=>{
             <Bell className="h-5 w-5" />
             <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-emerald-500" />
             <span className="sr-only">Notifications</span>
-          </Button>
+          </Button> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -73,8 +73,8 @@ const handleLogout= async ()=>{
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              {/* <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem>Settings</DropdownMenuItem> */}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogoutClick}>Log out</DropdownMenuItem>
             </DropdownMenuContent>

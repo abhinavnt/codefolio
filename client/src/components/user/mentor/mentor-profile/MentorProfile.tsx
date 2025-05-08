@@ -232,6 +232,7 @@ export default function MentorProfile() {
                 <Card>
                   <CardContent className="p-6">
                     <h3 className="text-lg font-medium mb-4">book slots</h3>
+                    <h4 className="text-red-800">Book a mentor slot for just ₹500 per session!</h4>
                     <AvailableTime mentorusername={mentor.username} />
                     <div className="mt-6 flex justify-center">
                       <Dialog>
