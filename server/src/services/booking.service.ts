@@ -84,7 +84,7 @@ export class BookingService implements IBookingService {
       mentorId: String(mentor._id),
       date: new Date(),
       description: `Payment for session with user on ${date}`,
-      amount,
+      amount:450,
       type: "credit",
     });
 

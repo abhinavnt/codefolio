@@ -124,7 +124,7 @@ export function Availability() {
 
   // isTimeInPast function to properly handle today's future times
   const isTimeInPast = (timeString: string, date: Date) => {
-  
+
     if (!isSameDay(date, new Date())) return false
 
     const now = new Date()
@@ -132,7 +132,7 @@ export function Availability() {
     const timeToCheck = new Date(date)
     timeToCheck.setHours(hours, minutes, 0, 0)
 
-    
+
     const bufferTime = new Date(now)
     bufferTime.setMinutes(now.getMinutes() + 5)
 
@@ -141,7 +141,7 @@ export function Availability() {
 
   const getValidTimeOptionsForToday = () => {
     if (!selectedDate || !isSameDay(selectedDate, new Date())) {
-      return timeOptions 
+      return timeOptions
     }
 
     // For today, filter out past times with buffer
@@ -183,9 +183,9 @@ export function Availability() {
       const slotEnd = parse(slot.endTime, "HH:mm", new Date())
 
       return (
-        (slotStart <= start && start < slotEnd) || 
-        (slotStart < end && end <= slotEnd) || 
-        (start <= slotStart && slotEnd <= end) 
+        (slotStart <= start && start < slotEnd) ||
+        (slotStart < end && end <= slotEnd) ||
+        (start <= slotStart && slotEnd <= end)
       )
     })
   }
@@ -195,7 +195,7 @@ export function Availability() {
     const errors: { day: string; message: string }[] = []
 
     Object.entries(weeklySchedule).forEach(([day, slots]) => {
-      
+
       slots.forEach((slot) => {
         const start = parse(slot.startTime, "HH:mm", new Date())
         const end = parse(slot.endTime, "HH:mm", new Date())
@@ -238,7 +238,7 @@ export function Availability() {
 
   //  function to validate weekly time slots when adding a new slot
   const validateWeeklyTimeSlot = (day: string, startTime: string, endTime: string, excludeId?: string) => {
-   
+
     const start = parse(startTime, "HH:mm", new Date())
     const end = parse(endTime, "HH:mm", new Date())
 
@@ -247,7 +247,7 @@ export function Availability() {
       return false
     }
 
-   
+
     if (hasOverlappingWeeklySlots(day, startTime, endTime, excludeId)) {
       toast.error("This time slot overlaps with an existing slot")
       return false
@@ -258,7 +258,7 @@ export function Availability() {
 
   //  function to set error messages 
   const validateTimeSelection = (startTime: string, endTime: string, date: Date, excludeId?: string) => {
-   
+
     setStartTimeError(null)
     setEndTimeError(null)
     setTimeSlotError(null)
@@ -271,13 +271,13 @@ export function Availability() {
       return false
     }
 
-    
+
     if (isTimeInPast(startTime, date)) {
       setStartTimeError("Cannot select a time in the past")
       return false
     }
 
-   
+
     if (hasOverlappingSlots(startTime, endTime, date, excludeId)) {
       setTimeSlotError("This time slot overlaps with an existing slot")
       return false
@@ -343,7 +343,7 @@ export function Availability() {
         setAvailabilityData(updatedData)
       }
     }
-   
+
     setIsDialogOpen(false)
     setEditingTimeSlot(null)
     setShowEditConfirmation(false)
@@ -462,7 +462,7 @@ export function Availability() {
 
   // handleAddWeeklyTimeSlot function to validate before adding
   const handleAddWeeklyTimeSlot = (day: string) => {
-    let startHour = 9 
+    let startHour = 9
     let found = false
     let defaultStartTime = "09:00"
     let defaultEndTime = "10:00"
@@ -578,17 +578,17 @@ export function Availability() {
   //  handleSaveAvailability function to use the new validation function
   const handleSaveAvailability = async () => {
     try {
-    
+
       const weeklyErrors = validateWeeklySchedule()
 
       if (weeklyErrors.length > 0) {
-        
+
         toast.error(weeklyErrors[0].message, {
           duration: 5000,
           position: "top-center",
         })
 
-        
+
         if (weeklyErrors.length > 1) {
           toast.error(`${weeklyErrors.length - 1} more validation errors found. Please fix all issues.`, {
             duration: 5000,
@@ -647,8 +647,9 @@ export function Availability() {
       <Card>
         <CardHeader>
           <CardTitle>Set Your Availability</CardTitle>
-          <CardDescription>
-            Choose specific dates and time slots when you're available for mentoring sessions
+          <CardDescription className="text-red-700">
+            Choose specific dates and time slots when you're available for mentoring sessions.
+            For each mentoring session you conduct, you’ll receive ₹500, with a 10% commission going to the company. Set your availability and start earning while helping learners achieve their goals
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -794,9 +795,8 @@ export function Availability() {
                           {timeSlots.map((slot) => (
                             <div
                               key={slot.id}
-                              className={`flex flex-wrap items-center gap-3 p-3 border rounded-md ${
-                                slot.booked ? "bg-red-50 border-red-100" : ""
-                              }`}
+                              className={`flex flex-wrap items-center gap-3 p-3 border rounded-md ${slot.booked ? "bg-red-50 border-red-100" : ""
+                                }`}
                             >
                               <div className="flex items-center gap-2 flex-grow">
                                 <Select
@@ -906,7 +906,7 @@ export function Availability() {
         onOpenChange={(open) => {
           setIsDialogOpen(open)
           if (!open) {
-        
+
             setStartTimeError(null)
             setEndTimeError(null)
             setTimeSlotError(null)
@@ -966,7 +966,7 @@ export function Availability() {
               </div>
             </div>
 
-         
+
             {timeSlotError && (
               <div className="col-span-2">
                 <Alert variant="destructive" className="border-red-200 bg-red-50">
@@ -1046,7 +1046,7 @@ export function Availability() {
         open={showDeleteConfirmation}
         onOpenChange={(open) => {
           setShowDeleteConfirmation(open)
-       
+
           if (!open) {
             setTimeSlotToDelete(null)
           }
@@ -1101,7 +1101,7 @@ export function Availability() {
             </Button>
             <Button onClick={handleSaveAvailability} className="bg-emerald-500 hover:bg-emerald-600">
               Save
-             </Button>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
