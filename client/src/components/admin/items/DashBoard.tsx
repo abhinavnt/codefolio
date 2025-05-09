@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Users, GraduationCap, BookOpen, DollarSign, ShoppingCart } from "lucide-react";
-import axios from "axios";
+import { BarChart3, Users, GraduationCap, BookOpen,  ShoppingCart, IndianRupee } from "lucide-react";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -79,7 +78,7 @@ export function Dashboard() {
     labels: data.monthlyRevenue.map((item) => item.month),
     datasets: [
       {
-        label: "Revenue ($)",
+        label: "Revenue (₹)",
         data: data.monthlyRevenue.map((item) => item.revenue),
         fill: false,
         borderColor: "rgba(16, 185, 129, 1)",
@@ -99,7 +98,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.enrolledCourses.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            {/* <p className="text-xs text-muted-foreground">+12% from last month</p> */}
           </CardContent>
         </Card>
         <Card>
@@ -109,7 +108,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.activeCourses}</div>
-            <p className="text-xs text-muted-foreground">+2 new courses this week</p>
+            {/* <p className="text-xs text-muted-foreground">+2 new courses this week</p> */}
           </CardContent>
         </Card>
         <Card>
@@ -119,7 +118,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.completedCourses.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">+18% from last month</p>
+            {/* <p className="text-xs text-muted-foreground">+18% from last month</p> */}
           </CardContent>
         </Card>
         <Card>
@@ -129,17 +128,17 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.totalStudents.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">+10,234 new students</p>
+            {/* <p className="text-xs text-muted-foreground">+10,234 new students</p> */}
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Earning</CardTitle>
-            <DollarSign className="h-4 w-4 text-emerald-500" />
+            <IndianRupee className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${data.totalEarning.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <div className="text-2xl font-bold">₹{data.totalEarning.toLocaleString()}</div>
+            {/* <p className="text-xs text-muted-foreground">+12% from last month</p> */}
           </CardContent>
         </Card>
         <Card>
@@ -149,7 +148,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.coursesSold.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">+7% from last month</p>
+            {/* <p className="text-xs text-muted-foreground">+7% from last month</p> */}
           </CardContent>
         </Card>
         <Card>

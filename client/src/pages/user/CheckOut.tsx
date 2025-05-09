@@ -265,7 +265,7 @@ export default function CheckoutPage() {
                     <span>₹{discountedPrice.toFixed(2)}</span>
                   </div>
                 </div>
-
+{/* 
                 <div className="pt-4">
                   <Label htmlFor="coupon">Coupon Code</Label>
                   <div className="flex gap-2 mt-1">
@@ -295,11 +295,11 @@ export default function CheckoutPage() {
                       <Check className="h-3 w-3 mr-1" /> Coupon applied successfully!
                     </p>
                   )}
-                </div>
+                </div> */}
               </CardContent>
-              <CardFooter>
+              {/* <CardFooter>
                 <Button className="w-full bg-emerald-500 hover:bg-emerald-600">Complete Purchase</Button>
-              </CardFooter>
+              </CardFooter> */}
             </Card>
           </div>
         </div>

@@ -151,7 +151,7 @@ export class AuthService implements IAuthService {
         throw new Error("Role mismatch in refresh token");
       }
 
-      const newAccessToken = jwt.sign({ userId, role: userRole }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "15m" });
+      const newAccessToken = jwt.sign({ userId, role: userRole }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "30m" });
 
       let user;
       if (role === UserRole.ADMIN) {
