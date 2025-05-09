@@ -45,4 +45,6 @@ export interface IMentorAvailabilityReposiotry {
     marks?: { practical: number; theory: number },
     feedback?: string
   ): Promise<ITimeSlot|null>;
+
+  getDashboardUpcomingAvailability(mentorId: string):Promise<any>
 }

@@ -19,6 +19,7 @@ export interface IMentorRepository{
     createMentorFromRequest(mentorRequest: IMentorRequest): Promise<IMentor | null> 
     updateMentorStatus(userId:string,status:"active"|"inactive"):Promise<IMentor|null>
     getAllMentorsAdmin(page:number,limit:number):Promise<{allMentors:IMentor[],total:number}>
+    getDashboardTotalMentors(): Promise<number>
 }
 
 

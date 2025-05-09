@@ -220,4 +220,15 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
     }
     return null;
   }
+
+  //dashboard
+  async getDashboardUpcomingAvailability(mentorId: string): Promise<any> {
+    return this.find({
+      mentorId,
+      "specificDateAvailability.date": { $gte: new Date() },
+    })
+      .sort({ "specificDateAvailability.date": 1 })
+      .limit(10)
+      .lean()
+  }
 }

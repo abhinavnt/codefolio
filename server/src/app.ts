@@ -14,18 +14,31 @@ import bookingRoutes from "./routes/booking.routes";
 import courseRoutes from "./routes/course.routes";
 import feedbackRoutes from "./routes/feedback.routes";
 import wishlistRoutes from "./routes/wishlist.routes";
-import mentorAvailabilityRoutes from './routes/mentorAvailability.routes'
-import walletRoutes from './routes/wallet.routes'
+import mentorAvailabilityRoutes from "./routes/mentorAvailability.routes";
+import walletRoutes from "./routes/wallet.routes";
+import dashBoardRoutes from "./routes/dashboard.routes";
 import passport from "./config/passport";
 import { errorHandler } from "./middlewares/errorMiddleware";
 const rfs = require("rotating-file-stream");
 import path from "path";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 connectDB();
 
 const app = express();
 const CLIENT_URL = process.env.CLIENT_URL;
+
+// Rate limiter: 10 requests per 5 seconds per IP
+const burstLimiter = rateLimit({
+  windowMs: 5 * 1000, // 5 seconds
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many requests in a short time, please wait a 5 seconds and try again",
+});
+
+app.use(burstLimiter);
 
 app.use(passport.initialize());
 
@@ -67,8 +80,9 @@ app.use("/api/booking", bookingRoutes);
 app.use("/api/course", courseRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/wishlist", wishlistRoutes);
-app.use("/api/mentor-availability",mentorAvailabilityRoutes)
-app.use("/api/wallet/",walletRoutes)
+app.use("/api/mentor-availability", mentorAvailabilityRoutes);
+app.use("/api/wallet/", walletRoutes);
+app.use("/api/dashboard", dashBoardRoutes);
 
 app.use(errorHandler);
 

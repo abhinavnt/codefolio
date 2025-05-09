@@ -82,6 +82,10 @@ import { IWalletService } from "../core/interfaces/service/IWalletService";
 import { WalletService } from "../services/wallet.service";
 import { IWalletController } from "../core/interfaces/controller/IWalletController";
 import { WalletController } from "../controllers/wallet.controller";
+import { IDashboardService } from "../core/interfaces/service/IDashboardService";
+import { DashboardService } from "../services/dashboard.service";
+import { IDashboardController } from "../core/interfaces/controller/IDashboardController";
+import { DashboardController } from "../controllers/dashboard.controller";
 
 
 
@@ -160,6 +164,8 @@ container.bind<IMentorWalletRepository>(TYPES.MentorWalletRepository).to(MentorW
 container.bind<IWalletService>(TYPES.WalletService).to(WalletService)
 container.bind<IWalletController>(TYPES.WalletController).to(WalletController)
 
+container.bind<IDashboardService>(TYPES.DashboardService).to(DashboardService)
+container.bind<IDashboardController>(TYPES.DashboardController).to(DashboardController)
 
 
 export default container

@@ -113,4 +113,11 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
 
     return user;
   }
+
+
+  //dashboard
+  async getDashboardTotalUsers(): Promise<number> {
+    return this.countDocuments({});
+  }
+
 }

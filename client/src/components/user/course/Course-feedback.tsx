@@ -6,12 +6,12 @@ import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "sonner";
 
 interface CourseFeedbackProps {
-    courseId: string
-    existingFeedback?: {
-      rating: number
-      feedback: string
-    }
+  courseId: string
+  existingFeedback?: {
+    rating: number
+    feedback: string
   }
+}
 
 export default function CourseFeedback({ courseId }: CourseFeedbackProps) {
   const [rating, setRating] = useState<number>(0);
@@ -80,9 +80,8 @@ export default function CourseFeedback({ courseId }: CourseFeedbackProps) {
               aria-label={`Rate ${star} stars out of 5`}
             >
               <Star
-                className={`h-8 w-8 transition-colors ${
-                  star <= (hoverRating || rating) ? "fill-emerald-500 text-emerald-500" : "fill-gray-200 text-gray-200"
-                }`}
+                className={`h-8 w-8 transition-colors ${star <= (hoverRating || rating) ? "fill-emerald-500 text-emerald-500" : "fill-gray-200 text-gray-200"
+                  }`}
               />
             </button>
           ))}

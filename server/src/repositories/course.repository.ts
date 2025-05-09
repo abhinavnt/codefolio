@@ -99,4 +99,64 @@ export class courseRepository extends BaseRepository<ICourse> implements ICourse
   async updateCourse(id: string, data: Partial<ICourse>): Promise<ICourse | null> {
     return await this.findByIdAndUpdate(new mongoose.Types.ObjectId(id), data, { new: true });
   }
+
+  //dashboard
+  async getDashboardEnrolledCourses(): Promise<number> {
+    const courses = await this.find({});
+    return courses.reduce((total, course) => total + course.enrolledStudents.length, 0);
+  }
+
+  async getDashboardActiveCourses(): Promise<number> {
+    return this.countDocuments({ status: "published" });
+  }
+
+  async getDashboardTotalStudents(): Promise<number> {
+    const courses = await this.find({});
+    const studentIds = new Set(courses.flatMap((course) => course.enrolledStudents.map((id) => id.toString())));
+    return studentIds.size;
+  }
+
+  async getDashboardTotalEarning(): Promise<number> {
+    const courses = await this.find({});
+    return courses.reduce((total, course) => {
+      const price = parseFloat(course.price) || 0;
+      return total + price * course.enrolledStudents.length;
+    }, 0);
+  }
+
+  async getDashboardEnrollmentsByCategory(): Promise<{ category: string; count: number }[]> {
+    const courses = await this.find({});
+    const categoryMap = new Map<string, number>();
+    courses.forEach((course) => {
+      const count = course.enrolledStudents.length;
+      categoryMap.set(course.category, (categoryMap.get(course.category) || 0) + count);
+    });
+    return Array.from(categoryMap, ([category, count]) => ({ category, count }));
+  }
+
+  async getDashboardMonthlyRevenue(): Promise<{ month: string; revenue: number }[]> {
+    const courses = await this.find({}).populate({
+      path: "enrolledStudents",
+      populate: { path: "notifications" },
+    });
+    const monthlyRevenue = new Map<string, number>();
+    courses.forEach((course) => {
+      const price = parseFloat(course.price) || 0;
+      course.enrolledStudents.forEach((student: any) => {
+        student.notifications.forEach((notification: any) => {
+          const date = new Date(notification.createdAt);
+          const month = date.toLocaleString("default", { month: "short", year: "numeric" });
+          monthlyRevenue.set(month, (monthlyRevenue.get(month) || 0) + price);
+        });
+      });
+    });
+    return Array.from(monthlyRevenue, ([month, revenue]) => ({ month, revenue })).sort(
+      (a, b) => new Date(a.month).getTime() - new Date(b.month).getTime()
+    );
+  }
+
+  async getDashboardCoursesSold(): Promise<number> {
+    const courses = await Course.find();
+    return courses.reduce((total, course) => total + course.enrolledStudents.length, 0);
+  }
 }

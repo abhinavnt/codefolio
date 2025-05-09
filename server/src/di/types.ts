@@ -35,6 +35,7 @@ export const TYPES={
     WishlistService:Symbol.for('WishlistService'),
     MentorAvailabilityService:Symbol.for('MentorAvailabilityService'),
     WalletService:Symbol.for('WalletService'),
+    DashboardService:Symbol.for('DashboardService'),
 
     //Controllers
     UserController:Symbol.for('UserController'),
@@ -48,6 +49,7 @@ export const TYPES={
     FeedbackController:Symbol.for('FeedbackController'),
     WishistController:Symbol.for(' WishistController'),
     MentorAvailabilityController:Symbol.for('MentorAvailabilityController'),
-    WalletController:Symbol.for('WalletController')
+    WalletController:Symbol.for('WalletController'),
+    DashboardController:Symbol.for('DashboardController')
 
 }

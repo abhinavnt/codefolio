@@ -53,4 +53,9 @@ export class PurchaseCourseRepository extends BaseRepository<ICoursePurchased> i
     });
 }
 
+//dashboard
+async getDashboardCompletedCourses(): Promise<number> {
+  return this.countDocuments({ completed: true });
+}
+
 }

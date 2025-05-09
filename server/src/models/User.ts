@@ -41,7 +41,7 @@ const UserSchema = new Schema<IUser>(
       type: [
         {
           message: { type: String, required: true },
-          createdAt: { type: Date, default: Date.now, expires: 2592000 },
+          createdAt: { type: Date, default: Date.now},
         },
       ],
       default: [],

@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from "react"
 import axiosInstance from "@/utils/axiosInstance"
 import type { Course } from "@/types/course"
 import CourseFeedback from "./Course-feedback"
+import { toast } from "sonner"
 
 interface Review {
   _id: string
@@ -33,9 +34,10 @@ export default function CourseDetail() {
   const [isWishlisted, setIsWishlisted] = useState(false)
 
   const { courses } = useSelector((state: RootState) => state.courses)
-  
+
   const course = courses.find((c) => c._id === id)
 
+//fetch alredy enrolled course
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -49,6 +51,7 @@ export default function CourseDetail() {
     fetchCourses()
   }, [])
 
+//fetch reviews
   const fetchReviews = useCallback(async () => {
     if (id) {
       try {
@@ -78,6 +81,7 @@ export default function CourseDetail() {
     fetchWishlistStatus();
   }, [id]);
 
+  //if no course 
   if (!course) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center">
@@ -114,6 +118,7 @@ export default function CourseDetail() {
       }
     } catch (error) {
       console.error("Error updating wishlist:", error);
+      toast.error("too many request in 5 sec")
     }
   }
 
@@ -226,14 +231,14 @@ export default function CourseDetail() {
                       <div key={review._id} className="border-b pb-6">
                         <div className="flex items-center gap-4 mb-3">
                           <img
-                           src={review.userId?.profileImageUrl ? review.userId.profileImageUrl : "/placeholder.svg?height=50&width=50"}
+                            src={review.userId?.profileImageUrl ? review.userId.profileImageUrl : "https://cdn.vectorstock.com/i/500p/45/59/profile-photo-placeholder-icon-design-in-gray-vector-37114559.jpg"}
                             alt={review.userId?.name}
                             width={50}
                             height={50}
                             className="rounded-full"
                           />
                           <div>
-                            <h4 className="font-medium">{review.userId?.name}</h4>
+                            <h4 className="font-medium">{review.userId?.name ?review.userId?.name :"Unknown User" }</h4>
                             <div className="flex items-center gap-2">
                               <div className="flex">
                                 {[...Array(5)].map((_, i) => (
