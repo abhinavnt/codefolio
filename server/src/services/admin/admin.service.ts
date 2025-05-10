@@ -11,6 +11,7 @@ import { IUserRepository } from "../../core/interfaces/repository/IUserRepositor
 import { applicationRejectionMail } from "../../utils/email.services";
 import { IMentor } from "../../models/Mentor";
 import { IMentorReqRepository } from "../../core/interfaces/repository/IMentorReqRepository";
+import { notificationIo } from "../../socket/socket";
 
 // const AdminRepository=new adminRepository()
 // const MentorRepository=new mentorRepository()
@@ -82,6 +83,17 @@ export class adminService implements IAdminService {
 
       //add a notifiation to the uer
       await this.userRepository.addNotification(userId, message);
+
+      // Emit socket notification
+      if (notificationIo) {
+        notificationIo.to(userId).emit("new-notification", {
+          message,
+          timestamp: new Date().toISOString(),
+          type: status.toLowerCase(),
+        });
+      } else {
+        console.warn("Notification socket not initialized");
+      }
 
       return mentorRequest;
     } catch (error) {

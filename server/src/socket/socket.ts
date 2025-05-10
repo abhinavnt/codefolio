@@ -1,11 +1,13 @@
 // src/socket/socket.ts
 
 import { Server as HttpServer } from "http";
-import { Server as SocketIOServer } from "socket.io";
+import { Namespace, Server as SocketIOServer } from "socket.io";
 import { ExpressPeerServer } from "peer";
 import app from "../app";
 
 const roomScreenSharingPeers: { [roomId: string]: string | null } = {};
+
+let notificationIo: Namespace;
 
 export const setupSocket = (server: HttpServer) => {
   const io = new SocketIOServer(server, {
@@ -15,6 +17,23 @@ export const setupSocket = (server: HttpServer) => {
       credentials: true,
     },
     transports: ["polling"],
+  });
+
+    notificationIo = io.of("/notifications");
+
+  
+  notificationIo.on("connection", (socket) => {
+    console.log("New notification client connected:", socket.id);
+
+    // Join a room based on userId
+    socket.on("join-user", (userId: string) => {
+      socket.join(userId);
+      console.log(`User ${userId} joined notification room`);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Notification client disconnected:", socket.id);
+    });
   });
 
   io.on("connection_error", (err) => {
@@ -71,4 +90,8 @@ export const setupSocket = (server: HttpServer) => {
   });
 
   app.use("/peerjs", peerServer);
+
+  return { io, notificationIo };
 };
+
+export { notificationIo };
