@@ -85,9 +85,13 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
   }
 
 
-  async getMentorDashboardBookings(mentorId: string): Promise<any> {
-    return this.find({ mentorId })
-    .sort({ date: -1 })
-    .lean()
+   async getMentorDashboardBookings(mentorId: string, startDate?: Date, endDate?: Date): Promise<any> {
+    const query: any = { mentorId };
+    if (startDate && endDate) {
+      query.date = { $gte: startDate, $lte: endDate };
+    }
+    return this.find(query)
+      .sort({ date: -1 })
+      .lean();
   }
 }
