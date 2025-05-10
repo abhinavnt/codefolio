@@ -222,13 +222,16 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
   }
 
   //dashboard
-  async getDashboardUpcomingAvailability(mentorId: string): Promise<any> {
-    return this.find({
-      mentorId,
-      "specificDateAvailability.date": { $gte: new Date() },
-    })
+ async getDashboardUpcomingAvailability(mentorId: string, startDate?: Date, endDate?: Date): Promise<any> {
+    const query: any = { mentorId };
+    if (startDate && endDate) {
+      query["specificDateAvailability.date"] = { $gte: startDate, $lte: endDate };
+    } else {
+      query["specificDateAvailability.date"] = { $gte: new Date() };
+    }
+    return this.find(query)
       .sort({ "specificDateAvailability.date": 1 })
       .limit(10)
-      .lean()
+      .lean();
   }
 }

@@ -2,16 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { CalendarDays, Users, Clock, Award, Wallet, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { format } from "date-fns"
+import { format, subDays } from "date-fns"
 import type { IMentor } from "@/types/mentor"
 import axiosInstance from "@/utils/axiosInstance"
 import { RootState, useAppSelector } from "@/redux/store"
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface BookingStats {
   date: string
@@ -42,10 +42,6 @@ interface DashboardData {
   }>
 }
 
-interface MainDashboardProps {
-  mentor: IMentor
-}
-
 export function MainDashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     totalBookings: 0,
@@ -57,17 +53,22 @@ export function MainDashboard() {
     upcomingSlots: []
   })
 
+  const [filterType, setFilterType] = useState<string>("all")
+  const [filterValue, setFilterValue] = useState<string>("")
   const { mentor } = useAppSelector((state: RootState) => state.mentor)
 
   if (!mentor) {
-    return
+    return null
   }
 
   useEffect(() => {
-    // Fetch dashboard data using axiosInstance
     const fetchDashboardData = async () => {
       try {
-        const response = await axiosInstance.get(`/api/dashboard/mentor/${mentor._id}`)
+        const params: any = { filterType }
+        if (filterType !== "all" && filterValue) {
+          params.filterValue = filterValue
+        }
+        const response = await axiosInstance.get(`/api/dashboard/mentor/${mentor._id}`, { params })
         setDashboardData(response.data)
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
@@ -75,20 +76,81 @@ export function MainDashboard() {
     }
 
     fetchDashboardData()
-  }, [mentor._id])
+  }, [mentor._id, filterType, filterValue])
+
+  // Generate filter options
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    value: (i + 1).toString().padStart(2, "0"),
+    label: format(new Date(2023, i, 1), "MMMM")
+  }))
+  const days = Array.from({ length: 7 }, (_, i) => ({
+    value: format(subDays(new Date(), i), "yyyy-MM-dd"),
+    label: format(subDays(new Date(), i), "PPP")
+  }))
 
   return (
     <div className="space-y-6 bg-secondary p-6">
+      {/* Filter Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filter Dashboard Data</CardTitle>
+        </CardHeader>
+        <CardContent className="flex space-x-4">
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select filter type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="year">By Year</SelectItem>
+              <SelectItem value="month">By Month</SelectItem>
+              <SelectItem value="day">By Day</SelectItem>
+            </SelectContent>
+          </Select>
+          {filterType !== "all" && (
+            <Select value={filterValue} onValueChange={setFilterValue}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select value" />
+              </SelectTrigger>
+              <SelectContent>
+                {filterType === "year" &&
+                  years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                {filterType === "month" &&
+                  months.map((month) => (
+                    <SelectItem key={month.value} value={month.value}>
+                      {month.label}
+                    </SelectItem>
+                  ))}
+                {filterType === "day" &&
+                  days.map((day) => (
+                    <SelectItem key={day.value} value={day.value}>
+                      {day.label}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Conducted MentorShip</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foregroundellip" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dashboardData.totalBookings}</div>
-            <p className="text-xs text-muted-foreground">All time MentorShip</p>
+            <p className="text-xs text-muted-foreground">
+              {filterType === "all" ? "All time" : `Filtered by ${filterType}`}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -108,7 +170,9 @@ export function MainDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₹{dashboardData.totalRevenue}</div>
-            <p className="text-xs text-muted-foreground">All time earnings</p>
+            <p className="text-xs text-muted-foreground">
+              {filterType === "all" ? "All time" : `Filtered by ${filterType}`}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -137,7 +201,9 @@ export function MainDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Booking Trends</CardTitle>
-                <CardDescription>Weekly booking statistics</CardDescription>
+                <CardDescription>
+                  {filterType === "all" ? "All time" : `Filtered by ${filterType}`} booking statistics
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -212,8 +278,7 @@ export function MainDashboard() {
                     </div>
                     <div className="text-right">
                       <p
-                        className={`font-medium ${transaction.type === "credit" ? "text-green-600" : "text-red-600"
-                          }`}
+                        className={`font-medium ${transaction.type === "credit" ? "text-green-600" : "text-red-600"}`}
                       >
                         {transaction.type === "credit" ? "+" : "-"}₹{transaction.amount}
                       </p>

@@ -9,12 +9,16 @@ import { IDashboardService } from "../core/interfaces/service/IDashboardService"
 export class DashboardController implements IDashboardController {
   constructor(@inject(TYPES.DashboardService) private dashboardService: IDashboardService) {}
 
-  getDashboardData = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+ getDashboardData = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const mentorId = req.params.mentorId;
-    const dashboardData = await this.dashboardService.getDashboardData(mentorId);
+    const { filterType = "all", filterValue } = req.query;
+    const dashboardData = await this.dashboardService.getDashboardData(
+      mentorId,
+      filterType as string,
+      filterValue as string | undefined
+    );
     res.status(200).json(dashboardData);
   });
-
 
   getAdminDashboardData=asyncHandler(async(req:Request,res:Response):Promise<void>=>{
     const data = await this.dashboardService.getAdminDashboardData();
