@@ -5,6 +5,7 @@ import { Profile } from "passport-google-oauth20";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IAuthService } from "../../core/interfaces/service/IAuthService";
+import { VerifiedUserDto } from "../../dtos/response/auth.dto";
 
 // const authService=new AuthService()
 
@@ -32,7 +33,7 @@ export class AuthController implements IAuthController {
     try {
       const { email, otp } = req.body;
       console.log(email, otp);
-      const response = await this.authService.verifyOtp(email, otp);
+      const response:VerifiedUserDto = await this.authService.verifyOtp(email, otp);
 
       const { refreshToken, ...newUser } = response;
 

@@ -1,11 +1,11 @@
-
+"use client"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, } from "lucide-react"
+import { Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
@@ -50,96 +50,109 @@ export function MentorReviews() {
   const [practicalMarks, setPracticalMarks] = useState("")
   const [theoryMarks, setTheoryMarks] = useState("")
   const [feedback, setFeedback] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(5)
 
   const { mentor } = useAppSelector((state: RootState) => state.mentor)
-
   const navigate = useNavigate()
 
+  useEffect(() => {
+    fetchReviews(tab)
+  }, [tab])
 
   useEffect(() => {
-    fetchReviews(tab);
+    setCurrentPage(1)
   }, [tab])
 
   const fetchReviews = async (status: string) => {
     try {
-      const response = await axiosInstance.get(`/api/mentor-availability/${mentor?._id}/reviews?status=${status}`);
-      console.log(response.data);
-
-      setReviews(response.data);
+      const response = await axiosInstance.get(`/api/mentor-availability/${mentor?._id}/reviews?status=${status}`)
+      setReviews(response.data)
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      console.error("Error fetching reviews:", error)
+      toast.error("Failed to fetch reviews. Please try again.")
     }
   }
 
-
-
   const handleJoinMeet = (meetId: string) => {
-    console.log("Joining meet with ID:", meetId);
-
     navigate(`/video-call/${meetId}`)
-  };
-
-
+  }
 
   const handleComplete = (review: Review) => {
-    setSelectedReview(review);
-    setPracticalMarks("");
-    setTheoryMarks("");
-    setFeedback("");
-    setModalType("complete");
-    setIsModalOpen(true);
+    setSelectedReview(review)
+    setPracticalMarks("")
+    setTheoryMarks("")
+    setFeedback("")
+    setModalType("complete")
+    setIsModalOpen(true)
   }
 
   const handleEdit = (review: Review) => {
-    setSelectedReview(review);
-    setPracticalMarks(review.practicalMarks?.toString() || "");
-    setTheoryMarks(review.theoryMarks?.toString() || "");
-    setFeedback(review.feedback || "");
-    setModalType("edit");
-    setIsModalOpen(true);
+    setSelectedReview(review)
+    setPracticalMarks(review.practicalMarks?.toString() || "")
+    setTheoryMarks(review.theoryMarks?.toString() || "")
+    setFeedback(review.feedback || "")
+    setModalType("edit")
+    setIsModalOpen(true)
   }
 
   const handleCancel = async (review: Review) => {
     try {
       await fetch(`/api/mentor-availability/${mentor?._id}/dates/${review.date}/timeSlots/${review.id}/cancel`, {
         method: "POST",
-      });
-      fetchReviews(tab);
+      })
+      fetchReviews(tab)
+      toast.success("Review cancelled successfully")
     } catch (error) {
-      console.error("Error canceling review:", error);
+      console.error("Error canceling review:", error)
+      toast.error("Failed to cancel review. Please try again.")
     }
   }
 
   const handleSubmit = async () => {
-    if (!selectedReview) return;
+    console.log('handlesubmit button newww',modalType);
+    
+    if (!selectedReview) return
     const url = modalType === "complete"
       ? `/api/mentor-availability/${mentor?._id}/dates/${selectedReview.date}/timeSlots/${selectedReview.id}/complete`
-      : `/api/mentor-availability/${mentor?._id}/dates/${selectedReview.date}/timeSlots/${selectedReview.id}/edit`;
+      : `/api/mentor-availability/${mentor?._id}/dates/${selectedReview.date}/timeSlots/${selectedReview.id}/edit`
     const data = {
       practicalMarks: parseInt(practicalMarks),
       theoryMarks: parseInt(theoryMarks),
       feedback,
-    };
+    }
+    console.log('log url',url);
+    
     try {
       if (modalType === "complete") {
-        await axiosInstance.post(url, data);
+        await axiosInstance.post(url, data)
         toast.success("Marked as Completed")
       } else {
-        await axiosInstance.put(url, data);
+        await axiosInstance.put(url, data)
         toast.success("Review Edited")
       }
-      setIsModalOpen(false);
-      fetchReviews(tab);
+      setIsModalOpen(false)
+      fetchReviews(tab)
     } catch (error) {
-      console.error("Error submitting review:", error);
-      toast.error("Error submitting review:")
+      console.error("Error submitting review:", error)
+      toast.error("Error submitting review")
     }
-  };
+  }
 
   const handleViewDetails = (review: Review) => {
-    setSelectedReview(review);
-    setIsDetailsOpen(true);
+    setSelectedReview(review)
+    setIsDetailsOpen(true)
   }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  // Calculate pagination indexes
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentReviews = reviews.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(reviews.length / itemsPerPage)
 
   const renderReview = (review: Review) => (
     <div
@@ -168,10 +181,6 @@ export function MentorReviews() {
               <Clock className="h-3 w-3 mr-1" />
               <span>{review.startTime} - {review.endTime}</span>
             </div>
-            {/* <div className="flex items-center">
-              {getTypeIcon(review.task.type)}
-              <span className="ml-1">{getTypeLabel(review.task.type)}</span>
-            </div> */}
           </div>
         </div>
       </div>
@@ -199,8 +208,8 @@ export function MentorReviews() {
             size="sm"
             className="bg-emerald-500 hover:bg-emerald-600"
             onClick={(e) => {
-              e.stopPropagation();
-              handleJoinMeet(review.meetingLink!);
+              e.stopPropagation()
+              handleJoinMeet(review.meetingLink!)
             }}
           >
             Connect
@@ -223,9 +232,54 @@ export function MentorReviews() {
             <TabsTrigger value="completed">Completed</TabsTrigger>
             <TabsTrigger value="canceled">Canceled</TabsTrigger>
           </TabsList>
-          <TabsContent value="upcoming">{reviews.map(renderReview)}</TabsContent>
-          <TabsContent value="completed">{reviews.map(renderReview)}</TabsContent>
-          <TabsContent value="canceled">{reviews.map(renderReview)}</TabsContent>
+          <TabsContent value={tab}>
+            <div className="space-y-4">
+              {currentReviews.length > 0 ? (
+                currentReviews.map(renderReview)
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No {tab} reviews found.</p>
+                </div>
+              )}
+              {reviews.length > 0 && (
+                <div className="flex justify-center mt-6">
+                  <nav className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="h-8 w-8"
+                    >
+                      <span className="sr-only">Previous Page</span>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="icon"
+                        onClick={() => handlePageChange(page)}
+                        className="h-8 w-8"
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="h-8 w-8"
+                    >
+                      <span className="sr-only">Next Page</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </nav>
+                </div>
+              )}
+            </div>
+          </TabsContent>
         </Tabs>
       </CardContent>
 
@@ -298,7 +352,7 @@ export function MentorReviews() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Review Type:</span>
-                  {/* <span className="text-sm">{getTypeLabel(selectedReview.task.type)}</span> */}
+                  <span className="text-sm">{selectedReview.task.type}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Status:</span>
@@ -328,8 +382,8 @@ export function MentorReviews() {
                   <Button
                     className="bg-emerald-500 hover:bg-emerald-600"
                     onClick={(e) => {
-                      e.stopPropagation();
-                      handleJoinMeet(selectedReview.meetingLink!);
+                      e.stopPropagation()
+                      handleJoinMeet(selectedReview.meetingLink!)
                     }}
                   >
                     Join Meeting
