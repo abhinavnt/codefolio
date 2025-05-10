@@ -24,6 +24,7 @@ import MentorDashboardPage from "./pages/mentor/MentorDashboard";
 import { BookingSuccess } from "./pages/user/SlotBookingSuccess";
 import EnrolledCourseTask from "./pages/user/EnrolledCourseTask";
 import { VideoCall } from "./pages/video/VideoCall";
+import { useSocket } from "./hooks/useSocket";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -39,6 +40,8 @@ function App() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const { status } = useAppSelector((state) => state.mentor);
 
+   // Initialize notification socket
+  useSocket();
 
   useEffect(() => {
     const fetchUser = async () => {
