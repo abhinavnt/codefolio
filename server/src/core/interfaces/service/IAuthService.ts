@@ -1,9 +1,10 @@
+import { VerifiedUserDto } from "../../../dtos/response/auth.dto"
 import { IUser } from "../../../models/User"
 import { refreshedUser, verifiedUer } from "../../types/userTypes"
 
 export interface IAuthService {
     register(name: string, email: string, password: string):Promise<void> 
-    verifyOtp(email: string, otp: string):Promise<verifiedUer>
+    verifyOtp(email: string, otp: string):Promise<VerifiedUserDto>
     resendOtp(email: string):Promise<void>
     login(email: string, password: string, role: string):Promise<verifiedUer>
     refreshAccessToken(refreshToken: string, role: string):Promise<refreshedUser>

@@ -15,6 +15,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IUserRepository } from "../../core/interfaces/repository/IUserRepository";
 import { UserRole } from "../../core/constants/user.enum";
+import { UserDto, VerifiedUserDto } from "../../dtos/response/auth.dto";
 
 dotenv.config();
 
@@ -50,7 +51,7 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async verifyOtp(email: string, otp: string): Promise<verifiedUer> {
+  async verifyOtp(email: string, otp: string): Promise<VerifiedUserDto> {
     try {
       const data = await RedisClient.get(`otp:${email}`);
       if (!data) throw new Error("OTP expired or invalid");
@@ -78,7 +79,24 @@ export class AuthService implements IAuthService {
       await RedisClient.del(`otp:${email}`);
       await RedisClient.del(`user_session:${email}`);
 
-      return { accessToken, refreshToken, user };
+      const userDto: UserDto = {
+        _id: user._id as string,
+        name: user.name,
+        email: user.email,
+        profileImageUrl:user.profileImageUrl||' ',
+        status:user.status,
+        role:user.role,
+        title:user.title||" ",
+         createdAt: user.createdAt || new Date(),
+        updatedAt: user.updatedAt || new Date(),
+        wishlist: user.wishlist || [],
+        savedMentors: user.savedMentors || [],
+        skills: user.skills || [],
+        DOB: user.DOB || new Date(),
+        reviewerRequestStatus: user.reviewerRequestStatus||[]
+      };
+
+      return { accessToken, refreshToken, user:userDto };
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));
     }
@@ -151,7 +169,7 @@ export class AuthService implements IAuthService {
         throw new Error("Role mismatch in refresh token");
       }
 
-      const newAccessToken = jwt.sign({ userId, role: userRole }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "30m" });
+      const newAccessToken = jwt.sign({ userId, role: userRole }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "60m" });
 
       let user;
       if (role === UserRole.ADMIN) {
