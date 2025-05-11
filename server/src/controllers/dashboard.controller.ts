@@ -25,6 +25,25 @@ export class DashboardController implements IDashboardController {
     res.status(200).json(data);
   })
 
+  getDashboardDataUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = String(req.user?._id);
+    const period = req.query.period as "daily" | "weekly" | "monthly" | "yearly" | "all" | undefined;
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    if (!period || !["daily", "weekly", "monthly", "yearly", "all"].includes(period)) {
+      res.status(400).json({ message: "Invalid or missing period parameter" });
+      return;
+    }
+
+    const data = await this.dashboardService.getDashboardDataUser(userId, period);
+   
+
+    res.status(200).json({ data });
+  });
 
 
 }

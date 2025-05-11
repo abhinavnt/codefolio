@@ -2,6 +2,7 @@ import mongoose, { FilterQuery } from "mongoose";
 import { BaseRepository } from "../core/abstracts/base.repository";
 import { IPurchaseCourseRepository } from "../core/interfaces/repository/IPurchasedCourse";
 import { CoursePurchased, ICoursePurchased } from "../models/CoursePurchased";
+import { getDateRange } from "../utils/dateUtils";
 
 export class PurchaseCourseRepository extends BaseRepository<ICoursePurchased> implements IPurchaseCourseRepository {
   constructor() {
@@ -54,8 +55,34 @@ export class PurchaseCourseRepository extends BaseRepository<ICoursePurchased> i
 }
 
 //dashboard
+
+//admin
 async getDashboardCompletedCourses(): Promise<number> {
   return this.countDocuments({ completed: true });
 }
+
+//user
+ async getCoursesPurchasedCount(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<number> {
+    const query: any = { userId };
+    
+    if (period !== "all") {
+      const { startDate, endDate } = getDateRange(period);
+      query.createdAt = { $gte: startDate, $lte: endDate };
+    }
+
+    return this.countDocuments(query);
+  }
+
+  async getCompletedCoursesCount(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<number> {
+    // Assuming all purchased courses are completed for simplicity
+    const query: any = { userId };
+    
+    if (period !== "all") {
+      const { startDate, endDate } = getDateRange(period);
+      query.createdAt = { $gte: startDate, $lte: endDate };
+    }
+
+    return this.countDocuments(query);
+  }
 
 }

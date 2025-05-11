@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { BaseRepository } from "../core/abstracts/base.repository";
 import { IPurchaseHistoryRepository } from "../core/interfaces/repository/IPurchaseHistory.repository";
 import { IPurchaseHistory, PurchaseHistoryModel } from "../models/PurchaseHistory";
+import { getDateRange } from "../utils/dateUtils";
 
 export class PurchaseHistoryRepository extends BaseRepository<IPurchaseHistory> implements IPurchaseHistoryRepository {
   constructor() {
@@ -39,8 +40,18 @@ export class PurchaseHistoryRepository extends BaseRepository<IPurchaseHistory> 
       .exec();
   }
 
-  
+  //dashboard
+  async getTotalSpent(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<number> {
+    const query: any = { userId: new mongoose.Types.ObjectId(userId), status: "Completed" };
+    console.log("userid:", userId);
 
+    if (period !== "all") {
+      const { startDate, endDate } = getDateRange(period);
+      query.createdAt = { $gte: startDate, $lte: endDate };
+    }
 
+    const result = await this.aggregate([{ $match: query }, { $group: { _id: null, total: { $sum: "$price" } } }]);
 
+    return result[0]?.total || 0;
+  }
 }

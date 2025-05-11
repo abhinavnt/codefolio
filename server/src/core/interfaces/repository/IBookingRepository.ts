@@ -24,4 +24,5 @@ export interface IBookingRepository{
       updateBooking(bookingId: string, updateData: Partial<IBooking>): Promise<IBooking | null>
       getMentorDashboardBookings(mentorId: string):Promise<any>
       getMentorDashboardBookings(mentorId: string, startDate?: Date, endDate?: Date): Promise<any>
+      getMentorshipSessionsCount(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<number>
 }

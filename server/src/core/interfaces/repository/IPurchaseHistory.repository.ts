@@ -15,4 +15,6 @@ export interface IPurchaseHistoryRepository{
       }): Promise<IPurchaseHistory>
 
       findByUserId(userId: string): Promise<IPurchaseHistory[]>
+
+      getTotalSpent(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<number> 
 }

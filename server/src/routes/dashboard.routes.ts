@@ -13,6 +13,7 @@ const dashboardController=container.get<IDashboardController>(TYPES.DashboardCon
 
 router.get('/mentor/:mentorId',authMiddleware([UserRole.USER]),dashboardController.getDashboardData)
 router.get('/',authMiddleware([UserRole.ADMIN]),dashboardController.getAdminDashboardData)
+router.get('/user',authMiddleware([UserRole.USER]),dashboardController.getDashboardDataUser)
 
 
 
