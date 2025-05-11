@@ -1,432 +1,429 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import axiosInstance from "@/utils/axiosInstance"
+import { toast } from "sonner"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+
+interface PayoutRequest {
+  _id: string;
+  requestId: string;
+  mentorId: { name: string; email: string };
+  amount: number;
+  paymentMethod: string;
+  paymentDetails: {
+    accountNumber?: string;
+    bankName?: string;
+    ifscCode?: string;
+    accountName?: string;
+    upiId?: string;
+  };
+  status: "pending" | "paid" | "rejected";
+  requestedAt: string;
+  processedAt?: string;
+  adminNotes?: string;
+}
 
 export function Settings() {
-  const [siteName, setSiteName] = useState("Codefolio")
-  const [siteDescription, setSiteDescription] = useState("E-learning and mentorship platform for software engineers")
-  const [siteEmail, setSiteEmail] = useState("admin@codefolio.com")
-  const [sitePhone, setSitePhone] = useState("+1 (555) 123-4567")
-  const [siteAddress, setSiteAddress] = useState("123 Tech Street, San Francisco, CA 94105")
-  const [siteLogo, setSiteLogo] = useState("/placeholder.svg")
-  const [siteFavicon, setSiteFavicon] = useState("/placeholder.svg")
-  const [primaryColor, setPrimaryColor] = useState("#10b981")
-  const [secondaryColor, setSecondaryColor] = useState("#6366f1")
-  const [enableRegistration, setEnableRegistration] = useState(true)
-  const [enableMentorRequests, setEnableMentorRequests] = useState(true)
-  const [enableCourseReviews, setEnableCourseReviews] = useState(true)
-  const [enableNotifications, setEnableNotifications] = useState(true)
-  const [smtpHost, setSmtpHost] = useState("smtp.example.com")
-  const [smtpPort, setSmtpPort] = useState("587")
-  const [smtpUsername, setSmtpUsername] = useState("admin@codefolio.com")
-  const [smtpPassword, setSmtpPassword] = useState("********")
-  const [smtpEncryption, setSmtpEncryption] = useState("tls")
-  const [paymentGateway, setPaymentGateway] = useState("stripe")
-  const [stripePublicKey, setStripePublicKey] = useState("pk_test_***********************")
-  const [stripeSecretKey, setStripeSecretKey] = useState("sk_test_***********************")
-  const [paypalClientId, setPaypalClientId] = useState("client_id_***********************")
-  const [paypalClientSecret, setPaypalClientSecret] = useState("client_secret_***********************")
-  const [currency, setCurrency] = useState("usd")
+  const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([])
+  const [total, setTotal] = useState<number>(0)
+  const [page, setPage] = useState<number>(1)
+  const [isActionModalOpen, setIsActionModalOpen] = useState<boolean>(false)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false)
+  const [selectedRequest, setSelectedRequest] = useState<PayoutRequest | null>(null)
+  const [actionType, setActionType] = useState<"paid" | "rejected" | null>(null)
+  const [adminNotes, setAdminNotes] = useState<string>("")
+  const limit = 10
 
-  const handleSaveGeneralSettings = () => {
-    // In a real app, you would save the settings to your backend
-    console.log("Saving general settings...")
+  const fetchPayoutRequests = async (status: string) => {
+    try {
+      const response = await axiosInstance.get("/api/wallet/payout", {
+        params: { page, limit, status },
+      })
+      setPayoutRequests(response.data.requests)
+      setTotal(response.data.total)
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Error fetching payout requests")
+    }
   }
 
-  const handleSaveAppearanceSettings = () => {
-    // In a real app, you would save the settings to your backend
-    console.log("Saving appearance settings...")
+  useEffect(() => {
+    fetchPayoutRequests("pending")
+  }, [page])
+
+  const openActionModal = (request: PayoutRequest, action: "paid" | "rejected") => {
+    setSelectedRequest(request)
+    setActionType(action)
+    setAdminNotes(request.adminNotes || "")
+    setIsActionModalOpen(true)
   }
 
-  const handleSaveEmailSettings = () => {
-    // In a real app, you would save the settings to your backend
-    console.log("Saving email settings...")
+  const openConfirmModal = () => {
+    setIsActionModalOpen(false)
+    setIsConfirmModalOpen(true)
   }
 
-  const handleSavePaymentSettings = () => {
-    // In a real app, you would save the settings to your backend
-    console.log("Saving payment settings...")
+  const handleStatusUpdate = async () => {
+    if (!selectedRequest || !actionType) return
+
+    try {
+      const response = await axiosInstance.patch(`/api/wallet/${selectedRequest._id}/status`, {
+        status: actionType,
+        adminNotes: adminNotes,
+      })
+      toast.success(`Payout request ${actionType} successfully`, {
+        description: `Request ID: ${selectedRequest.requestId}`,
+      })
+      setPayoutRequests((prev) =>
+        prev.map((req) => (req._id === selectedRequest._id ? response.data.request : req))
+      )
+      setIsConfirmModalOpen(false)
+      setIsActionModalOpen(false)
+      setSelectedRequest(null)
+      setActionType(null)
+      setAdminNotes("")
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || `Error updating payout status to ${actionType}`)
+    }
   }
+
+  const totalPages = Math.ceil(total / limit)
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Payout Management</h2>
       </div>
 
-      <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="appearance">Appearance</TabsTrigger>
-          <TabsTrigger value="email">Email</TabsTrigger>
-          <TabsTrigger value="payment">Payment</TabsTrigger>
+      <Tabs defaultValue="pending">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger
+            value="pending"
+            onClick={() => {
+              setPage(1)
+              fetchPayoutRequests("pending")
+            }}
+          >
+            Pending
+          </TabsTrigger>
+          <TabsTrigger
+            value="paid"
+            onClick={() => {
+              setPage(1)
+              fetchPayoutRequests("paid")
+            }}
+          >
+            Paid
+          </TabsTrigger>
+          <TabsTrigger
+            value="rejected"
+            onClick={() => {
+              setPage(1)
+              fetchPayoutRequests("rejected")
+            }}
+          >
+            Rejected
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="general">
+
+        <TabsContent value="pending">
           <Card>
             <CardHeader>
-              <CardTitle>General Settings</CardTitle>
-              <CardDescription>Configure general settings for your platform.</CardDescription>
+              <CardTitle>Pending Payout Requests</CardTitle>
+              <CardDescription>Review and process pending payout requests from mentors</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="site-name">Site Name</Label>
-                <Input id="site-name" value={siteName} onChange={(e) => setSiteName(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="site-description">Site Description</Label>
-                <Textarea
-                  id="site-description"
-                  value={siteDescription}
-                  onChange={(e) => setSiteDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="site-email">Contact Email</Label>
-                  <Input
-                    id="site-email"
-                    type="email"
-                    value={siteEmail}
-                    onChange={(e) => setSiteEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="site-phone">Contact Phone</Label>
-                  <Input id="site-phone" value={sitePhone} onChange={(e) => setSitePhone(e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="site-address">Address</Label>
-                <Textarea
-                  id="site-address"
-                  value={siteAddress}
-                  onChange={(e) => setSiteAddress(e.target.value)}
-                  rows={2}
-                />
-              </div>
-              <Separator />
-              <h3 className="text-lg font-medium">Platform Settings</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="enable-registration">Enable User Registration</Label>
-                    <p className="text-sm text-muted-foreground">Allow new users to register on the platform.</p>
-                  </div>
-                  <Switch
-                    id="enable-registration"
-                    checked={enableRegistration}
-                    onCheckedChange={setEnableRegistration}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="enable-mentor-requests">Enable Mentor Requests</Label>
-                    <p className="text-sm text-muted-foreground">Allow users to submit mentor applications.</p>
-                  </div>
-                  <Switch
-                    id="enable-mentor-requests"
-                    checked={enableMentorRequests}
-                    onCheckedChange={setEnableMentorRequests}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="enable-course-reviews">Enable Course Reviews</Label>
-                    <p className="text-sm text-muted-foreground">Allow users to leave reviews on courses.</p>
-                  </div>
-                  <Switch
-                    id="enable-course-reviews"
-                    checked={enableCourseReviews}
-                    onCheckedChange={setEnableCourseReviews}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="enable-notifications">Enable Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Send email notifications for important events.</p>
-                  </div>
-                  <Switch
-                    id="enable-notifications"
-                    checked={enableNotifications}
-                    onCheckedChange={setEnableNotifications}
-                  />
-                </div>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Request ID</TableHead>
+                    <TableHead>Mentor</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Payment Method</TableHead>
+                    <TableHead>Payment Details</TableHead>
+                    <TableHead>Requested At</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {payoutRequests.map((request) => (
+                    <TableRow key={request._id}>
+                      <TableCell>{request.requestId}</TableCell>
+                      <TableCell>
+                        {request.mentorId.name} <br />
+                        <span className="text-sm text-muted-foreground">{request.mentorId.email}</span>
+                      </TableCell>
+                      <TableCell>₹{request.amount.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Badge>{request.paymentMethod}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {request.paymentMethod === "bank" && (
+                          <>
+                            Bank: {request.paymentDetails.bankName} <br />
+                            A/C: {request.paymentDetails.accountNumber} <br />
+                            IFSC: {request.paymentDetails.ifscCode} <br />
+                            Name: {request.paymentDetails.accountName}
+                          </>
+                        )}
+                        {request.paymentMethod === "upi" && <>UPI: {request.paymentDetails.upiId}</>}
+                      </TableCell>
+                      <TableCell>{new Date(request.requestedAt).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => openActionModal(request, "paid")}
+                            disabled={request.status !== "pending"}
+                          >
+                            Mark as Paid
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() => openActionModal(request, "rejected")}
+                            disabled={request.status !== "pending"}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="flex justify-between items-center mt-4">
+                <Button variant="outline" disabled={page === 1} onClick={() => setPage((prev) => prev - 1)}>
+                  <ChevronLeft className="h-4 w-4 mr-2" /> Previous
+                </Button>
+                <p>Page {page} of {totalPages}</p>
+                <Button variant="outline" disabled={page === totalPages} onClick={() => setPage((prev) => prev + 1)}>
+                  Next <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button onClick={handleSaveGeneralSettings}>Save Changes</Button>
-            </CardFooter>
           </Card>
         </TabsContent>
-        <TabsContent value="appearance">
+
+        <TabsContent value="paid">
           <Card>
             <CardHeader>
-              <CardTitle>Appearance Settings</CardTitle>
-              <CardDescription>Customize the look and feel of your platform.</CardDescription>
+              <CardTitle>Paid Payout Requests</CardTitle>
+              <CardDescription>View processed payout requests</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="site-logo">Site Logo</Label>
-                  <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 overflow-hidden rounded-md border">
-                      <img
-                        src={siteLogo || "/placeholder.svg"}
-                        alt="Site Logo"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <Input id="site-logo" type="file" className="max-w-sm" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="site-favicon">Site Favicon</Label>
-                  <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 overflow-hidden rounded-md border">
-                      <img
-                        src={siteFavicon || "/placeholder.svg"}
-                        alt="Site Favicon"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <Input id="site-favicon" type="file" className="max-w-sm" />
-                  </div>
-                </div>
-              </div>
-              <Separator />
-              <h3 className="text-lg font-medium">Color Scheme</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="primary-color">Primary Color</Label>
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-md border" style={{ backgroundColor: primaryColor }} />
-                    <Input
-                      id="primary-color"
-                      type="text"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="secondary-color">Secondary Color</Label>
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-md border" style={{ backgroundColor: secondaryColor }} />
-                    <Input
-                      id="secondary-color"
-                      type="text"
-                      value={secondaryColor}
-                      onChange={(e) => setSecondaryColor(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-              <Separator />
-              <h3 className="text-lg font-medium">Theme</h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-md border p-4 cursor-pointer hover:border-emerald-500">
-                  <div className="mb-2 h-32 rounded-md bg-white"></div>
-                  <p className="text-center font-medium">Light</p>
-                </div>
-                <div className="rounded-md border p-4 cursor-pointer hover:border-emerald-500">
-                  <div className="mb-2 h-32 rounded-md bg-gray-900"></div>
-                  <p className="text-center font-medium">Dark</p>
-                </div>
-                <div className="rounded-md border p-4 cursor-pointer hover:border-emerald-500">
-                  <div className="mb-2 h-32 rounded-md bg-gradient-to-b from-white to-gray-900"></div>
-                  <p className="text-center font-medium">System</p>
-                </div>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Request ID</TableHead>
+                    <TableHead>Mentor</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Payment Method</TableHead>
+                    <TableHead>Processed At</TableHead>
+                    <TableHead>Admin Notes</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {payoutRequests.map((request) => (
+                    <TableRow key={request._id}>
+                      <TableCell>{request.requestId}</TableCell>
+                      <TableCell>
+                        {request.mentorId.name} <br />
+                        <span className="text-sm text-muted-foreground">{request.mentorId.email}</span>
+                      </TableCell>
+                      <TableCell>₹{request.amount.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Badge>{request.paymentMethod}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {request.processedAt ? new Date(request.processedAt).toLocaleDateString() : "-"}
+                      </TableCell>
+                      <TableCell>{request.adminNotes || "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="flex justify-between items-center mt-4">
+                <Button variant="outline" disabled={page === 1} onClick={() => setPage((prev) => prev - 1)}>
+                  <ChevronLeft className="h-4 w-4 mr-2" /> Previous
+                </Button>
+                <p>Page {page} of {totalPages}</p>
+                <Button variant="outline" disabled={page === totalPages} onClick={() => setPage((prev) => prev + 1)}>
+                  Next <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button onClick={handleSaveAppearanceSettings}>Save Changes</Button>
-            </CardFooter>
           </Card>
         </TabsContent>
-        <TabsContent value="email">
+
+        <TabsContent value="rejected">
           <Card>
             <CardHeader>
-              <CardTitle>Email Settings</CardTitle>
-              <CardDescription>Configure email settings for your platform.</CardDescription>
+              <CardTitle>Rejected Payout Requests</CardTitle>
+              <CardDescription>View rejected payout requests</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <h3 className="text-lg font-medium">SMTP Configuration</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="smtp-host">SMTP Host</Label>
-                  <Input id="smtp-host" value={smtpHost} onChange={(e) => setSmtpHost(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="smtp-port">SMTP Port</Label>
-                  <Input id="smtp-port" value={smtpPort} onChange={(e) => setSmtpPort(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="smtp-username">SMTP Username</Label>
-                  <Input id="smtp-username" value={smtpUsername} onChange={(e) => setSmtpUsername(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="smtp-password">SMTP Password</Label>
-                  <Input
-                    id="smtp-password"
-                    type="password"
-                    value={smtpPassword}
-                    onChange={(e) => setSmtpPassword(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="smtp-encryption">Encryption</Label>
-                  <Select value={smtpEncryption} onValueChange={setSmtpEncryption}>
-                    <SelectTrigger id="smtp-encryption">
-                      <SelectValue placeholder="Select encryption" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      <SelectItem value="ssl">SSL</SelectItem>
-                      <SelectItem value="tls">TLS</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Separator />
-              <h3 className="text-lg font-medium">Email Templates</h3>
-              <div className="space-y-4">
-                <div className="rounded-md border p-4">
-                  <h4 className="font-medium">Welcome Email</h4>
-                  <p className="text-sm text-muted-foreground">Sent to new users when they register.</p>
-                  <Button variant="outline" size="sm" className="mt-2">
-                    Edit Template
-                  </Button>
-                </div>
-                <div className="rounded-md border p-4">
-                  <h4 className="font-medium">Course Enrollment</h4>
-                  <p className="text-sm text-muted-foreground">Sent to users when they enroll in a course.</p>
-                  <Button variant="outline" size="sm" className="mt-2">
-                    Edit Template
-                  </Button>
-                </div>
-                <div className="rounded-md border p-4">
-                  <h4 className="font-medium">Password Reset</h4>
-                  <p className="text-sm text-muted-foreground">Sent to users when they request a password reset.</p>
-                  <Button variant="outline" size="sm" className="mt-2">
-                    Edit Template
-                  </Button>
-                </div>
-                <div className="rounded-md border p-4">
-                  <h4 className="font-medium">Mentor Application</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Sent to users when their mentor application is approved or rejected.
-                  </p>
-                  <Button variant="outline" size="sm" className="mt-2">
-                    Edit Template
-                  </Button>
-                </div>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Request ID</TableHead>
+                    <TableHead>Mentor</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Payment Method</TableHead>
+                    <TableHead>Processed At</TableHead>
+                    <TableHead>Admin Notes</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {payoutRequests.map((request) => (
+                    <TableRow key={request._id}>
+                      <TableCell>{request.requestId}</TableCell>
+                      <TableCell>
+                        {request.mentorId.name} <br />
+                        <span className="text-sm text-muted-foreground">{request.mentorId.email}</span>
+                      </TableCell>
+                      <TableCell>₹{request.amount.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Badge>{request.paymentMethod}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {request.processedAt ? new Date(request.processedAt).toLocaleDateString() : "-"}
+                      </TableCell>
+                      <TableCell>{request.adminNotes || "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="flex justify-between items-center mt-4">
+                <Button variant="outline" disabled={page === 1} onClick={() => setPage((prev) => prev - 1)}>
+                  <ChevronLeft className="h-4 w-4 mr-2" /> Previous
+                </Button>
+                <p>Page {page} of {totalPages}</p>
+                <Button variant="outline" disabled={page === totalPages} onClick={() => setPage((prev) => prev + 1)}>
+                  Next <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button onClick={handleSaveEmailSettings}>Save Changes</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-        <TabsContent value="payment">
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Settings</CardTitle>
-              <CardDescription>Configure payment settings for your platform.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="payment-gateway">Payment Gateway</Label>
-                <Select value={paymentGateway} onValueChange={setPaymentGateway}>
-                  <SelectTrigger id="payment-gateway">
-                    <SelectValue placeholder="Select payment gateway" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="stripe">Stripe</SelectItem>
-                    <SelectItem value="paypal">PayPal</SelectItem>
-                    <SelectItem value="both">Both</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Separator />
-              <h3 className="text-lg font-medium">Stripe Configuration</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="stripe-public-key">Public Key</Label>
-                  <Input
-                    id="stripe-public-key"
-                    value={stripePublicKey}
-                    onChange={(e) => setStripePublicKey(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="stripe-secret-key">Secret Key</Label>
-                  <Input
-                    id="stripe-secret-key"
-                    type="password"
-                    value={stripeSecretKey}
-                    onChange={(e) => setStripeSecretKey(e.target.value)}
-                  />
-                </div>
-              </div>
-              <Separator />
-              <h3 className="text-lg font-medium">PayPal Configuration</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="paypal-client-id">Client ID</Label>
-                  <Input
-                    id="paypal-client-id"
-                    value={paypalClientId}
-                    onChange={(e) => setPaypalClientId(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="paypal-client-secret">Client Secret</Label>
-                  <Input
-                    id="paypal-client-secret"
-                    type="password"
-                    value={paypalClientSecret}
-                    onChange={(e) => setPaypalClientSecret(e.target.value)}
-                  />
-                </div>
-              </div>
-              <Separator />
-              <h3 className="text-lg font-medium">General Payment Settings</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="currency">Currency</Label>
-                  <Select value={currency} onValueChange={setCurrency}>
-                    <SelectTrigger id="currency">
-                      <SelectValue placeholder="Select currency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="usd">USD ($)</SelectItem>
-                      <SelectItem value="eur">EUR (€)</SelectItem>
-                      <SelectItem value="gbp">GBP (£)</SelectItem>
-                      <SelectItem value="jpy">JPY (¥)</SelectItem>
-                      <SelectItem value="cad">CAD ($)</SelectItem>
-                      <SelectItem value="aud">AUD ($)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={handleSavePaymentSettings}>Save Changes</Button>
-            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Action Modal */}
+      {selectedRequest && actionType && (
+        <Dialog open={isActionModalOpen} onOpenChange={(open) => !open && setIsActionModalOpen(false)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>
+                {actionType === "paid" ? "Mark Payout as Paid" : "Reject Payout Request"}
+              </DialogTitle>
+              <DialogDescription>
+                {actionType === "paid"
+                  ? "Confirm that the payout has been processed and add any notes."
+                  : "Reject the payout request and provide a reason for rejection."}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label>Request Details</Label>
+                <div className="text-sm text-muted-foreground">
+                  <p>Request ID: {selectedRequest.requestId}</p>
+                  <p>Mentor: {selectedRequest.mentorId.name} ({selectedRequest.mentorId.email})</p>
+                  <p>Amount: ₹{selectedRequest.amount.toFixed(2)}</p>
+                  <p>Payment Method: {selectedRequest.paymentMethod}</p>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label>Payment Details</Label>
+                <div className="text-sm text-muted-foreground">
+                  {selectedRequest.paymentMethod === "bank" && (
+                    <>
+                      <p>Bank: {selectedRequest.paymentDetails.bankName}</p>
+                      <p>Account Number: {selectedRequest.paymentDetails.accountNumber}</p>
+                      <p>IFSC Code: {selectedRequest.paymentDetails.ifscCode}</p>
+                      <p>Account Holder: {selectedRequest.paymentDetails.accountName}</p>
+                    </>
+                  )}
+                  {selectedRequest.paymentMethod === "upi" && (
+                    <p>UPI ID: {selectedRequest.paymentDetails.upiId}</p>
+                  )}
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="adminNotes">Admin Notes</Label>
+                <Textarea
+                  id="adminNotes"
+                  placeholder={actionType === "paid" ? "Add notes (optional)" : "Reason for rejection"}
+                  value={adminNotes}
+                  onChange={(e) => setAdminNotes(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsActionModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={actionType === "paid" ? "default" : "destructive"}
+                onClick={openConfirmModal}
+              >
+                {actionType === "paid" ? "Mark as Paid" : "Reject"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Confirmation Modal */}
+      {selectedRequest && actionType && (
+        <Dialog open={isConfirmModalOpen} onOpenChange={(open) => !open && setIsConfirmModalOpen(false)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Confirm {actionType === "paid" ? "Payment" : "Rejection"}</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to {actionType === "paid" ? "mark this payout request as paid" : "reject this payout request"}?
+                <br />
+                Request ID: {selectedRequest.requestId}
+                <br />
+                {adminNotes && (
+                  <>
+                    Notes: {adminNotes}
+                  </>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsConfirmModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={actionType === "paid" ? "default" : "destructive"}
+                onClick={handleStatusUpdate}
+              >
+                Confirm
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
-

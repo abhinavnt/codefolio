@@ -86,6 +86,8 @@ import { IDashboardService } from "../core/interfaces/service/IDashboardService"
 import { DashboardService } from "../services/dashboard.service";
 import { IDashboardController } from "../core/interfaces/controller/IDashboardController";
 import { DashboardController } from "../controllers/dashboard.controller";
+import { IPayoutRequestRepository } from "../core/interfaces/repository/IPayoutRequest";
+import { PayoutRequestRepository } from "../repositories/payout.request.repository";
 
 
 
@@ -166,6 +168,7 @@ container.bind<IWalletController>(TYPES.WalletController).to(WalletController)
 
 container.bind<IDashboardService>(TYPES.DashboardService).to(DashboardService)
 container.bind<IDashboardController>(TYPES.DashboardController).to(DashboardController)
+container.bind<IPayoutRequestRepository>(TYPES.PayoutRequestRepository).to(PayoutRequestRepository)
 
 
 export default container
