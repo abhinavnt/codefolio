@@ -8,7 +8,7 @@ import {
   FileQuestion,
   PlusCircle,
   BookOpen,
-  // Settings,
+  HandCoins,
   X,
   type LucideIcon,
 } from "lucide-react"
@@ -62,11 +62,11 @@ const navItems: NavItem[] = [
     href: "/admin/course-management",
     icon: BookOpen,
   },
-  // {
-  //   title: "Settings",
-  //   href: "/admin/settings",
-  //   icon: Settings,
-  // },
+  {
+    title: "PayOut",
+    href: "/admin/settings",
+    icon: HandCoins,
+  },
 ]
 
 // Simple utility function to combine class names

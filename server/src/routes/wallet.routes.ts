@@ -15,6 +15,9 @@ router.get('/:mentorId/transactions',authMiddleware([UserRole.USER]),walletContr
 router.get('/:mentorId/balance',authMiddleware([UserRole.USER]),walletController.getBalance)
 router.post('/:mentorId/withdraw',authMiddleware([UserRole.USER]),walletController.withdrawFunds)
 
+//payout
+router.get("/payout", authMiddleware([UserRole.ADMIN]), walletController.getPayoutRequests);
+router.patch("/:requestId/status", authMiddleware([UserRole.ADMIN]), walletController.updatePayoutStatus);
 
 
 

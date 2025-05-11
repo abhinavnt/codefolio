@@ -20,6 +20,7 @@ export const TYPES={
     MentorAvailabilityRepository:Symbol.for("MentorAvailabilityRepository"),
     PurchaseHistoryRepository:Symbol.for("PurchaseHistoryRepository"),
     MentorWalletRepository:Symbol.for("MentorWalletRepository"),
+    PayoutRequestRepository:Symbol.for("PayoutRequestRepository"),
      
 
     //services

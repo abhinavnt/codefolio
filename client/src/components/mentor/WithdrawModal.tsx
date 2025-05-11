@@ -30,22 +30,20 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
     const [accountNumber, setAccountNumber] = useState<string>("")
     const [ifscCode, setIfscCode] = useState<string>("")
     const [accountName, setAccountName] = useState<string>("")
-    const [bankName, setbankName] = useState<string>("")
+    const [bankName, setBankName] = useState<string>("")
     const [loading, setLoading] = useState<boolean>(false)
 
     const handleSubmit = async () => {
-
-      
         if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
             toast.error("Please enter a valid withdrawal amount", {
-                description: "Invalid amount",
+                description: "Amount must be a positive number",
             })
             return
         }
 
         if (Number(amount) > balance) {
-            toast.error("You cannot withdraw more than your available balance", {
-                description: "Insufficient balance",
+            toast.error("Insufficient balance", {
+                description: `You cannot withdraw more than ₹${balance.toFixed(2)}`,
             })
             return
         }
@@ -57,16 +55,16 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
         if (paymentMethod === "upi") {
             if (!upiId || !upiId.includes("@")) {
                 isValid = false
-                errorMessage = "Please enter a valid UPI ID"
+                errorMessage = "Please enter a valid UPI ID (e.g., yourname@upi)"
             }
             paymentDetails = { upiId }
         } else if (paymentMethod === "bank") {
             if (!accountNumber || accountNumber.length < 9) {
                 isValid = false
-                errorMessage = "Please enter a valid account number"
-            } else if (!ifscCode || ifscCode.length < 11) {
+                errorMessage = "Please enter a valid account number (minimum 9 digits)"
+            } else if (!ifscCode || ifscCode.length !== 11) {
                 isValid = false
-                errorMessage = "Please enter a valid IFSC code"
+                errorMessage = "Please enter a valid IFSC code (11 characters)"
             } else if (!accountName) {
                 isValid = false
                 errorMessage = "Please enter the account holder name"
@@ -79,7 +77,7 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
 
         if (!isValid) {
             toast.error(errorMessage, {
-                description: "Invalid details",
+                description: "Invalid payment details",
             })
             return
         }
@@ -87,14 +85,14 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
         setLoading(true)
         try {
             await onWithdraw(Number(amount), paymentMethod, paymentDetails)
+            toast.success(`Your withdrawal request of ₹${Number(amount).toFixed(2)} has been submitted`, {
+                description: "The request is pending admin approval",
+            })
             resetForm()
             onClose()
-            // toast.success(`Your withdrawal of $${Number(amount).toFixed(2)} has been initiated successfully`, {
-            //     description: "Withdrawal initiated",
-            // })
         } catch (error: any) {
             toast.error(error.message || "An error occurred while processing your withdrawal", {
-                description: "Withdrawal failed",
+                description: "Please try again later",
             })
         } finally {
             setLoading(false)
@@ -108,7 +106,7 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
         setAccountNumber("")
         setIfscCode("")
         setAccountName("")
-        setbankName("")
+        setBankName("")
     }
 
     return (
@@ -132,6 +130,8 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
                                 onChange={(e) => setAmount(e.target.value)}
                                 className="pl-8"
                                 placeholder="Enter amount to withdraw"
+                                min="1"
+                                step="0.01"
                             />
                         </div>
                         <p className="text-xs text-muted-foreground">Available balance: ₹{balance.toFixed(2)}</p>
@@ -158,7 +158,12 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
                     {paymentMethod === "upi" && (
                         <div className="grid gap-2">
                             <Label htmlFor="upiId">UPI ID</Label>
-                            <Input id="upiId" value={upiId} onChange={(e) => setUpiId(e.target.value)} placeholder="yourname@upi" />
+                            <Input
+                                id="upiId"
+                                value={upiId}
+                                onChange={(e) => setUpiId(e.target.value)}
+                                placeholder="yourname@upi"
+                            />
                         </div>
                     )}
 
@@ -179,7 +184,7 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
                                 <Input
                                     id="bankName"
                                     value={bankName}
-                                    onChange={(e) => setbankName(e.target.value)}
+                                    onChange={(e) => setBankName(e.target.value)}
                                     placeholder="Enter bank name"
                                 />
                             </div>
@@ -212,7 +217,7 @@ export function WithdrawModal({ isOpen, onClose, onWithdraw, balance }: Withdraw
                     </Button>
                     <Button onClick={handleSubmit} disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {loading ? "Processing..." : "Withdraw"}
+                        {loading ? "Processing..." : "Submit Request"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -37,7 +37,7 @@ export class WalletController implements IWalletController {
 
   withdrawFunds = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { mentorId } = req.params;
-    const { amount, description } = req.body;
+    const { amount, description, paymentMethod, paymentDetails } = req.body;
 
     if (!mentorId) {
       res.status(400).json({ error: "Mentor ID is required" });
@@ -49,7 +49,54 @@ export class WalletController implements IWalletController {
       return;
     }
 
-    const transaction = await this.walletService.withdrawFunds(mentorId, amount, description);
+    if (!paymentMethod || !["bank", "upi"].includes(paymentMethod)) {
+      res.status(400).json({ error: "Invalid payment method" });
+      return;
+    }
+
+    if (!paymentDetails) {
+      res.status(400).json({ error: "Payment details are required" });
+      return;
+    }
+
+    if (paymentMethod === "upi") {
+      if (!paymentDetails.upiId || !paymentDetails.upiId.includes("@")) {
+        res.status(400).json({ error: "Valid UPI ID is required" });
+        return;
+      }
+    } else if (paymentMethod === "bank") {
+      if (
+        !paymentDetails.accountNumber ||
+        paymentDetails.accountNumber.length < 9 ||
+        !paymentDetails.ifscCode ||
+        paymentDetails.ifscCode.length < 11 ||
+        !paymentDetails.accountName ||
+        !paymentDetails.bankName
+      ) {
+        res.status(400).json({ error: "Complete bank details are required" });
+        return;
+      }
+    }
+
+    const transaction = await this.walletService.withdrawFunds(mentorId, amount, description, paymentMethod, paymentDetails);
     res.status(200).json({ transaction });
+  });
+
+  //payout
+  getPayoutRequests = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const status = req.query.status as string;
+
+    const { requests, total } = await this.walletService.getPayoutRequests(status, page, limit);
+    res.status(200).json({ requests, total, page, limit });
+  });
+
+  updatePayoutStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { requestId } = req.params;
+    const { status, adminNotes } = req.body;
+
+    const updatedRequest = await this.walletService.updatePayoutStatus(requestId, status, adminNotes);
+    res.status(200).json({ request: updatedRequest, message: "Payout status updated successfully" });
   });
 }
