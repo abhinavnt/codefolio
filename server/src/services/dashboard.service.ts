@@ -12,6 +12,7 @@ import { IMentorRepository } from "../core/interfaces/repository/IMentorReposito
 import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
 import { IUserRepository } from "../core/interfaces/repository/IUserRepository";
 import { IPurchaseCourseRepository } from "../core/interfaces/repository/IPurchasedCourse";
+import { IPurchaseHistoryRepository } from "../core/interfaces/repository/IPurchaseHistory.repository";
 
 export interface DashboardData {
   totalBookings: number;
@@ -43,10 +44,11 @@ export class DashboardService implements IDashboardService {
     @inject(TYPES.MentorRepository) private mentorRepository: IMentorRepository,
     @inject(TYPES.CourseRepository) private courseRepository: ICourseRepository,
     @inject(TYPES.UserRepository) private userRepository: IUserRepository,
-    @inject(TYPES.PurchaseCourseRepository) private purchaseCourseRepository: IPurchaseCourseRepository
+    @inject(TYPES.PurchaseCourseRepository) private purchaseCourseRepository: IPurchaseCourseRepository,
+    @inject(TYPES.PurchaseHistoryRepository) private purchaseHistory: IPurchaseHistoryRepository
   ) {}
 
- async getDashboardData(mentorId: string, filterType: string, filterValue?: string): Promise<DashboardData> {
+  async getDashboardData(mentorId: string, filterType: string, filterValue?: string): Promise<DashboardData> {
     // Determine date range based on filter
     let startDate: Date | undefined;
     let endDate: Date | undefined;
@@ -68,7 +70,7 @@ export class DashboardService implements IDashboardService {
     const [bookings, walletTransactions, availability] = await Promise.all([
       this.bookingRepository.getMentorDashboardBookings(mentorId, startDate, endDate),
       this.mentorWallet.getDashboardWalletTransactions(mentorId, startDate, endDate),
-       this.mentorAvailbilty.getDashboardUpcomingAvailability(mentorId, startDate, endDate),
+      this.mentorAvailbilty.getDashboardUpcomingAvailability(mentorId, startDate, endDate),
     ]);
 
     // Calculate metrics
@@ -176,6 +178,22 @@ export class DashboardService implements IDashboardService {
       totalMentors,
       enrollmentsByCategory,
       monthlyRevenue,
+    };
+  }
+
+  async getDashboardDataUser(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<any> {
+    const [coursesPurchased, mentorshipSessions, completedCourses, totalSpent] = await Promise.all([
+      this.purchaseCourseRepository.getCoursesPurchasedCount(userId, period),
+      this.bookingRepository.getMentorshipSessionsCount(userId, period),
+      this.purchaseCourseRepository.getCompletedCoursesCount(userId, period),
+      this.purchaseHistory.getTotalSpent(userId, period),
+    ]);
+
+    return {
+      coursesPurchased,
+      mentorshipSessions,
+      completedCourses,
+      totalSpent,
     };
   }
 }

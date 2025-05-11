@@ -6,6 +6,7 @@ import { startOfDay, endOfDay, getDay } from "date-fns";
 import { stripe } from "../config/stripe";
 import mongoose from "mongoose";
 import { BaseRepository } from "../core/abstracts/base.repository";
+import { getDateRange } from "../utils/dateUtils";
 
 export class BookingRepository extends BaseRepository<IBooking> implements IBookingRepository {
   constructor() {
@@ -84,7 +85,7 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
     return await this.model.findByIdAndUpdate(bookingId, updateData, { new: true }).exec();
   }
 
-
+//dashboard
    async getMentorDashboardBookings(mentorId: string, startDate?: Date, endDate?: Date): Promise<any> {
     const query: any = { mentorId };
     if (startDate && endDate) {
@@ -94,4 +95,17 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
       .sort({ date: -1 })
       .lean();
   }
+
+  async getMentorshipSessionsCount(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<number> {
+    const query: any = { userId, status: "completed" };
+    
+    if (period !== "all") {
+      const { startDate, endDate } = getDateRange(period);
+      query.createdAt = { $gte: startDate, $lte: endDate };
+    }
+
+    return this.countDocuments(query);
+  }
+
+
 }
