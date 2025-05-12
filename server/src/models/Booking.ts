@@ -11,6 +11,16 @@ export interface IBooking extends Document {
   totalPrice: number;
   feedback?: string;
   cancellationReason?: string;
+  rescheduleRequests?: {
+    requester: "user" | "mentor";
+    newDate: Date;
+    newStartTime: string;
+    newEndTime: string;
+    reason: string;
+    status: "pending" | "accepted" | "rejected";
+    requestedAt: Date;
+  }[];
+  isRescheduled?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +45,26 @@ const BookingSchema = new Schema<IBooking>(
     totalPrice: { type: Number, required: true },
     feedback: { type: String, required: false },
     cancellationReason: { type: String, required: false },
+    rescheduleRequests: [
+      {
+        requester: {
+          type: String,
+          enum: ["user", "mentor"],
+          required: true,
+        },
+        newDate: { type: Date, required: true },
+        newStartTime: { type: String, required: true },
+        newEndTime: { type: String, required: true },
+        reason: { type: String, required: true },
+        status: {
+          type: String,
+          enum: ["pending", "accepted", "rejected"],
+          default: "pending",
+        },
+        requestedAt: { type: Date, default: Date.now },
+      },
+    ],
+    isRescheduled: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

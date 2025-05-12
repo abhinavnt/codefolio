@@ -15,4 +15,6 @@ export interface IBookingController{
     cancelBooking:RequestHandler
     completeBooking:RequestHandler
     editFeedback:RequestHandler
+    requestReschedule:RequestHandler
+    respondToRescheduleRequest:RequestHandler
 }

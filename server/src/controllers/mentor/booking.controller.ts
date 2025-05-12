@@ -101,4 +101,30 @@ export class BookingController implements IBookingController {
     const booking = await this.bookinService.editFeedback(bookingId, feedback);
     res.status(200).json({ message: "Feedback updated successfully", booking });
   });
+
+  requestReschedule = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { bookingId } = req.params;
+    const { requester, newDate, newStartTime, newEndTime, reason } = req.body;
+
+    if (!requester || !newDate || !newStartTime || !newEndTime || !reason) {
+      res.status(400).json({ error: "Missing required fields" });
+      return;
+    }
+
+    const booking = await this.bookinService.requestReschedule(bookingId, requester, newDate, newStartTime, newEndTime, reason);
+    res.status(200).json({ message: "Reschedule request created successfully", booking });
+  });
+
+  respondToRescheduleRequest = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { bookingId, requestIndex } = req.params;
+    const { status } = req.body;
+
+    if (!status || !["accepted", "rejected"].includes(status)) {
+      res.status(400).json({ error: "Invalid status" });
+      return;
+    }
+
+    const booking = await this.bookinService.respondToRescheduleRequest(bookingId, parseInt(requestIndex), status);
+    res.status(200).json({ message: `Reschedule request ${status}`, booking });
+  });
 }
