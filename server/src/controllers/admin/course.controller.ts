@@ -254,4 +254,9 @@ export class CourseController implements ICourseController {
 
     res.status(200).json(course);
   });
+
+  getTopCourses = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const courses = await this.courseService.getTopCourses();
+    res.status(200).json(courses);
+  });
 }

@@ -26,4 +26,8 @@ router.patch("/bookings/:bookingId/complete", authMiddleware([UserRole.USER]), b
 
 router.patch("/bookings/:bookingId/feedback", authMiddleware([UserRole.USER]), bookingController.editFeedback);
 
+router.post('/bookings/:bookingId/reschedule',authMiddleware([UserRole.USER]),bookingController.requestReschedule)
+
+router.post('/bookings/:bookingId/reschedule/:requestIndex/respond',authMiddleware([UserRole.USER]),bookingController.respondToRescheduleRequest)
+
 export default router;

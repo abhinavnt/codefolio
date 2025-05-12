@@ -15,4 +15,5 @@ export interface ICourseController {
   getAllPurchasedCoursesAdmin:RequestHandler
   getUserTasksAdmin:RequestHandler
   findPurchasedCourseById:RequestHandler
+  getTopCourses:RequestHandler
 }

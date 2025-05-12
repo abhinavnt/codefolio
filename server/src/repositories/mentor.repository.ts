@@ -175,6 +175,13 @@ export class mentorRepository extends BaseRepository<IMentor> implements IMentor
     return { allMentors: request, total };
   }
 
+  async getTopMentors(limit: number): Promise<IMentor[]> {
+      return this.find({ status: "active" })
+      .sort({ submittedAt: -1 }) // Sort by creation date, newest first
+      .limit(limit)
+      .select("name username currentRole bio yearsOfExperience profileImage")
+      
+  }
 
   //dashboard
   async getDashboardTotalMentors(): Promise<number> {

@@ -16,7 +16,8 @@ export class FeedbackService implements IFeedbackService {
 
   async submitFeedback(feedbackData: Partial<IMentorFeedback>): Promise<IMentorFeedback | null> {
     const { mentorId, userId, rating, feedback } = feedbackData;
-
+    console.log(mentorId," ",userId," service");
+    
     if (!mentorId || !userId) {
       throw new Error("Mentor ID and User ID are required");
     }

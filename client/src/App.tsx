@@ -25,6 +25,7 @@ import { BookingSuccess } from "./pages/user/SlotBookingSuccess";
 import EnrolledCourseTask from "./pages/user/EnrolledCourseTask";
 import { VideoCall } from "./pages/video/VideoCall";
 import { useSocket } from "./hooks/useSocket";
+import About from "./pages/user/About";
 
 
 const LazyResetPasswordPage = lazy(() => import("./components/user/Auth/ResetPasswordPage"));
@@ -110,6 +111,7 @@ function App() {
                 <Route path="/video-call/:bookingId" element={<VideoCall />} />
               </Route>
 
+              <Route path="/about" element={<About/>}/>
 
               {/* <Route path="/admin/login" element={<AdminLogin/>}/> */}
               <Route path="/admin/*" element={<AdminRoutes />} />

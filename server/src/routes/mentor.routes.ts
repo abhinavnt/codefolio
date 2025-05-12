@@ -25,6 +25,8 @@ router.get('/getAvailability',authMiddleware([UserRole.USER]),mentorController.g
 
 router.put('/availability',authMiddleware([UserRole.USER]),mentorController.updateAvailability)
 
+router.get('/top-mentors',mentorController.getTopMentors)
+
 router.get('/:username',authMiddleware([UserRole.USER]),mentorController.getMentorProfile)  
 
 export default router

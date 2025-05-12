@@ -20,6 +20,7 @@ export interface IMentorRepository{
     updateMentorStatus(userId:string,status:"active"|"inactive"):Promise<IMentor|null>
     getAllMentorsAdmin(page:number,limit:number):Promise<{allMentors:IMentor[],total:number}>
     getDashboardTotalMentors(): Promise<number>
+    getTopMentors(limit: number ): Promise<IMentor[]>
 }
 
 

@@ -11,6 +11,8 @@ export class FeedbackController implements IFeedbackController {
 
   submitMentorFeedback = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const feedbackData = req.body;
+    console.log(req.body,"req body from the controller");
+    
     const feedback = await this.feedbackService.submitFeedback(feedbackData);
     res.status(201).json(feedback);
   });

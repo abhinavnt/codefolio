@@ -85,20 +85,66 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
     return await this.model.findByIdAndUpdate(bookingId, updateData, { new: true }).exec();
   }
 
-//dashboard
-   async getMentorDashboardBookings(mentorId: string, startDate?: Date, endDate?: Date): Promise<any> {
+  async createRescheduleRequest(
+    bookingId: string,
+    requestData: { requester: "user" | "mentor"; newDate: Date; newStartTime: string; newEndTime: string; reason: string }
+  ): Promise<IBooking | null> {
+    return await this.model
+      .findByIdAndUpdate(
+        bookingId,
+        {
+          $push: {
+            rescheduleRequests: {
+              requester: requestData.requester,
+              newDate: requestData.newDate,
+              newStartTime: requestData.newStartTime,
+              newEndTime: requestData.newEndTime,
+              reason: requestData.reason,
+              status: "pending",
+              requestedAt: new Date(),
+            },
+          },
+        },
+        { new: true }
+      )
+      .exec();
+  }
+
+  async updateRescheduleRequest(bookingId: string, requestIndex: number, status: "accepted" | "rejected"): Promise<IBooking | null> {
+    const update: any = {
+      [`rescheduleRequests.${requestIndex}.status`]: status,
+    };
+
+    if (status === "accepted") {
+      const booking = await this.model.findById(bookingId).exec();
+      if (booking && booking.rescheduleRequests && booking.rescheduleRequests[requestIndex]) {
+        const { newDate, newStartTime, newEndTime } = booking.rescheduleRequests[requestIndex];
+        update.date = newDate;
+        update.startTime = newStartTime;
+        update.endTime = newEndTime;
+        update.isRescheduled = true;
+      }
+    }
+
+    return await this.model.findByIdAndUpdate(bookingId, { $set: update }, { new: true }).exec();
+  }
+
+  async findByBookingId(bookingId: string): Promise<IBooking | null> {
+      return this.findById(new mongoose.Types.ObjectId(bookingId))
+  }
+
+  //dashboard
+  async getMentorDashboardBookings(mentorId: string, startDate?: Date, endDate?: Date): Promise<any> {
     const query: any = { mentorId };
     if (startDate && endDate) {
       query.date = { $gte: startDate, $lte: endDate };
     }
-    return this.find(query)
-      .sort({ date: -1 })
-      .lean();
+    return this.find(query).sort({ date: -1 }).lean();
   }
 
   async getMentorshipSessionsCount(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<number> {
     const query: any = { userId, status: "completed" };
-    
+
     if (period !== "all") {
       const { startDate, endDate } = getDateRange(period);
       query.createdAt = { $gte: startDate, $lte: endDate };
@@ -106,6 +152,4 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
 
     return this.countDocuments(query);
   }
-
-
 }

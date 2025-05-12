@@ -84,12 +84,11 @@ export class BookingService implements IBookingService {
       mentorId: String(mentor._id),
       date: new Date(),
       description: `Payment for session with user on ${date}`,
-      amount:450,
+      amount: 450,
       type: "credit",
     });
 
-    console.log('transaction save ayi');
-    
+    console.log("transaction save ayi");
 
     return { url: session.url!, sessionId: session.id! };
   }
@@ -194,6 +193,8 @@ export class BookingService implements IBookingService {
     const bookings = await this.bookingRepository.getBookingsByMentorId(mentor?._id as string);
     return bookings.map((booking) => ({
       id: booking._id,
+      mentorId: mentor?._id,
+      userId: (booking.userId as any)._id,
       studentName: (booking.userId as any).name,
       studentEmail: (booking.userId as any).email,
       studentImage: (booking.userId as any).image || "/placeholder.svg?height=40&width=40",
@@ -201,9 +202,21 @@ export class BookingService implements IBookingService {
       startTime: booking.startTime,
       endTime: booking.endTime,
       purpose: "Mentoring session",
-      paymentStatus: this.determineStatus(booking),
       status: booking.status,
+      paymentStatus: this.determineStatus(booking),
+      totalPrice: booking.totalPrice || 0,
       feedback: booking.feedback,
+      cancellationReason: booking.cancellationReason,
+      rescheduleRequests: booking.rescheduleRequests?.map((req) => ({
+        requester: req.requester,
+        newDate: req.newDate.toLocaleDateString("en-US", { day: "2-digit", month: "short" }),
+        newStartTime: req.newStartTime,
+        newEndTime: req.newEndTime,
+        reason: req.reason,
+        status: req.status,
+        requestedAt: req.requestedAt,
+      })),
+      isRescheduled: booking.isRescheduled || false,
     }));
   }
 
@@ -245,6 +258,52 @@ export class BookingService implements IBookingService {
       const booking = await this.bookingRepository.updateBooking(bookingId, { feedback });
       if (!booking) throw new Error("Booking not found");
       return booking;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async requestReschedule(
+    bookingId: string,
+    requester: "user" | "mentor",
+    newDate: string,
+    newStartTime: string,
+    newEndTime: string,
+    reason: string
+  ): Promise<IBooking> {
+    try {
+      const booking = await this.bookingRepository.findByBookingId(bookingId);
+      if (!booking) throw new Error("Booking not found");
+      if (booking.status !== "pending") throw new Error("Only pending bookings can be rescheduled");
+
+      const rescheduleRequest = await this.bookingRepository.createRescheduleRequest(bookingId, {
+        requester,
+        newDate: new Date(newDate),
+        newStartTime,
+        newEndTime,
+        reason,
+      });
+
+      if (!rescheduleRequest) throw new Error("Failed to create reschedule request");
+
+      return rescheduleRequest;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async respondToRescheduleRequest(bookingId: string, requestIndex: number, status: "accepted" | "rejected"): Promise<IBooking> {
+    try {
+      const booking = await this.bookingRepository.findByBookingId(bookingId);
+      if (!booking) throw new Error("Booking not found");
+      if (!booking.rescheduleRequests || requestIndex >= booking.rescheduleRequests.length) {
+        throw new Error("Invalid reschedule request");
+      }
+
+      const updatedBooking = await this.bookingRepository.updateRescheduleRequest(bookingId, requestIndex, status);
+      if (!updatedBooking) throw new Error("Failed to update reschedule request");
+
+      return updatedBooking;
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : String(error));
     }
