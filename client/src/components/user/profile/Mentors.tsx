@@ -114,9 +114,9 @@ export function Mentors() {
   }
 
   const mentorFeedbackMap = useMemo(() => {
-    return userFeedbacks.reduce(
+    return userFeedbacks?.reduce(
       (map, feedback) => {
-        map[feedback.mentorId._id] = feedback
+        map[feedback.mentorId?._id] = feedback
         return map
       },
       {} as { [mentorId: string]: IMentorFeedback },
@@ -415,7 +415,7 @@ export function Mentors() {
             <TabsContent value={activeTab} className="mt-0">
               <div className="space-y-4">
                 {currentBookings.length > 0 ? (
-                  currentBookings.map((booking) => {
+                  currentBookings?.map((booking) => {
                     const pendingRescheduleRequest = booking.rescheduleRequests?.find(
                       (req) => req.requester === "mentor" && req.status === "pending",
                     )
@@ -427,33 +427,33 @@ export function Mentors() {
                         <div className="flex items-center gap-4 mb-4 md:mb-0">
                           <Avatar>
                             <AvatarImage
-                              src={booking.mentorId.profileImage || "/placeholder.svg"}
-                              alt={booking.mentorId.name}
+                              src={booking.mentorId?.profileImage || "/placeholder.svg"}
+                              alt={booking.mentorId?.name}
                             />
-                            <AvatarFallback>{booking.mentorId.name}</AvatarFallback>
+                            <AvatarFallback>{booking.mentorId?.name}</AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="flex items-center gap-2">
-                              <h3 className="font-medium">Mentor: {booking.mentorId.name}</h3>
+                              <h3 className="font-medium">Mentor: {booking.mentorId?.name}</h3>
                               {booking.isRescheduled && <Badge variant="secondary">Rescheduled</Badge>}
                             </div>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-primary">
                               <div className="flex items-center">
                                 <Calendar className="h-3.5 w-3.5 mr-1" />
-                                <span>{format(new Date(booking.date), "MMMM d, yyyy")}</span>
+                                <span>{format(new Date(booking?.date), "MMMM d, yyyy")}</span>
                               </div>
                               <div className="flex items-center">
                                 <Clock className="h-3.5 w-3.5 mr-1" />
                                 <span>
-                                  {booking.startTime} - {booking.endTime}
+                                  {booking.startTime} - {booking?.endTime}
                                 </span>
                               </div>
                             </div>
-                            {booking.status === "completed" && mentorFeedbackMap[booking.mentorId._id] && (
+                            {booking.status === "completed" && mentorFeedbackMap[booking.mentorId?._id] && (
                               <div className="mt-1">
                                 <div className="flex items-center gap-2">
                                   <StarRating
-                                    rating={mentorFeedbackMap[booking.mentorId._id].rating}
+                                    rating={mentorFeedbackMap[booking.mentorId?._id].rating}
                                     size="w-4 h-4"
                                     interactive={false}
                                   />
@@ -465,8 +465,8 @@ export function Mentors() {
                               <div className="mt-1">
                                 <p className="text-sm text-yellow-600">
                                   Mentor requested to reschedule to{" "}
-                                  {format(new Date(pendingRescheduleRequest.newDate), "MMMM d, yyyy")} at{" "}
-                                  {pendingRescheduleRequest.newStartTime} - {pendingRescheduleRequest.newEndTime}
+                                  {format(new Date(pendingRescheduleRequest?.newDate), "MMMM d, yyyy")} at{" "}
+                                  {pendingRescheduleRequest?.newStartTime} - {pendingRescheduleRequest?.newEndTime}
                                 </p>
                               </div>
                             )}
@@ -529,7 +529,7 @@ export function Mentors() {
                               onClick={() => openFeedbackDialog(booking, mentorFeedbackMap[booking.mentorId._id])}
                             >
                               <StarIcon className="h-4 w-4 mr-1" />
-                              {mentorFeedbackMap[booking.mentorId._id] ? "Edit Rating" : "Rate Mentor"}
+                              {mentorFeedbackMap[booking.mentorId?._id] ? "Edit Rating" : "Rate Mentor"}
                             </Button>
                           )}
                           <Button variant="outline" size="sm" onClick={() => handleViewDetails(booking)}>
