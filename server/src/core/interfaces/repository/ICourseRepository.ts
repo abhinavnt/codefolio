@@ -21,4 +21,6 @@ export interface ICourseRepository {
   getDashboardEnrollmentsByCategory(): Promise<{ category: string; count: number }[]>
   getDashboardMonthlyRevenue(): Promise<{ month: string; revenue: number }[]>
   getDashboardCoursesSold(): Promise<number>
+  getTopCourses(limit: number): Promise<ICourse[]>
+  
 }

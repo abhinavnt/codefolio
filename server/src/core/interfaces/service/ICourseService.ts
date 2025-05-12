@@ -24,5 +24,7 @@ export interface ICourseService {
     statusFilter?: string
   ): Promise<{ courses: ICoursePurchased[]; total: number }>;
 
-  findCourseById(courseId:string,userId:string):Promise<ICoursePurchased|null>
+  findCourseById(courseId: string, userId: string): Promise<ICoursePurchased | null>;
+
+  getTopCourses(): Promise<ICourse[]>;
 }

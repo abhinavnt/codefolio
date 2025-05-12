@@ -158,4 +158,8 @@ export class MentorService implements IMentorService {
       throw new Error(error instanceof Error ? error.message : String(error));
     }
   }
+
+  async getTopMentors(): Promise<IMentor[]> {
+      return this.mentorRepository.getTopMentors(4);
+  }
 }

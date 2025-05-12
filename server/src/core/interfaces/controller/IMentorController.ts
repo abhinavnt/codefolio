@@ -12,5 +12,6 @@ export interface IMentorController{
     updateProfile:RequestHandler
     updateAvailability:RequestHandler
     getAvailability:RequestHandler
+    getTopMentors:RequestHandler
  
 }

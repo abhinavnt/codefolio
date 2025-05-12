@@ -100,6 +100,14 @@ export class courseRepository extends BaseRepository<ICourse> implements ICourse
     return await this.findByIdAndUpdate(new mongoose.Types.ObjectId(id), data, { new: true });
   }
 
+  async getTopCourses(limit: number = 3): Promise<ICourse[]> {
+    return Course.find({ status: "published" })
+      .sort({ createdAt: -1 }) // Sort by creation date, newest first
+      .limit(limit)
+      .select("title description image price rating")
+      .lean();
+  }
+
   //dashboard
   async getDashboardEnrolledCourses(): Promise<number> {
     const courses = await this.find({});

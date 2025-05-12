@@ -224,8 +224,13 @@ export class courseService implements ICourseService {
     return this.purchaseCourseRepository.findAllCourses(page, limit, search, courseFilter, statusFilter)
   }
 
-  findCourseById(courseId: string,userId:string): Promise<ICoursePurchased | null> {
+ async findCourseById(courseId: string,userId:string): Promise<ICoursePurchased | null> {
       return this.purchaseCourseRepository.findCourseById(courseId,userId)
   }
+
+  async getTopCourses(): Promise<ICourse[]> {
+        return this.courseRepository.getTopCourses(3);
+  }
+
   
 }

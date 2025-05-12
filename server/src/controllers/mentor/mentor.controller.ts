@@ -166,4 +166,9 @@ export class MentorController implements IMentorController {
     const availability = await this.mentorService.getAvailability(mentorId);
     res.status(200).json(availability);
   });
+
+  getTopMentors = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const mentors = await this.mentorService.getTopMentors();
+    res.status(200).json(mentors);
+  });
 }

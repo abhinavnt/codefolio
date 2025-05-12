@@ -2,65 +2,44 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
+import axiosInstance from "@/utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
+
 
 interface Instructor {
-    id?: number;
+    id: string;
     name: string;
-    role: string;
+    username:string
+    currentRole: string;
     bio: string;
-    experince: number;
-    courses: number;
+    yearsOfExperience: number;
     profileImage?: string;
 }
-
-const dummyData: Instructor[] = [
-    {
-        id: 1,
-        name: "Thomas Nolan",
-        role: "UI/UX Designer",
-        bio: "10+ years of experience in UI/UX design. Worked with Fortune 500 brands.",
-        experince: 1,
-        courses: 12,
-        profileImage: "https://img.freepik.com/free-photo/side-view-attractive-hispanic-software-developer-programming-using-computer-while-working-from-home_662251-958.jpg?uid=R192112823&ga=GA1.1.408912713.1742273440&semt=ais_hybrid",
-    },
-    {
-        id: 2,
-        name: "Courtney Henry",
-        role: "Product Designer",
-        bio: "Passionate about creating intuitive and beautiful product experiences.",
-        experince: 2,
-        courses: 8,
-        profileImage: "https://img.freepik.com/free-photo/side-view-attractive-hispanic-software-developer-programming-using-computer-while-working-from-home_662251-958.jpg?uid=R192112823&ga=GA1.1.408912713.1742273440&semt=ais_hybrid",
-    },
-    {
-        id: 3,
-        name: "Albert Simon",
-        role: "Frontend Developer",
-        bio: "Specializes in React and modern JavaScript frameworks.",
-        experince: 3,
-        courses: 15,
-        profileImage: "https://img.freepik.com/free-photo/side-view-attractive-hispanic-software-developer-programming-using-computer-while-working-from-home_662251-958.jpg?uid=R192112823&ga=GA1.1.408912713.1742273440&semt=ais_hybrid",
-    },
-    {
-        id: 4,
-        name: "Marvin McKinney",
-        role: "3D Artist & Animator",
-        bio: "Award-winning 3D artist with experience in film and game development.",
-        experince: 1,
-        courses: 10,
-        profileImage: "https://img.freepik.com/free-photo/side-view-attractive-hispanic-software-developer-programming-using-computer-while-working-from-home_662251-958.jpg?uid=R192112823&ga=GA1.1.408912713.1742273440&semt=ais_hybrid",
-    },
-];
 
 const MentorsSection = () => {
     const [mentors, setMentors] = useState<Instructor[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const navigate = useNavigate()
+
     useEffect(() => {
-        setTimeout(() => {
-            setMentors(dummyData);
-            setLoading(false);
-        }, 2000); // Simulated network delay
+        const fetchMentors = async () => {
+            try {
+                const response = await axiosInstance.get("/api/mentor/top-mentors");
+                const data = response.data;
+                const mentorsWithId = data.map((mentor: any) => ({
+                    ...mentor,
+                    id: mentor._id,
+                }));
+                setMentors(mentorsWithId);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching mentors:", error);
+                setLoading(false);
+            }
+        };
+
+        fetchMentors();
     }, []);
 
     return (
@@ -75,22 +54,22 @@ const MentorsSection = () => {
                         ? Array.from({ length: 4 }).map((_, index) => (
                             <Skeleton key={index} className="h-48 w-full rounded-lg" />
                         ))
-                        : mentors.map((instructor, index) => (
+                        : mentors.map((instructor) => (
                             <Card
-                                key={index}
+                                key={instructor.id}
                                 className="border-1 bg-background hover:bg-secondary shadow-md p-3 h-[280px] flex flex-col justify-between"
                             >
                                 <CardHeader className="text-center pb-1">
                                     <div className="mx-auto mb-2">
                                         <img
-                                            src={instructor.profileImage}
+                                            src={instructor.profileImage || "https://via.placeholder.com/80"} // Fallback image
                                             alt={instructor.name}
                                             className="rounded-full w-20 h-20 mx-auto"
                                         />
                                     </div>
                                     <CardTitle className="text-base">{instructor.name}</CardTitle>
                                     <CardDescription className="text-[#20B486] font-medium">
-                                        {instructor.role}
+                                        {instructor.currentRole}
                                     </CardDescription>
                                 </CardHeader>
 
@@ -101,10 +80,10 @@ const MentorsSection = () => {
 
                                     <div className="flex justify-center items-center gap-6">
                                         <div className="text-center">
-                                            <p className="font-bold">{instructor.experince.toLocaleString()}</p>
+                                            <p className="font-bold">{instructor.yearsOfExperience.toLocaleString()}</p>
                                             <p className="text-xs text-muted-foreground">Experience</p>
                                         </div>
-                                        <Button
+                                        <Button onClick={()=>navigate(`/mentor/${instructor.username}`)}
                                             variant="outline"
                                             className="h-8 text-sm hover:bg-[#20B486] hover:text-white"
                                         >
@@ -113,11 +92,10 @@ const MentorsSection = () => {
                                     </div>
                                 </CardContent>
                             </Card>
-
                         ))}
                 </div>
                 <div className="flex justify-center mt-8">
-                    <Button className=" py-1 text-sm" variant="outline">Explore All Menotrs</Button>
+                    <Button onClick={() => navigate('/mentors')} className="py-1 text-sm" variant="outline">Explore All Mentors</Button>
                 </div>
             </div>
         </section>

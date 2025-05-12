@@ -14,4 +14,5 @@ export interface IMentorService{
     updateMentorProfile(userId: string, mentorData: Partial<IMentor>): Promise<IMentor|null>
     updateAvailability(mentorId: string,specificDateAvailability: ISpecificDateAvailability[],weeklyAvailability: IWeeklyAvailability[]):Promise<IMentor | null>
     getAvailability(mentorId: string): Promise<{specificDateAvailability: ISpecificDateAvailability[];weeklyAvailability: IWeeklyAvailability[];}>
+    getTopMentors(): Promise<IMentor[]>
 }

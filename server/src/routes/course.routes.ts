@@ -21,6 +21,8 @@ router.put("/course-tasks/:taskId/complete", authMiddleware([UserRole.USER]), co
 //its not using
 router.put("/tasks/:id", authMiddleware([UserRole.ADMIN]), courseController.updateTask);
 
+router.get("/top-courses", courseController.getTopCourses);
+
 //admin
 router.get("/courses", authMiddleware([UserRole.ADMIN]), courseController.listCoursesAdmin);
 
