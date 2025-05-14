@@ -1,8 +1,17 @@
-import mongoose, { Types } from "mongoose";
+import mongoose, { FilterQuery, Types } from "mongoose";
 import { BaseRepository } from "../core/abstracts/base.repository";
 import { IMentorAvailabilityReposiotry } from "../core/interfaces/repository/IMentoryAvailbilityRepository";
 import { IMentorSpecificDateAvailability, MentorSpecificDateAvailability } from "../models/MentorAvailability";
 import { ITimeSlot } from "../models/Mentor";
+
+interface IUpdateQuery {
+  $set: {
+    "specificDateAvailability.timeSlots.$[slot].status": string;
+    "specificDateAvailability.timeSlots.$[slot].practicalMarks"?: number;
+    "specificDateAvailability.timeSlots.$[slot].theoryMarks"?: number;
+    "specificDateAvailability.timeSlots.$[slot].feedback"?: string;
+  };
+}
 
 export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecificDateAvailability> implements IMentorAvailabilityReposiotry {
   constructor() {
@@ -73,9 +82,9 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Error in editTimeSlot:", error.message);
-      throw new Error(`Failed to update time slot: ${error.message}`);
+    } catch (error) {
+      console.error("Error in editTimeSlot:", error);
+      throw new Error(error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -190,7 +199,7 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
     marks?: { practical: number; theory: number },
     feedback?: string
   ): Promise<ITimeSlot | null> {
-    const update: any = {
+    const update: IUpdateQuery = {
       $set: {
         "specificDateAvailability.timeSlots.$[slot].status": status,
       },
@@ -222,16 +231,13 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
   }
 
   //dashboard
- async getDashboardUpcomingAvailability(mentorId: string, startDate?: Date, endDate?: Date): Promise<any> {
-    const query: any = { mentorId };
+  async getDashboardUpcomingAvailability(mentorId: string, startDate?: Date, endDate?: Date): Promise<IMentorSpecificDateAvailability[]> {
+    const query: FilterQuery<IMentorSpecificDateAvailability> = { mentorId };
     if (startDate && endDate) {
       query["specificDateAvailability.date"] = { $gte: startDate, $lte: endDate };
     } else {
       query["specificDateAvailability.date"] = { $gte: new Date() };
     }
-    return this.find(query)
-      .sort({ "specificDateAvailability.date": 1 })
-      .limit(10)
-      .lean();
+    return this.find(query).sort({ "specificDateAvailability.date": 1 }).limit(10);
   }
 }

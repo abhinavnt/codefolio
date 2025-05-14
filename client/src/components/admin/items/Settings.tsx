@@ -57,8 +57,8 @@ export function Settings() {
       })
       setPayoutRequests(response.data.requests)
       setTotal(response.data.total)
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Error fetching payout requests")
+    } catch (error) {
+      toast.error( "Error fetching payout requests")
     }
   }
 
@@ -97,8 +97,8 @@ export function Settings() {
       setSelectedRequest(null)
       setActionType(null)
       setAdminNotes("")
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || `Error updating payout status to ${actionType}`)
+    } catch (error) {
+      toast.error( `Error updating payout status to ${actionType}`)
     }
   }
 

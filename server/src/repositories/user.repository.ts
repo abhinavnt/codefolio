@@ -57,7 +57,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
       if (!user) throw new Error("User not found");
     }
 
-    return user?.notifications.slice(0, 10).reverse();
+    return user?.notifications.slice(0, 1000).reverse();
   }
 
   async changePassword(userId: string, newPass: string): Promise<Boolean | null> {

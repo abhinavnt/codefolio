@@ -8,7 +8,7 @@ import { ModeToggle } from "@/components/theme/mode-toggle";
 import { NotificationsDialog } from "./NotificationsDialog";
 import { useSocket } from "@/hooks/useSocket";
 import { useEffect } from "react";
-import { toast, Toaster } from "sonner";
+import { toast} from "sonner";
 
 export function ProfileHeader() {
   const user = useSelector((state: any) => state.auth.user);

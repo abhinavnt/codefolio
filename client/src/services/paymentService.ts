@@ -10,10 +10,10 @@ export const StripePayment=async (courseId:string,amount:number,couponCode:strin
   try {
     const response=await axiosInstance.post('/api/payment/create-checkout-session',{courseId,amount,couponCode},{withCredentials:true})
     return response
-  } catch (error:any) {
+  } catch (error) {
     console.error('Error initiating Stripe payment:', error);
-    console.log(error.response.data.message,"error.response.data.message");
+    console.log("some thing went wrong");
       
-      toast.error(error.response.data.message,{ position: "top-right"})
+      toast.error("some thing went wrong",{ position: "top-right"})
   }
 }   

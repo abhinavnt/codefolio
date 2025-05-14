@@ -9,7 +9,7 @@ export const getUserProfile=async ()=>{
     try {
         const response=await axiosInstance.get('/api/auth/user',{withCredentials:true})
         return response
-    } catch (error:any) {
+    } catch (error) {
         console.log(error)
         return error.response
     }

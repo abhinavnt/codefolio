@@ -5,6 +5,7 @@ import { IMentorWalletRepository } from "../core/interfaces/repository/IMentorWa
 import { IMentorWallet } from "../models/MentorWallet";
 import { IPayoutRequestRepository } from "../core/interfaces/repository/IPayoutRequest";
 import { IPayoutRequest } from "../models/PayoutRequest";
+import { FilterQuery } from "mongoose";
 
 @injectable()
 export class WalletService implements IWalletService {
@@ -21,7 +22,7 @@ export class WalletService implements IWalletService {
     return await this.mentorWalletRepository.getBalance(mentorId);
   }
 
-  async withdrawFunds(mentorId: string, amount: number, description: string, paymentMethod: string, paymentDetails: any): Promise<IMentorWallet> {
+  async withdrawFunds(mentorId: string, amount: number, description: string, paymentMethod: string, paymentDetails: IPayoutRequest): Promise<IMentorWallet> {
     if (amount <= 0) {
       throw new Error("Withdrawal amount must be positive");
     }
@@ -44,7 +45,7 @@ export class WalletService implements IWalletService {
 
   //payout request
   async getPayoutRequests(status: string | undefined, page: number, limit: number): Promise<{ requests: IPayoutRequest[]; total: number }> {
-    const query: any = {};
+    const query: FilterQuery<IPayoutRequest> = {};
     if (status && ["pending", "paid", "rejected"].includes(status)) {
       query.status = status;
     }

@@ -1,6 +1,7 @@
 import { clearUser, setCredentials } from "@/redux/features/auth/AuthSlice";
 import { AppDispatch } from "@/redux/store";
 import axiosInstance from "@/utils/axiosInstance";
+import { AxiosError } from "axios";
 
 
 
@@ -9,8 +10,14 @@ export const registerUser=async(name:string,email:string,password:string)=>{
     try {
         const response=await axiosInstance.post('/api/auth/register',{name,email,password},{withCredentials:true})
         return response
-    } catch (error:any) {
-        return error.response
+    }catch (error:unknown) {
+
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+
     }
 }
 
@@ -24,8 +31,15 @@ export const verifyOtp = async (email: string, otp: string, dispatch: AppDispatc
         dispatch(setCredentials({accessToken:response.data.accessToken,user:response.data.user}))
         localStorage.setItem("isAuthenticated" , "true")
         return response
-    } catch (error:any) {
-        return error.response
+    } catch (error:unknown) {
+
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+
+        
 
     }
 
@@ -38,9 +52,15 @@ export const resendOtp= async(email:string)=>{
 
     return response
     
-  } catch (error) {
-    
-  }
+  } catch (error:unknown) {
+
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+
+    }
 }
 
 export const refreshToken = async (dispatch: AppDispatch) => {
@@ -64,13 +84,15 @@ export const refreshToken = async (dispatch: AppDispatch) => {
         }
         throw new Error("Session expired. Please log in again")
 
-        } catch (error) {
-          console.log(error)
-        //   dispatch(logout());
-          throw new Error("Session expired. Please log in again.");
-        }
+        } catch (error:unknown) {
 
-        
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+
+    }
 };
 
 
@@ -97,9 +119,14 @@ export const refreshToken = async (dispatch: AppDispatch) => {
             localStorage.clear()
             localStorage.setItem("isAuthenticated" , "true")
             return response
-        } catch (error:any) {
-            return error.response
-        }
+        } catch (error:unknown) {
+
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+    }
 }
 
 
@@ -113,10 +140,15 @@ export const userLogout=async (dispatch:AppDispatch)=>{
     
     return response
 
-  } catch (error) {
-    console.error(error)
-    throw new Error('error while logging out')
-  }
+  } catch (error:unknown) {
+
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+
+    }
 }
 
 
@@ -130,9 +162,14 @@ export const forgotPassword = async (email:string)=>{
 
     return response
     
-  } catch (error:any) {
-    throw error
-  }
+  } catch (error:unknown) {
+
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+    }
 }
 
 
@@ -144,11 +181,14 @@ export const resetPassword = async (token:string, newPassword:string) => {
 
     return response
 
-  } catch (error:any) {
+  } catch (error:unknown) {
 
-    throw error
-    
-  }
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+    }
 }
 
 

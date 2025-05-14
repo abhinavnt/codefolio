@@ -70,11 +70,11 @@ export default function CheckoutPage() {
 
         window.location.href = response.data.url
       }
-    } catch (error:any) {
+    } catch (error) {
       console.error('Error initiating Stripe payment:', error,"pattiii");
-      console.log(error.response.data.message,"error.response.data.message");
+      console.log("error.response.data.message");
       
-      toast.error(error.response.data.message)
+      toast.error("some thing went wrong ")
     }finally{
       setIsLoading(false)
     }

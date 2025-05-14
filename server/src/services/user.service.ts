@@ -9,6 +9,7 @@ import { ICourse } from "../models/Course";
 import bcrypt from "bcryptjs";
 import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
 import { CourseFilter } from "../controllers/user/user.controller";
+import { FilterQuery } from "mongoose";
 
 injectable();
 export class userService implements IUserService {
@@ -47,7 +48,7 @@ export class userService implements IUserService {
 
   async getAllCourse(filter: CourseFilter): Promise<{ courses: ICourse[]; total: number }> {
     try {
-      const query: any = { status: "published" };
+      const query: FilterQuery<ICourse> = { status: "published" };
 
       if (filter.q) {
         query.$or = [{ title: { $regex: filter.q, $options: "i" } }, { description: { $regex: filter.q, $options: "i" } }];
