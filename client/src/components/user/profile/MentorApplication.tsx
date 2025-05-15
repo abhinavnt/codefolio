@@ -64,6 +64,7 @@ const TECH_SKILLS = [
 // Languages
 const LANGUAGES = [
   "English",
+  "Malayalam",
   "Spanish",
   "French",
   "German",

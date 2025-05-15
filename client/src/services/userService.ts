@@ -2,6 +2,7 @@ import { updateUser } from "@/redux/features/auth/AuthSlice";
 import { AppDispatch } from "@/redux/store";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { AxiosError } from "axios";
 
 
 
@@ -9,10 +10,14 @@ export const getUserProfile=async ()=>{
     try {
         const response=await axiosInstance.get('/api/auth/user',{withCredentials:true})
         return response
-    } catch (error) {
-        console.log(error)
-        return error.response
-    }
+    } catch (error:unknown) {
+    
+          if(error instanceof AxiosError){
+             return error.response
+          }else{
+            throw new Error("unknown error occured")
+          }
+        }
 }
 
 
