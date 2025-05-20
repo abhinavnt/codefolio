@@ -33,7 +33,7 @@ export class AuthController implements IAuthController {
     try {
       const { email, otp } = req.body;
       console.log(email, otp);
-      const response:VerifiedUserDto = await this.authService.verifyOtp(email, otp);
+      const response: VerifiedUserDto = await this.authService.verifyOtp(email, otp);
 
       const { refreshToken, ...newUser } = response;
 

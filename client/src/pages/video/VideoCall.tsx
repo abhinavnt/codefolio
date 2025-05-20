@@ -1,8 +1,7 @@
-"use client"
 
 import type React from "react"
 import { useEffect, useRef, useState, useCallback, memo } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import Peer from "peerjs"
 import { io, type Socket } from "socket.io-client"
 import { Button } from "@/components/ui/button"
@@ -128,6 +127,9 @@ export function VideoCall() {
   const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false)
   const [isMediaInitialized, setIsMediaInitialized] = useState<boolean>(false)
   const [focusedParticipant, setFocusedParticipant] = useState<string | null>(null)
+
+   const location = useLocation();
+  const username = location.state?.username;
 
   // UI state
   const [isMuted, setIsMuted] = useState<boolean>(false)
@@ -501,7 +503,7 @@ export function VideoCall() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Participants</p>
+                <p>{username}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -545,7 +547,7 @@ export function VideoCall() {
                       className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
                       onClick={() => toggleFocusParticipant(stream.peerId)}
                     >
-                      <RemoteVideo stream={stream.stream} label="Participant" />
+                      <RemoteVideo stream={stream.stream} label={`${username}`} />
                     </div>
                   ))}
               </div>
@@ -582,7 +584,7 @@ export function VideoCall() {
                     ) : (
                       focusedStream && (
                         <>
-                          <RemoteVideo stream={focusedStream} label="Participant" />
+                          <RemoteVideo stream={focusedStream} label={`${username}`} />
                           <div className="absolute bottom-4 right-4">
                             <Button
                               variant="secondary"
@@ -624,7 +626,7 @@ export function VideoCall() {
                           className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
                           onClick={() => toggleFocusParticipant(stream.peerId)}
                         >
-                          <RemoteVideo stream={stream.stream} label="Participant" />
+                          <RemoteVideo stream={stream.stream} label={`${username}`} />
                         </div>
                       ))}
                   </div>
@@ -669,7 +671,7 @@ export function VideoCall() {
                         className="relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer aspect-video"
                         onClick={() => toggleFocusParticipant(stream.peerId)}
                       >
-                        <RemoteVideo stream={stream.stream} label="Participant" />
+                        <RemoteVideo stream={stream.stream} label={`${username}`} />
                         <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
                           <Button
                             variant="secondary"

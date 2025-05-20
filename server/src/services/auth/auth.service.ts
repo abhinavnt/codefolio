@@ -142,7 +142,7 @@ export class AuthService implements IAuthService {
       const userId = user._id;
       const userRole = role === "admin" ? UserRole.ADMIN : UserRole.USER;
 
-      const accessToken = jwt.sign({ userId, role: userRole }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "15m" });
+      const accessToken = jwt.sign({ userId, role: userRole }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "60m" });
 
       const refreshToken = jwt.sign({ userId, role: userRole }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: "7d" });
 

@@ -15,6 +15,7 @@ import { toast } from "sonner"
 import axiosInstance from "@/utils/axiosInstance"
 import { useNavigate } from "react-router-dom"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { useSelector } from "react-redux"
 
 interface Booking {
   _id: string
@@ -86,6 +87,8 @@ export function Mentors() {
   const [currentPage, setCurrentPage] = useState(1)
   const [bookingsPerPage] = useState(5)
   const navigate = useNavigate()
+
+  const user = useSelector((state: any) => state.auth.user);
 
   useEffect(() => {
     fetchData()
@@ -212,7 +215,7 @@ export function Mentors() {
   }
 
   const handleJoinMeeting = (bookingId: string) => {
-    navigate(`/video-call/${bookingId}`)
+    navigate(`/video-call/${bookingId}`,{ state: { username:user.name } })
   }
 
   const openCancelDialog = (booking: Booking) => {

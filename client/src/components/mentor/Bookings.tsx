@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -34,6 +33,7 @@ import axiosInstance from "@/utils/axiosInstance"
 import { useNavigate } from "react-router-dom"
 import { format } from "date-fns"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { RootState, useAppSelector } from "@/redux/store"
 
 interface Booking {
   id: string
@@ -84,6 +84,7 @@ export function Bookings({ mentorId }: { mentorId?: string }) {
   const [selectedRequestIndex, setSelectedRequestIndex] = useState<number | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
+   const { mentor} = useAppSelector((state: RootState) => state.mentor)
 
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5)
@@ -116,7 +117,7 @@ export function Bookings({ mentorId }: { mentorId?: string }) {
   }
 
   const handleJoinMeeting = (bookingId: string) => {
-    navigate(`/video-call/${bookingId}`)
+    navigate(`/video-call/${bookingId}`,{ state: { username:mentor?.name } })
   }
 
   const handleCancelBooking = async () => {
