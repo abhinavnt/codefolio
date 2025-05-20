@@ -11,11 +11,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchNotifications, markAsRead } from "@/redux/features/NotificationSlice";
+import { useSocket } from "@/hooks/useSocket";
 
 export function NotificationsDialog() {
   const dispatch = useAppDispatch();
   const notifications  = useAppSelector((state) => state.notifications.items);
-  // const hasUnreadNotifications = notifications.some((notification) => !notification.read);
+   const socket = useSocket();
    console.log(notifications,"item");
    
   useEffect(() => {
@@ -23,6 +24,20 @@ export function NotificationsDialog() {
     
     dispatch(fetchNotifications());
   }, [dispatch]);
+
+   // Listen for new notifications via socket and refetch
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("new-notification", () => {
+      // Refetch notifications when a new notification is received
+      dispatch(fetchNotifications());
+    });
+
+    return () => {
+      socket.off("new-notification");
+    };
+  }, [socket, dispatch]);
 
   const handleMarkAsRead = (id: string) => {
     dispatch(markAsRead(id));

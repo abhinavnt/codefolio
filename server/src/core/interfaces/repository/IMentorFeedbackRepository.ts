@@ -7,4 +7,5 @@ export interface IMentorFeedbackRepository {
   findByUserId(userId: string): Promise<IMentorFeedback[]>;
   updateFeedback(id: string, updateData: Partial<IMentorFeedback>): Promise<IMentorFeedback | null>;
   countByMentorId(mentorId: string, excludeUserId?: string, rating?: number): Promise<number>;
+   
 }

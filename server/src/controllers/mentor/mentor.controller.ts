@@ -8,6 +8,7 @@ import { IMentorService } from "../../core/interfaces/service/IMentorService";
 import asyncHandler from "express-async-handler";
 import cloudinary from "../../config/cloudinary";
 import { IMentor } from "../../models/Mentor";
+import { MentorDTO, MentorsResponseDTO } from "../../dtos/response/mentor.dto";
 
 @injectable()
 export class MentorController implements IMentorController {
@@ -24,7 +25,17 @@ export class MentorController implements IMentorController {
 
     const { mentors, total } = await this.mentorService.getAllMentors(page, limit, search, filters);
 
-    res.status(200).json({ success: true, data: mentors, pagination: { page, limit, total, totalPage: Math.ceil(total / limit) } });
+    const response: MentorsResponseDTO = {
+    data: MentorDTO.fromMentors(mentors),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+
+    res.status(200).json(response);
   });
 
   getMentorProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {

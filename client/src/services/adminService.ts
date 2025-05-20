@@ -1,4 +1,5 @@
 import axiosInstance from "@/utils/axiosInstance"
+import { AxiosError } from "axios";
 
 
 
@@ -70,9 +71,15 @@ export const toggleUserStatus=async(userId:string)=>{
     try {
         const response=await axiosInstance.patch(`/api/admin/user/${userId}/status`,{},{withCredentials:true})
         return response
-    } catch (error:any) {
-        return error.response
-    }
+    } catch (error:unknown) {
+    
+          if(error instanceof AxiosError){
+             return error.response
+          }else{
+            throw new Error("unknown error occured")
+          }
+    
+        }
 }
 
 
@@ -93,7 +100,13 @@ export const toggleMentorStatus=async (userId:string,status:string)=>{
 try {
     const response=await axiosInstance.patch(`/api/admin/mentor/${userId}/status?status=${status}`,{},{withCredentials:true})
     return response
-} catch (error:any) {
-    return error.response
-}
+} catch (error:unknown) {
+
+      if(error instanceof AxiosError){
+         return error.response
+      }else{
+        throw new Error("unknown error occured")
+      }
+
+    }
 }

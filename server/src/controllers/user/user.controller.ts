@@ -8,6 +8,7 @@ import { TYPES } from "../../di/types";
 import { IUserService } from "../../core/interfaces/service/IUserService";
 import asyncHandler from "express-async-handler";
 import { ParamsDictionary } from "express-serve-static-core";
+import { CourseDTO, CoursesResponseDTO } from "../../dtos/response/course.dto";
 // const UserService = new userService();
 
 export interface CourseFilter {
@@ -20,8 +21,8 @@ export interface CourseFilter {
   priceMax?: number;
   duration?: string[];
   selectedPriceOptions?: string[];
-  page?: number;
-  limit?: number;
+  page: number;
+  limit: number;
 }
 
 injectable();
@@ -115,7 +116,14 @@ export class UserController implements IUserController {
 
     const { courses, total } = await this.userService.getAllCourse(filter);
 
-    res.status(200).json({ courses, total, page: filter.page, limit: filter.limit });
+    const response: CoursesResponseDTO = {
+    courses: CourseDTO.fromCourses(courses),
+    total,
+    page: filter.page,
+    limit: filter.limit,
+  };
+
+    res.status(200).json(response);
   });
 
   getNotifications = asyncHandler(async (req: Request, res: Response): Promise<void> => {

@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 // import { RootState } from "../../../redux/store"; 
     
 interface ProtectedRouteProps {
@@ -8,7 +9,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({role}:ProtectedRouteProps) => {
 
-  const user = useSelector((state: any) => state.auth.user);  
+  const user = useSelector((state: RootState) => state.auth.user);  
   const isAdmin = localStorage.getItem("adminLoggedIn")
  
   if(role === 'user' && !isAdmin){

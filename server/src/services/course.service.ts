@@ -20,6 +20,39 @@ interface IModule {
   resources?: string[];
 }
 
+// Type for a Lesson within a Module
+type Lesson = {
+  title: string;
+  // Add other lesson fields if needed (e.g., content, duration, etc.)
+};
+
+// Type for a Module
+type Module = {
+  title?: string;
+  description?: string;
+  video?: string;
+  lessons?: Lesson[];
+  duration?: string;
+  resources?: string[];
+};
+
+// Type for courseData
+type CourseDataType = {
+  title: string;
+  description: string;
+  category: string;
+  level: "beginner" | "intermediate" | "advanced";
+  duration: string;
+  image: string;
+  price: string;
+  status: "draft" | "published" | "archived";
+  tags?: string[];
+  modules?: IModule[];
+  learningPoints: string | string[];
+  targetedAudience: string | string[];
+  courseRequirements: string | string[];
+};
+
 injectable();
 export class courseService implements ICourseService {
   constructor(
@@ -29,7 +62,7 @@ export class courseService implements ICourseService {
     @inject(TYPES.PurchaseCourseRepository) private purchaseCourseRepository: IPurchaseCourseRepository
   ) {}
 
-  async addCourse(courseData: any): Promise<ICourse> {
+  async addCourse(courseData: CourseDataType): Promise<ICourse> {
     console.log("add course service kayritund");
 
     try {
@@ -78,7 +111,7 @@ export class courseService implements ICourseService {
       console.log(modules, "modules");
 
       console.log(Array.isArray(modules), "arry ano modules");
-      console.log(modules.length, "module length");
+      
 
       if (modules && Array.isArray(modules) && modules.length > 0) {
         const tasks: Partial<ITask>[] = modules.map((module: IModule, index: number) => ({
@@ -99,8 +132,8 @@ export class courseService implements ICourseService {
       }
 
       return newCourse;
-    } catch (error: any) {
-      throw new Error(`Error creating course and tasks: ${error.message}`);
+    } catch (error) {
+       throw new Error(error instanceof Error ? error.message : String(error));
     }
   }
 

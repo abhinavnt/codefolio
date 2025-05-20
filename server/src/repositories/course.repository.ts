@@ -1,6 +1,6 @@
 // Adjust the path as needed
 
-import mongoose from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 import { ICourseRepository } from "../core/interfaces/repository/ICourseRepository";
 import { Course, ICourse } from "../models/Course";
 import { BaseRepository } from "../core/abstracts/base.repository";
@@ -11,14 +11,14 @@ export class courseRepository extends BaseRepository<ICourse> implements ICourse
   }
 
   //get all courses with filter
-  async getAllCourses(query: any, skip: number, limit: number): Promise<ICourse[]> {
+  async getAllCourses(query: FilterQuery<ICourse>, skip: number, limit: number): Promise<ICourse[]> {
     console.log(query, skip, limit);
 
     return await this.find(query).skip(skip).limit(limit);
   }
 
   //count documents
-  async countCourses(query: any): Promise<number> {
+  async countCourses(query: FilterQuery<ICourse>): Promise<number> {
     return await this.countDocuments(query);
   }
 

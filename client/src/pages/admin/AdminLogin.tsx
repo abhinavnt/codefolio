@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("")
@@ -28,7 +29,7 @@ export default function AdminLogin() {
   const dispactch = useDispatch()
   const navigate=useNavigate()
 
-  const user = useSelector((state:any) => state.auth.user)
+  const user = useSelector((state:RootState) => state.auth.user)
   
   const isAdmin = localStorage.getItem("adminLoggedIn")
 
@@ -97,15 +98,15 @@ export default function AdminLogin() {
         
         const response = await login(email,password, 'admin', dispactch)
         
-        if(response.status === 200){
+        if(response?.status === 200){
           
             localStorage.setItem("adminLoggedIn", "true")
             
             toast.success("login success vai admin")
             navigate('/admin/')
         }else{
-            setApiError(response.data.message)
-            toast.error(response.data.message||'invalid credentials', {
+            setApiError(response?.data.message)
+            toast.error(response?.data.message||'invalid credentials', {
                 position: "top-right",
             })
         }
