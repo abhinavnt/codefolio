@@ -7,7 +7,7 @@ export const useSocket = () => {
   const user = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:5000/notifications", {
+    const newSocket = io("/notifications", {
       transports: ["polling"],
       withCredentials: true,
     });

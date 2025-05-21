@@ -12,11 +12,11 @@ let notificationIo: Namespace;
 export const setupSocket = (server: HttpServer) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: "http://localhost",
       methods: ["GET", "POST"],
       credentials: true,
     },
-    transports: ["polling"],
+    transports: ["polling","websocket"],
   });
 
     notificationIo = io.of("/notifications");

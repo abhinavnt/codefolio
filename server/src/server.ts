@@ -11,7 +11,7 @@ const server = createServer(app);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://localhost",
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["Content-Type"],
