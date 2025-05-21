@@ -143,8 +143,8 @@ export function VideoCall() {
 
   // Initialize socket and peer
   useEffect(() => {
-    socketRef.current = io("http://localhost:5000", {
-      transports: ["polling"],
+    socketRef.current = io("http://localhost", {
+      transports: ["polling","websocket"],
       withCredentials: true,
     })
 

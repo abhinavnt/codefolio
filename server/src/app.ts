@@ -62,7 +62,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin: "http://localhost",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,

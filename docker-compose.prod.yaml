@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.prod
+    image: abhinavnt777/server:latest
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.prod
+    image: abhinavnt777/client:latest
+    ports:
+      - "80:80"
+    env_file:
+      - ./client/.env
+    networks:
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+networks:
+  app-network:
+   driver: bridge
