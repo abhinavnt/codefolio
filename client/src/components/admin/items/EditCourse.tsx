@@ -67,7 +67,7 @@ export function EditCourse() {
       try {
         const response = await axiosInstance.get(`/api/course/courses/${id}/edit`)
         const { course, tasks } = response.data
-        console.log(course,"course tasks",response.data);
+        
         
         setCourseTitle(course.title)
         setCourseDescription(course.description)
@@ -182,15 +182,15 @@ export function EditCourse() {
       if (courseImage) formData.append("image", courseImage)
 
 
-     console.log("Logging Form Data Before Sending to Backend:");
-    console.log("1. Updated Course Object:", updatedCourse);
-    console.log("2. Tasks Array:", tasks);
-    console.log("3. FormData Contents:");
+     
+    
+    
+    
     for (const [key, value] of formData.entries()) {
       if (key === "image" && value instanceof File) {
-        console.log(`   - ${key}: File - ${value.name}, Size: ${value.size} bytes, Type: ${value.type}`);
+        
       } else {
-        console.log(`   - ${key}:`, value);
+        
       }
     }
       

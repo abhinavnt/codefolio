@@ -260,7 +260,7 @@ export function Mentors() {
 
     setIsSubmitting(true)
     try {
-      console.log("selectedbooing",selectedBooking.mentorId._id," ",selectedBooking.userId);
+      
       
       const feedbackData = {
         mentorId: selectedBooking.mentorId._id,

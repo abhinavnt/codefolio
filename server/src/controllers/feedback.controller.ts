@@ -11,7 +11,7 @@ export class FeedbackController implements IFeedbackController {
 
   submitMentorFeedback = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const feedbackData = req.body;
-    console.log(req.body,"req body from the controller");
+    
     
     const feedback = await this.feedbackService.submitFeedback(feedbackData);
     res.status(201).json(feedback);
@@ -29,7 +29,7 @@ export class FeedbackController implements IFeedbackController {
     const rating = req.query.rating ? parseInt(req.query.rating as string) : undefined;
 
     const feedback = await this.feedbackService.getFeedbackByMentorId(mentorId, page, limit, excludeUserId, rating);
-    console.log(feedback, "feedback from the backend controler ");
+    
 
     res.status(200).json(feedback);
   });

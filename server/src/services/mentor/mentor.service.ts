@@ -50,7 +50,7 @@ export class MentorService implements IMentorService {
 
   async updateMentorProfile(userId: string, mentorData: Partial<IMentor>): Promise<IMentor | null> {
     try {
-      console.log("service mento update came");
+      
       const existingMentor = await this.mentorRepository.findByUserId(userId);
       if (!existingMentor) throw new Error("Mentor not found");
       const updatedData = { ...existingMentor, ...mentorData };
@@ -139,7 +139,7 @@ export class MentorService implements IMentorService {
   ): Promise<{ specificDateAvailability: ISpecificDateAvailability[]; weeklyAvailability: IWeeklyAvailability[] }> {
     try {
       const ogMentorId = await this.mentorRepository.findByUserId(mentorId);
-      console.log(ogMentorId, "orginal mentor id fromservice");
+      
 
       if (!ogMentorId) {
         throw new Error("mentor not found");

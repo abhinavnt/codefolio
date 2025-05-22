@@ -6,7 +6,7 @@ dotenv.config();
 
 const GoogleStrategy = passportGoogle.Strategy;
 
-console.log('GOOGLE_CALLBACK_URL:', process.env.GOOGLE_CALLBACK_URL); // Debug
+ // Debug
 passport.use(
   new GoogleStrategy(
     {
@@ -15,7 +15,7 @@ passport.use(
       callbackURL: process.env.GOOGLE_CALLBACK_URL as string,
     },
     (accessToken, refreshToken, profile, done) => {
-      console.log('Google profile:', profile);
+      
       return done(null, profile);
     }
   )

@@ -115,8 +115,8 @@ export class adminService implements IAdminService {
   //toggle user status
   async toggleUserStatus(userId: string): Promise<IUser | null> {
     try {
-      console.log("toggle service");
-      console.log("User ID from service:", userId, typeof userId);
+      
+      
       const user = await this.userRepository.toggleUserStatus(userId);
       return user;
     } catch (error: any) {
@@ -136,13 +136,13 @@ export class adminService implements IAdminService {
 
   async toggleMentorStatus(userId: string, status: string): Promise<IMentor | null> {
   try {
-    console.log(status, "from service");
+    
 
     // Map blocked to inactive, and any other value to active
     const normalizedStatus = status === "blocked" ? "inactive" : "active";
 
     const mentor = await this.mentorRepository.updateMentorStatus(userId, normalizedStatus);
-    console.log(mentor, "mentor from service");
+    
 
     return mentor;
   } catch (error) {

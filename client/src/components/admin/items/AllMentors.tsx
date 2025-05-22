@@ -88,7 +88,7 @@ export function AllMentors() {
   const handleStatusChange = async (mentorId: string, newStatus: "active" | "inactive") => {
     try {
       const response = await toggleMentorStatus(mentorId, newStatus)
-      if (response.status == 200) {
+      if (response?.status == 200) {
         setMentors(mentors.map((mentor) => (mentor._id === mentorId ? { ...mentor, status: newStatus } : mentor)))
         toast.success(`Mentor ${newStatus === "inactive" ? "blocked" : "unblocked"} successfully`)
       } else {

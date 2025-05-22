@@ -61,7 +61,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async changePassword(userId: string, newPass: string): Promise<Boolean | null> {
-    console.log("user repository ethii");
+    
 
     const changed = await this.findByIdAndUpdate(new mongoose.Types.ObjectId(userId), { password: newPass }, { new: true });
     if (changed) {
@@ -99,11 +99,11 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async toggleUserStatus(userId: string): Promise<IUser | null> {
-    console.log("user repository");
-    console.log("User ID:", userId, typeof userId);
+    
+    
 
     const user: IUser | null = await this.findById(new mongoose.Types.ObjectId(userId));
-    console.log(user, "user from rpo");
+    
 
     if (!user) throw new Error("user not found");
 

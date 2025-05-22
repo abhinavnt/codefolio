@@ -119,7 +119,7 @@ export function Settings() {
 
   const handleSaveChanges = async (data: SettingsFormData) => {
     setLoading(true) 
-    console.log(selectedFile, "selected")
+    
 
     const formData = new FormData()
     formData.append("name", data.name)
@@ -132,7 +132,7 @@ export function Settings() {
 
     try {
       const response = await updateProfile(formData, dispatch)
-      console.log("profile updated")
+      
       if (response) {
         toast.success("Profile updated successfully")
       }
@@ -150,13 +150,13 @@ export function Settings() {
   })
 
   const handlePasswordChange = async (data: any) => {
-    console.log("Password change requested:", data)
+    
     const response = await changePassword(data)
     if (response) {
       toast.success("Password updated")
     } else {
       toast.error("something went wrong on password update")
-      console.log(response, "response from change pass")
+      
     }
     setOpenPasswordDialog(false)
     passwordForm.reset()

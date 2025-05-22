@@ -203,7 +203,7 @@ export function ConductedReviews() {
 
   const handleSaveFeedback = () => {
     // In a real app, this would update the feedback in the database
-    console.log("Saving feedback:", { reviewId: selectedReview?.id, score: editScore, feedback: editFeedback })
+    
 
     // Update the local state for demo purposes
     const updatedReviews = dummyConductedReviews.map((review) =>

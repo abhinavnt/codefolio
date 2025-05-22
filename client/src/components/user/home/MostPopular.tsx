@@ -28,7 +28,7 @@ const MostPopular = () => {
         const fetchCourses = async () => {
             try {
                 const response = await axiosInstance.get("/api/course/top-courses");
-                console.log(response, "response");
+                
 
                 const data = response.data;
                 // Add a fallback badge based on index

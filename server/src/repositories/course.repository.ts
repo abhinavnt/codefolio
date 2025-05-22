@@ -12,7 +12,7 @@ export class courseRepository extends BaseRepository<ICourse> implements ICourse
 
   //get all courses with filter
   async getAllCourses(query: FilterQuery<ICourse>, skip: number, limit: number): Promise<ICourse[]> {
-    console.log(query, skip, limit);
+    
 
     return await this.find(query).skip(skip).limit(limit);
   }
@@ -36,11 +36,11 @@ export class courseRepository extends BaseRepository<ICourse> implements ICourse
   //get course by id
   async getCourseByID(courseId: string): Promise<ICourse | null> {
     try {
-      console.log(courseId, "getcourserby id repository");
+      
 
       const course = await this.findById(new mongoose.Types.ObjectId(courseId));
 
-      // console.log('course from getcourse by id',course);
+      // 
 
       return course;
     } catch (error: any) {

@@ -12,7 +12,7 @@ export class BookingController implements IBookingController {
   getMentorAvailability = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { username } = req.params;
     const { from, to } = req.query;
-    console.log("username frm book controller", username);
+    
 
     const availability = await this.bookinService.getAvailability(username, from as string, to as string);
 
@@ -23,7 +23,7 @@ export class BookingController implements IBookingController {
     const userId = String(req.user?._id);
 
     const { mentorusername, date, startTime, endTime } = req.body;
-    console.log("req body from session creation in booking", req.body);
+    
 
     if (!mentorusername || !date || !startTime || !endTime) {
       res.status(400).json({ error: "Missing required fields" });
@@ -45,7 +45,7 @@ export class BookingController implements IBookingController {
   verifyPayment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { session_id } = req.query;
     const userId = String(req.user?._id);
-    console.log(userId, "userId from verifypayment booking controller");
+    
 
     if (!session_id) {
       res.status(400).json({ error: "Missing session_id" });

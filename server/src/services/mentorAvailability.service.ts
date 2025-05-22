@@ -61,7 +61,7 @@ export class MentorAvailabilityService implements IMentorAvailabilityService {
     timeSlotId: string,
     updatedTimeSlot: { startTime: string; endTime: string; booked: boolean }
   ): Promise<any> {
-    console.log("reached service edimentorslot");
+    
 
     // Validate time slot
     const startTime = parse(updatedTimeSlot.startTime, "HH:mm", new Date());
@@ -172,11 +172,11 @@ export class MentorAvailabilityService implements IMentorAvailabilityService {
     const timeSlots = await this.mentorAvailabilityReposiotry.findTimeSlotsByStatus(mentorId, status);
     const reviews = [];
     for (const slot of timeSlots) {
-      console.log(slot.timeSlot.userId,"slot ");
+      
       
       const user = await this.userRepository.findUserById(slot.timeSlot.userId);
       const task = await this.taskRepository.findTaskById(slot.timeSlot.taskId);
-      console.log(user,"user from mentoravailbility");
+      
       
       reviews.push({
         id: slot.timeSlot._id,

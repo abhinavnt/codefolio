@@ -43,7 +43,7 @@ export default function CourseDetail() {
       try {
         const response = await axiosInstance.get("/api/course/enrolled-courses")
         setCourses(response.data)
-        console.log(response.data, "respponse from the enrolled course")
+        
       } catch (error) {
         console.error("Error fetching courses:", error)
       }

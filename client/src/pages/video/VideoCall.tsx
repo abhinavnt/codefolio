@@ -143,20 +143,24 @@ export function VideoCall() {
 
   // Initialize socket and peer
   useEffect(() => {
-    socketRef.current = io("http://localhost", {
+    socketRef.current = io("/", {
       transports: ["polling","websocket"],
+
       withCredentials: true,
     })
 
     peerRef.current = new Peer("", {
-      host: "localhost",
-      port: 5000,
+      host: "codefolio.myvnc.com",
+      port: 443,
       path: "/peerjs",
-      secure: false,
+      secure: true,
       config: {
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       },
     })
+
+   
+    
 
     // PeerJS setup
     peerRef.current.on("open", (peerId) => {

@@ -32,7 +32,7 @@ export class PaymentService implements IPaymentService {
     userId: string;
   }): Promise<{ url: string; sessionId: string }> {
     try {
-      console.log(amount, "amoun from service");
+      
 
       const isUserAlredyEnrolled = await this.courseRepository.isUserEnrolled(courseId, userId);
 
@@ -52,7 +52,7 @@ export class PaymentService implements IPaymentService {
   }
 
   async verifyAndSavePayment(sessionId: string, userId: string, courseData: ICourse): Promise<PaymentDetails> {
-    console.log("payment verify service", courseData);
+    
 
     try {
       const session = await this.paymentRepository.getPaymentSession(sessionId);
@@ -82,7 +82,7 @@ export class PaymentService implements IPaymentService {
       const existingPurchase = await this.paymentRepository.checkPurchaseId(paymentDetails.paymentIntent);
 
       if (existingPurchase) {
-        console.log("Purchase already exists for paymentIntent:", paymentDetails.paymentIntent);
+        
         return paymentDetails;
       }
 

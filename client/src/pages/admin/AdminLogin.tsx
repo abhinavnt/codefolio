@@ -33,15 +33,15 @@ export default function AdminLogin() {
   
   const isAdmin = localStorage.getItem("adminLoggedIn")
 
-  console.log(user,'user from adminLogin');
-  console.log(isAdmin,'isadmin from adminLogin');
+  
+  
   
   
   useEffect(()=>{
-    console.log('use effect work ayitund');
+    
     
     if(user && isAdmin === 'true'){
-        console.log('admin work ayitund');
+        
           navigate('/admin/')
       }
   },[user,isAdmin])

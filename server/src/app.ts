@@ -62,14 +62,14 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: "http://localhost",
+    origin: CLIENT_URL,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
-console.log("serveril vannu");
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);

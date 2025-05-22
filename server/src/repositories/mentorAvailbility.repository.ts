@@ -51,7 +51,7 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
 
     const existingDoc = await this.findOne(filterCheck);
     if (!existingDoc) {
-      console.log("No document found for filter:", filterCheck);
+      
       throw new Error("No document found with matching mentorId, date, or timeSlotId. Verify the inputs and database data.");
     }
 
@@ -77,7 +77,7 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
     try {
       const result = await this.findOneAndUpdate(filter, update, options);
       if (!result) {
-        console.log("No document updated for filter:", filter);
+        
         throw new Error("Failed to update the time slot. No matching document found.");
       }
 
@@ -113,12 +113,12 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
       throw new Error("All fields (mentorId, date, startTime, endTime, userId, taskId) are required");
     }
 
-    console.log("Input data:", { mentorId, date, startTime, endTime, userId, taskId });
+    
 
     // Format date to match database
     const formattedDate = new Date(date).toISOString().split("T")[0];
     const isoDate = new Date(formattedDate + "T00:00:00.000Z"); // Ensure consistent time
-    console.log("Formatted date:", isoDate);
+    
 
     // Log query conditions
     console.log("Query conditions:", {
@@ -134,7 +134,7 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
       mentorId,
       "specificDateAvailability.date": isoDate,
     });
-    console.log("Existing document:", existingDoc);
+    
 
     const result = await this.findOneAndUpdate(
       {
@@ -162,10 +162,10 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
       { new: true }
     );
 
-    console.log("Update result:", result);
+    
 
     if (!result) {
-      console.log("No matching time slot found or already booked");
+      
       return null;
     }
 
@@ -175,7 +175,7 @@ export class MentorAvailabilityRepository extends BaseRepository<IMentorSpecific
   //booked
   async findTimeSlotsByStatus(mentorId: string, status: string): Promise<any[]> {
     const availabilities = await this.find({ mentorId }).exec();
-    console.log("availablityids", availabilities);
+    
 
     const timeSlots = [];
     for (const availability of availabilities) {

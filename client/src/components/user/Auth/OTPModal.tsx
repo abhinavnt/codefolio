@@ -104,7 +104,7 @@ export default function OTPModal({
     setError(null);
     try {
       await resendOtp(email)
-      console.log('otp resend req sended');
+      
       
       setTimeLeft(60); 
       setCanResend(false);

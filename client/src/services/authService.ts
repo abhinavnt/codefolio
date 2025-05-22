@@ -58,11 +58,11 @@ export const refreshToken = async (dispatch: AppDispatch) => {
 
 export const login = async (email: string, password: string, role: string, dispatch: AppDispatch) => {
   try {
-    console.log("login log1");
+    
 
     const response = await axiosInstance.post("/api/auth/login", { email, password, role }, { withCredentials: true });
 
-    console.log(response, "when loging time geting response");
+    
 
     dispatch(
       setCredentials({
@@ -71,10 +71,10 @@ export const login = async (email: string, password: string, role: string, dispa
       })
     );
 
-    console.log(response.data.accessToken, "response.data.accessToken");
-    console.log(response.data.user, "response.data.user");
+    
+    
 
-    console.log("dispatch chythuu");
+    
 
     localStorage.clear();
     localStorage.setItem("isAuthenticated", "true");
@@ -100,9 +100,9 @@ export const userLogout = async (dispatch: AppDispatch) => {
 };
 
 export const forgotPassword = async (email: string) => {
-  console.log("ahi hasdklfjalkjsdhglkjasdhf");
+  
   try {
-    console.log("ahi hasdklfjalkjsdhglkjasdhf");
+    
 
     const response = await axiosInstance.post(`/api/auth/forgot-password`, { email });
 

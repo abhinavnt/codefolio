@@ -70,7 +70,7 @@ export function AllUsers() {
     try {
       const response = await toggleUserStatus(userId)
 
-      if (response.status == 200) {
+      if (response?.status == 200) {
         setUsers(users.map((user) => (user._id === userId ? { ...user, status: newStatus } : user)))
         toast.success(`User ${newStatus === "blocked" ? "blocked" : "unblocked"} successfully`)
       }

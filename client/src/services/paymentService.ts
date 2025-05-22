@@ -12,7 +12,7 @@ export const StripePayment=async (courseId:string,amount:number,couponCode:strin
     return response
   } catch (error) {
     console.error('Error initiating Stripe payment:', error);
-    console.log("some thing went wrong");
+    
       
       toast.error("some thing went wrong",{ position: "top-right"})
   }

@@ -46,7 +46,6 @@ function App() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      console.log("user fetch chyunnuuu");
 
       const urlParams = new URLSearchParams(window.location.search);
             const authStatus = urlParams.get('auth');
@@ -61,7 +60,7 @@ function App() {
         try {
           await refreshToken(dispatch);
         } catch (error) {
-          console.log("Error during token refresh", error);
+          console.error("Error during token refresh", error);
         } finally {
           setTimeout(() => {
             setLoading(false);

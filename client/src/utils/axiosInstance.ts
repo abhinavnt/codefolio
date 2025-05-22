@@ -13,7 +13,7 @@ interface ImportMeta {
 const apiUrl = (import.meta as unknown as ImportMeta).env.VITE_API_URL;
 
 const axiosInstance = axios.create({
-  baseURL: '/',
+  baseURL: apiUrl,
   headers: {
     "Content-Type": "application/json",
   },
@@ -25,10 +25,10 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
     config=>{
-        console.log('hei request kayrun ind');
+        
         
         const token= store.getState().auth.accessToken;
-        console.log(token,'toekn');
+        
         
         if(!config.headers.Authorization){
             if(token){

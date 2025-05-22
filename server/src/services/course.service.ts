@@ -63,7 +63,7 @@ export class courseService implements ICourseService {
   ) {}
 
   async addCourse(courseData: CourseDataType): Promise<ICourse> {
-    console.log("add course service kayritund");
+    
 
     try {
       const { modules, targetedAudience, learningPoints, courseRequirements, ...courseDetails } = courseData;
@@ -80,7 +80,7 @@ export class courseService implements ICourseService {
       ) {
         throw new Error("Missing required course fields");
       }
-      console.log(courseDetails, "course details");
+      
 
       const parsedLearningPoints =
         typeof learningPoints === "string" ? JSON.parse(learningPoints) : Array.isArray(learningPoints) ? learningPoints : [];
@@ -108,9 +108,6 @@ export class courseService implements ICourseService {
         courseRequirements: parsedCourseRequirements,
       });
 
-      console.log(modules, "modules");
-
-      console.log(Array.isArray(modules), "arry ano modules");
       
 
       if (modules && Array.isArray(modules) && modules.length > 0) {
@@ -126,7 +123,7 @@ export class courseService implements ICourseService {
           resources: module.resources || [],
         }));
 
-        console.log("waiting for tasks creation");
+        
 
         await this.taskRepositoroy.createTasks(tasks);
       }
@@ -139,11 +136,11 @@ export class courseService implements ICourseService {
 
   async getCourseById(courseId: string): Promise<ICourse | null> {
     try {
-      console.log("get course by id serviceil ethitunf ");
+      
 
       const course = await this.courseRepository.getCourseByID(courseId);
 
-      console.log(course, "course response from getcourseby id service");
+      
 
       return course;
     } catch (error) {
@@ -202,7 +199,7 @@ export class courseService implements ICourseService {
 
       const existingTasks = await this.taskRepositoroy.getCourseTasks(courseId);
 
-      console.log(tasksData, "task data from the backend service updatecourse and task");
+      
 
       if (!Array.isArray(tasksData)) {
         throw new Error("tasksData must be an array");

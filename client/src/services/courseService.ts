@@ -13,6 +13,6 @@ export const findCourseById=async(courseId:string)=>{
         return response
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 }

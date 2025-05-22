@@ -15,7 +15,7 @@ const ProtectedRoute = ({role}:ProtectedRouteProps) => {
   if(role === 'user' && !isAdmin){
     return user && !isAdmin && user.status === 'active' ? <Outlet /> : <Navigate to="/" replace />;
   }else{
-    console.log('here admin outlet comming');
+    
     
     return user && isAdmin ? <Outlet /> : <Navigate to="/admin/login" replace />;
   }

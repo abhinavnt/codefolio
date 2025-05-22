@@ -53,7 +53,7 @@ export class BookingService implements IBookingService {
     if (!mentor) throw new Error("Mentor not found");
 
     const isAvailble = await this.checkSlotAvailability(mentor._id as string, date, startTime, endTime);
-    console.log(isAvailble, "isabailble from book service");
+    
 
     if (!isAvailble) throw new Error("Slot is not available");
 
@@ -65,7 +65,7 @@ export class BookingService implements IBookingService {
       amount,
     });
 
-    console.log(session, "session from service");
+    
 
     await this.purchaseHistoryRepository.createPurchaseHistory({
       userId,
@@ -78,7 +78,7 @@ export class BookingService implements IBookingService {
       purchaseDate: new Date(),
     });
 
-    console.log("purchase created from service");
+    
 
     await this.mentorWalletRepository.createTransaction({
       mentorId: String(mentor._id),
@@ -88,19 +88,19 @@ export class BookingService implements IBookingService {
       type: "credit",
     });
 
-    console.log("transaction save ayi");
+    
 
     return { url: session.url!, sessionId: session.id! };
   }
 
   async checkSlotAvailability(mentorId: string, date: string, startTime: string, endTime: string): Promise<boolean> {
     const existingBooking = await this.bookingRepository.findBooking(mentorId, date, startTime, endTime);
-    console.log(existingBooking, "existing booking from booking sercice");
+    
 
     if (existingBooking) return false;
 
     const mentor = await this.mentorRepository.findByMentorID(mentorId);
-    console.log(mentor, "mentor from checkavailbilty");
+    
 
     if (!mentor) return false;
 
@@ -126,15 +126,15 @@ export class BookingService implements IBookingService {
     const session = await this.bookingRepository.getBookingPaymentSession(sessionId);
     if (session.payment_status !== "paid") throw new Error("Payment not completed");
     const { mentorId, date, startTime, endTime } = session.metadata!;
-    console.log(session.metadata, "metadata");
+    
 
-    console.log(mentorId, date, startTime, endTime, "verifyAndSaveBooking");
+    
 
     const isAvailable = await this.checkSlotAvailability(mentorId, date, startTime, endTime);
-    console.log("verifyAndSaveBooking isAvailble", isAvailable);
+    
 
     if (!isAvailable) throw new Error("Slot is no longer available");
-    console.log(userId, "userId from booking service");
+    
 
     const bookingData = {
       mentorId: new mongoose.Types.ObjectId(mentorId),
@@ -146,7 +146,7 @@ export class BookingService implements IBookingService {
       totalPrice: session.amount_total! / 100,
     };
 
-    console.log("iam from markslotasBooked");
+    
 
     await this.markSlotAsBooked(mentorId, date, startTime, endTime);
 

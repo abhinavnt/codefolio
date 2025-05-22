@@ -96,7 +96,7 @@ export function UserCourseTasks() {
         setTasks(sortedTasks)
 
         const courseResponse = await axiosInstance.get(`/api/course/enrolled-courses/${courseId}/${userId}/admin`)
-        console.log(courseResponse, "course responses from new controler");
+        
 
 
 
@@ -189,7 +189,7 @@ export function UserCourseTasks() {
         startTime: slotToBook.startTime,
         endTime: slotToBook.endTime,
       }
-      console.log("Booking slot with payload:", payload)
+      
       await axiosInstance.post(`/api/mentor-availability/book`, payload)
       setTasks(tasks.map((task) => (task._id === selectedTaskId ? { ...task, reviewScheduled: true } : task)))
       setIsScheduleModalOpen(false)
