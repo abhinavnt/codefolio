@@ -12,7 +12,7 @@ if (!dbURI) {
 const connectDB = async () => {
   try {
     await mongoose.connect(dbURI);
-    console.log("mongodb connected successfully");
+    
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error connecting to MongoDB:", error.message);

@@ -4,7 +4,7 @@ import { RootState, useAppDispatch, useAppSelector } from '@/redux/store';
 import { verifyMentor } from '@/redux/features/auth/MentorVerify';
 
 const MentorLoadingPage: React.FC = () => {
-    console.log('mentorverifiation pageil njan undlloooooooooooooooo');
+    
     
   const { status, error } = useAppSelector((state: RootState) => state.mentor);
   const navigate = useNavigate();

@@ -24,10 +24,10 @@ const initialState: NotificationsState = {
 export const fetchNotifications = createAsyncThunk(
   "notifications/fetch",
   async () => {
-    console.log('hello from fetchNotifications');
+    
     
     const response = await axiosInstance.get("/api/user/notifications");
-    console.log(response,"response from notification fetching");
+    
     
     return response.data.notifications.map((n: any) => ({
       id: n._id,

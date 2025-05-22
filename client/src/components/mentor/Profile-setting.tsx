@@ -28,7 +28,7 @@ import { toast } from "sonner"
 export function ProfileSettings() {
   const dispatch = useAppDispatch()
   const { mentor, status } = useAppSelector((state: RootState) => state.mentor)
-  console.log(mentor, "mentor from profile setting")
+  
 
   const [formData, setFormData] = useState<Partial<IMentor>>(mentor || {})
   const [newSkill, setNewSkill] = useState("")
@@ -187,10 +187,10 @@ export function ProfileSettings() {
 
   const handleSubmit = async () => {
     const submitData = new FormData()
-    console.log("form data", submitData)
+    
 
     Object.entries(formData).forEach(([key, value]) => {
-      console.log(formData, "form data from handle submit")
+      
 
       if (key === "technicalSkills") {
         submitData.append(key, JSON.stringify(value))
@@ -204,7 +204,7 @@ export function ProfileSettings() {
     // Append files if they exist
     if (profileImageFile) submitData.append("profileImage", profileImageFile)
     if (resumeFile) submitData.append("resume", resumeFile)
-    console.log(submitData, "submit data")
+    
 
     // Close the dialog first
     setConfirmDialogOpen(false)

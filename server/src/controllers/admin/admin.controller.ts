@@ -29,7 +29,7 @@ export class AdminController implements IAdminController {
   updateMentorApplicationStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { requestId } = req.params;
     const { status, message } = req.body;
-    console.log(message, "message from frontend");
+    
 
     const updatedRequest = await this.adminService.updateMentorApplicationStatus(requestId, status, message);
     res.status(200).json({ mentorApplication: updatedRequest });
@@ -39,7 +39,7 @@ export class AdminController implements IAdminController {
   getAllUsers = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    console.log("user controller");
+    
 
     const { allUsers, total } = await this.adminService.getAllUsers(page, limit);
 
@@ -67,7 +67,7 @@ export class AdminController implements IAdminController {
   toggleMentorStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const status = req.query.status as string;
-    console.log(status, "status from toggle mentor");
+    
 
     const mentor = await this.adminService.toggleMentorStatus(id, status);
     res.status(200).json(mentor);

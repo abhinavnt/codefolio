@@ -13,20 +13,20 @@ export class CourseController implements ICourseController {
   constructor(@inject(TYPES.CourseServices) private courseService: ICourseService) {}
 
   addCourse = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("add course controller vannitund", req.body);
+    
 
     const { title, description, category, level, price, duration, modules, learningPoints, targetedAudience, courseRequirements, status } = req.body;
 
-    console.log(req.body);
+    
 
     let image = "";
 
-    console.log(req.file, "files");
+    
 
     if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).image) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-      console.log("Uploading profile image to Cloudinary...");
+      
 
       await new Promise((resolve, reject) => {
         cloudinary.uploader
@@ -71,17 +71,17 @@ export class CourseController implements ICourseController {
   });
 
   getCourseById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("reached the course controller");
+    
 
     const courseId = req.params.id;
-    console.log(courseId, "course id from getcoursebyid");
+    
 
     if (!courseId) {
       res.status(400).json({ message: "course id is required" });
     }
 
     const course = await this.courseService.getCourseById(courseId);
-    console.log(course, "course chance und");
+    
 
     res.status(200).json({ course, message: "got the course" });
   });
@@ -95,7 +95,7 @@ export class CourseController implements ICourseController {
       parseInt(page as string),
       parseInt(limit as string)
     );
-    // console.log('result form listcourse Controler',result);
+    // 
 
     res.status(200).json(result);
   });
@@ -128,11 +128,11 @@ export class CourseController implements ICourseController {
 
   //get user enroled courses
   getUserEnrolledCourses = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("reached course controller");
+    
 
     const userId = String(req.user?._id);
     const courses = await this.courseService.findCoursePurchaseByUserId(userId);
-    console.log(courses);
+    
 
     res.status(200).json(courses);
   });
@@ -141,7 +141,7 @@ export class CourseController implements ICourseController {
   getUserCourseTasks = asyncHandler(async (req: Request, res: Response) => {
     const userId = String(req.user?._id);
     const courseId = req.params.courseId;
-    console.log("userid courseid", userId, courseId);
+    
 
     const tasks = await this.courseService.findTaskByUserIdAndCourseId(userId, courseId);
 
@@ -149,12 +149,12 @@ export class CourseController implements ICourseController {
   });
 
   getCourseWithTasks = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("iam from getcourse with trassk controller");
+    
 
     const { id } = req.params;
 
     const course = await this.courseService.getCourseById(id);
-    console.log("course kitty from getcourese with tasks course controler", course);
+    
 
     if (!course) {
       res.status(404).json({ message: "Course not found" });
@@ -162,7 +162,7 @@ export class CourseController implements ICourseController {
     }
 
     const tasks = await this.courseService.getCourseTasks(id);
-    console.log("get course from admin edit course", course);
+    
 
     res.status(200).json({ course, tasks });
   });
@@ -247,7 +247,7 @@ export class CourseController implements ICourseController {
   });
 
   findPurchasedCourseById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("reached new controller");
+    
 
     const { courseId, userId } = req.params;
     const course = await this.courseService.findCourseById(courseId, userId);

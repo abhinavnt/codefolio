@@ -37,7 +37,7 @@ export function AvailableTime({ mentorusername }: { mentorusername: string }) {
         const response = await fetchAvailbilitySlots(mentorusername, from, to)
         if (!response) return
         const data = response.data 
-        console.log(data,"response data");
+        
         
         const rawAvailability = data.availability || data
 

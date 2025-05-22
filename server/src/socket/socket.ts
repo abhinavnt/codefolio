@@ -9,10 +9,12 @@ const roomScreenSharingPeers: { [roomId: string]: string | null } = {};
 
 let notificationIo: Namespace;
 
+const CLIENT_URL = process.env.CLIENT_URL;
+
 export const setupSocket = (server: HttpServer) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: "http://localhost",
+      origin: CLIENT_URL,
       methods: ["GET", "POST"],
       credentials: true,
     },
@@ -23,16 +25,16 @@ export const setupSocket = (server: HttpServer) => {
 
   
   notificationIo.on("connection", (socket) => {
-    console.log("New notification client connected:", socket.id);
+    
 
     // Join a room based on userId
     socket.on("join-user", (userId: string) => {
       socket.join(userId);
-      console.log(`User ${userId} joined notification room`);
+      
     });
 
     socket.on("disconnect", () => {
-      console.log("Notification client disconnected:", socket.id);
+      
     });
   });
 
@@ -45,11 +47,11 @@ export const setupSocket = (server: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("New client connected:", socket.id);
+    
 
     socket.on("join-room", ({ roomId, peerId }) => {
       socket.join(roomId);
-      console.log(`User with peerId ${peerId} joined room ${roomId}`);
+      
 
       socket.to(roomId).emit("user-connected", {
         peerId,
@@ -75,7 +77,7 @@ export const setupSocket = (server: HttpServer) => {
       });
 
       socket.on("disconnect", () => {
-        console.log(`User with peerId ${peerId} disconnected from room ${roomId}`);
+        
         socket.to(roomId).emit("user-disconnected", peerId);
         if (roomScreenSharingPeers[roomId] === peerId) {
           roomScreenSharingPeers[roomId] = null;

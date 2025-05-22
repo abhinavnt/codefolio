@@ -17,10 +17,10 @@ export function NotificationsDialog() {
   const dispatch = useAppDispatch();
   const notifications  = useAppSelector((state) => state.notifications.items);
    const socket = useSocket();
-   console.log(notifications,"item");
+   
    
   useEffect(() => {
-    console.log('fetching from fetchnotification');
+    
     
     dispatch(fetchNotifications());
   }, [dispatch]);

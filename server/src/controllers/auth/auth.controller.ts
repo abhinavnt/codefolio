@@ -15,13 +15,13 @@ export class AuthController implements IAuthController {
 
   register = async (req: Request, res: Response): Promise<void> => {
     try {
-      console.log("auth register controlleril vannu");
+      
 
       const { name, email, password } = req.body;
-      console.log(name, email, password);
+      
 
       await this.authService.register(name, email, password);
-      console.log("hei registeril ninn resolve ayi");
+      
 
       res.status(200).json({ message: "otp send to your email" });
     } catch (error: any) {
@@ -32,7 +32,7 @@ export class AuthController implements IAuthController {
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, otp } = req.body;
-      console.log(email, otp);
+      
       const response: VerifiedUserDto = await this.authService.verifyOtp(email, otp);
 
       const { refreshToken, ...newUser } = response;
@@ -63,12 +63,12 @@ export class AuthController implements IAuthController {
 
   login = async (req: Request, res: Response): Promise<void> => {
     try {
-      console.log("yes login request backil ethi");
+      
 
       const { email, password, role } = req.body;
-      console.log(req.body);
+      
 
-      console.log(email, "from controller");
+      
 
       const { refreshToken, ...user } = await this.authService.login(email, password, role);
 
@@ -79,7 +79,7 @@ export class AuthController implements IAuthController {
       });
 
       res.status(200).json(user);
-      console.log("login response poyi");
+      
     } catch (error: any) {
       console.log(error);
 
@@ -89,10 +89,10 @@ export class AuthController implements IAuthController {
 
   refreshToken = async (req: Request, res: Response): Promise<void> => {
     try {
-      console.log("refreshcontrolleril vannitundllo");
+      
 
       const refreshToken = req.cookies.refreshToken;
-      console.log(refreshToken, "refresh token");
+      
 
       if (!refreshToken) res.status(403).json({ error: "Refresh tokekn required" });
       const { role } = req.body;
@@ -117,7 +117,7 @@ export class AuthController implements IAuthController {
   forgotPassword = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email } = req.body;
-      console.log(email, "from forgot password");
+      
 
       await this.authService.sendMagicLink(email);
 
@@ -169,7 +169,7 @@ export class AuthController implements IAuthController {
       sameSite: "strict",
     });
 
-    console.log("response povunnu");
+    
 
     res.redirect("http://localhost:5173/?auth=success");
   };

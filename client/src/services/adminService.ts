@@ -33,7 +33,7 @@ export const updateMentorApplicationStatus= async (requestId:string,status:strin
 //add new course
 export const addNewCourse= async (formData:FormData)=>{
     try {
-        console.log('going the request to backend');
+        
         
        const response = await axiosInstance.post('/api/admin/addCourse', formData, {
         withCredentials: true,
@@ -42,11 +42,11 @@ export const addNewCourse= async (formData:FormData)=>{
         }
        });
    
-       console.log(response,'from the userService mentor request');
+       
        return response
    
    } catch (error) {
-       console.log(error);
+       console.error(error);
        
    }
 }
@@ -56,7 +56,7 @@ export const addNewCourse= async (formData:FormData)=>{
 export const getAllUsers = async (page:number,limit:number)=>{
     try {
         const response= await axiosInstance.get(`/api/admin/allUsers?page=${page}&limit=${limit}`)
-        console.log(response.data,"user data from the getAllUsers");
+        
         
         return response.data
     } catch (error) {
@@ -86,7 +86,7 @@ export const toggleUserStatus=async(userId:string)=>{
 //get all mentors
 export const getAllMentors=async (page:number,limit:number)=>{
     try {
-        console.log(page,"pagefrom frontend service");
+        
         
         const response=await axiosInstance.get(`/api/admin/allMentors?page=${page}&limit=${limit}`)
         return response.data

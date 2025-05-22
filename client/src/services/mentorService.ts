@@ -7,7 +7,7 @@ import { toast } from "sonner"
 
 export const findMentorByUsername=async(username:string)=>{
     try {
-        console.log('iam from fetchmentor service');
+        
         
         const response= await axiosInstance.get(`/api/mentor/${username}`)
         return response
@@ -23,7 +23,7 @@ export const fetchMentorAvailbilty=async()=>{
 
         return response
     } catch (error) {
-        console.log(error);
+        console.error(error);
         
     }
 }
@@ -35,7 +35,7 @@ export const addMentorAvailbilty=async(specificDateAvailability:any,weeklyAvaila
         const response=await axiosInstance.put('/api/mentor/availability',{specificDateAvailability,weeklyAvailability})
         return response
     } catch (error) {
-        console.log(error);
+        console.error(error);
         
     }
 }

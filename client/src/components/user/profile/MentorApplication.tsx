@@ -152,13 +152,13 @@ const MentorApplicationPage: React.FC = () => {
     if (resume) formData.append("resume", resume)
 
     for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`)
+      
     }
 
     try {
       setLoading(true)
       const response = await mentorReq(formData)
-      console.log(response, "from frontend apllicatoin")
+      
       if (response?.status === 201) {
         setLoading(false)
         toast.success("request submited done")

@@ -14,7 +14,7 @@ import { UserRole } from "../core/constants/user.enum";
 
 
 const router = express.Router();
-console.log('user routeil vannu');
+
 
 const userController =container.get<IUserController>(TYPES.UserController)
 

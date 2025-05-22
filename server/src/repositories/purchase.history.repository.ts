@@ -43,7 +43,7 @@ export class PurchaseHistoryRepository extends BaseRepository<IPurchaseHistory> 
   //dashboard
   async getTotalSpent(userId: string, period: "daily" | "weekly" | "monthly" | "yearly" | "all"): Promise<number> {
     const query: any = { userId: new mongoose.Types.ObjectId(userId), status: "Completed" };
-    console.log("userid:", userId);
+    
 
     if (period !== "all") {
       const { startDate, endDate } = getDateRange(period);

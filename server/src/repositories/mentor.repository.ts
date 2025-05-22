@@ -69,7 +69,7 @@ export class mentorRepository extends BaseRepository<IMentor> implements IMentor
     const mentorId = mentor._id as Types.ObjectId;
 
     const updatedMentor = await this.findByIdAndUpdate(mentorId, { $set: mentorData }, { new: true, runValidators: true });
-    console.log(updatedMentor, "updated mentor");
+    
 
     if (!updatedMentor) throw new Error("Failed to update mentor");
     return updatedMentor;
@@ -85,7 +85,7 @@ export class mentorRepository extends BaseRepository<IMentor> implements IMentor
       { specificDateAvailability, weeklyAvailability },
       { new: true }
     );
-    console.log(response);
+    
 
     return response;
   }

@@ -65,7 +65,7 @@ export class MentorController implements IMentorController {
   updateProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = String(req.user?._id);
 
-    console.log(userId, "user id from updaaaaatementor");
+    
     if (!userId) throw new Error("Unauthorized");
 
     const {
@@ -94,7 +94,7 @@ export class MentorController implements IMentorController {
     let resumeUrl = "";
     if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).profileImage) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      console.log("Uploading profile image to Cloudinary...");
+      
 
       profileImageUrl = await new Promise((resolve, reject) => {
         cloudinary.uploader
@@ -113,7 +113,7 @@ export class MentorController implements IMentorController {
     // Handle resume upload to Cloudinary
     if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).resume) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      console.log("Uploading resume to Cloudinary...");
+      
 
       resumeUrl = await new Promise((resolve, reject) => {
         cloudinary.uploader
@@ -153,9 +153,9 @@ export class MentorController implements IMentorController {
       title,
       location,
     };
-    console.log(mentorData, "mentor data from conatroler");
+    
 
-    console.log("gone to service");
+    
 
     const updatedMentor = await this.mentorService.updateMentorProfile(userId, mentorData);
     res.status(200).json({ success: true, data: updatedMentor });
@@ -164,14 +164,14 @@ export class MentorController implements IMentorController {
   updateAvailability = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = String(req.user?._id);
     const { specificDateAvailability, weeklyAvailability } = req.body;
-    console.log(specificDateAvailability, "here is the difrence", weeklyAvailability);
+    
 
     const mentor = await this.mentorService.updateAvailability(userId, specificDateAvailability, weeklyAvailability);
     res.status(200).json({ message: "Availability updated successfully", mentor });
   });
 
   getAvailability = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("this is from mentor get availbility controller");
+    
 
     const mentorId = String(req.user?._id);
     const availability = await this.mentorService.getAvailability(mentorId);

@@ -48,10 +48,10 @@ export class UserController implements IUserController {
   });
 
   updateProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("update profile controller");
+    
 
     const userId = String(req.user?._id);
-    console.log("userId from update controlled", userId);
+    
 
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
@@ -59,7 +59,7 @@ export class UserController implements IUserController {
     }
 
     const { name, title } = req.body;
-    console.log(req.body, "req.body");
+    
 
     if (!name || !title) {
       res.status(400).json({ message: "Name and title are required" });
@@ -71,12 +71,12 @@ export class UserController implements IUserController {
       title,
     };
 
-    console.log(req.file, "req file from front end");
+    
 
     if (req.files && (req.files as { [fieldname: string]: Express.Multer.File[] }).profileImage) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] }; // Explicitly define type
 
-      console.log("Uploading profile image to Cloudinary...");
+      
 
       await new Promise((resolve, reject) => {
         cloudinary.uploader
@@ -128,7 +128,7 @@ export class UserController implements IUserController {
 
   getNotifications = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = String(req.user?._id);
-    console.log("log from getnotification controller");
+    
 
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
@@ -143,9 +143,9 @@ export class UserController implements IUserController {
   changePassword = asyncHandler(async (req: Request, res: Response) => {
     const userId = String(req.user?._id);
     const { currentPassword, newPassword } = req.body;
-    console.log(currentPassword, newPassword, "old and new pass form changepassword");
+    
     let done = await this.userService.changePassword(userId, currentPassword, newPassword);
-    // console.log(done,"this is from done");
+    // 
 
     res.status(200).json({ message: "password changed success" });
   });

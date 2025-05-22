@@ -18,7 +18,7 @@ export class PaymentRepository extends BaseRepository<ICoursePurchased> implemen
     amount: number;
     couponCode?: string;
   }): Promise<Stripe.Checkout.Session> {
-    console.log(amount, "amount from repository");
+    
 
     return await stripe.checkout.sessions.create({
       payment_method_types: ["card", "amazon_pay"],
@@ -50,7 +50,7 @@ export class PaymentRepository extends BaseRepository<ICoursePurchased> implemen
   }
 
   async savePurchase(purchaseData: Partial<ICoursePurchased>): Promise<ICoursePurchased> {
-    console.log("save purchase repository", purchaseData);
+    
 
     const purchase = new this.model(purchaseData);
     return await purchase.save();

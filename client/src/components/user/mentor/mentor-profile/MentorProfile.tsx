@@ -25,24 +25,24 @@ import { useParams } from "react-router-dom"
 import { findMentorByUsername } from "@/services/mentorService"
 
 export default function MentorProfile() {
-  console.log("mentor profile component")
+  
 
   const [copied, setCopied] = useState(false)
   const [mentor, setMentor] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  console.log(mentor, "mentor")
+  
 
   const params = useParams()
   const username = params.username as string
-  console.log("Username from params:", username)
+  
 
   useEffect(() => {
     let isMounted = true
 
     async function fetchMentor() {
       try {
-        console.log("fetchMentor use effect")
+        
         setLoading(true)
         setError(null)
         const response = await findMentorByUsername(username)
@@ -50,11 +50,11 @@ export default function MentorProfile() {
           throw new Error("Mentor not found")
         }
         const data = await response.data
-        console.log(data, "from mentor profile")
+        
 
         if (isMounted) {
           setMentor(data)
-          console.log(mentor, "after mentor")
+          
         }
       } catch (error) {
         console.error("Error fetching mentor:", error)

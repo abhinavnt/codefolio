@@ -16,10 +16,10 @@ export class MentorReqController implements IMentorReqController {
   constructor(@inject(TYPES.MentorReqService) private mentorReqService: IMentorReqService) {}
 
   addMentorReq = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log("yes here controller");
+    
 
     const userId = String(req.user?._id);
-    console.log("mentor request vanitund");
+    
 
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
@@ -36,7 +36,7 @@ export class MentorReqController implements IMentorReqController {
       // Upload profile image to Cloudinary if present
       if (mentorDTO.profileImage) {
         const profileImageBuffer = mentorDTO.profileImage.buffer; 
-        console.log("Uploading profile image to Cloudinary...");
+        
         await new Promise((resolve, reject) => {
           cloudinary.uploader
             .upload_stream({ folder: "mentor_profiles" }, (error, result) => {
@@ -57,7 +57,7 @@ export class MentorReqController implements IMentorReqController {
       // Upload resume to Cloudinary if present
       if (mentorDTO.resume) {
         const resumeBuffer = mentorDTO.resume.buffer;
-        console.log("Uploading resume to Cloudinary...");
+        
         await new Promise((resolve, reject) => {
           cloudinary.uploader
             .upload_stream({ folder: "mentor_resumes" }, (error, result) => {

@@ -69,7 +69,7 @@ export const fetchCourses = createAsyncThunk(
           "Content-Type": "application/json",
         },
       });
-      // console.log("response from slice front end courser",response);
+      // 
 
       return {
         courses: response.data.courses,

@@ -17,7 +17,7 @@ if (!uri || !userId) {
 mongoose
   .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.log("Connected to MongoDB");
+    
     deleteUserData();
   })
   .catch((err) => {
@@ -48,18 +48,18 @@ async function deleteUserData() {
         .toArray(); // Convert the cursor to an array
 
       // Log the documents found
-      console.log(`Documents to delete from ${collectionName}:`);
-      console.log(documents);
+      
+      
 
       // Deleting all documents where user_id or _id matches the user ID
       const result = await collection.deleteMany({
         $or: [{ userId: userObjectId }, { _id: userObjectId }],
       });
 
-      console.log(`Deleted ${result.deletedCount} documents from ${collectionName}`);
+      
     }
 
-    console.log("All user data deleted successfully.");
+    
   } catch (error) {
     console.error("Error deleting user data:", error);
   } finally {

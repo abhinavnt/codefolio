@@ -14,7 +14,7 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
   }
 
   async findBooking(mentorId: string, date: string, startTime: string, endTime: string): Promise<IBooking | null> {
-    console.log("findbooking repositroy reached");
+    
 
     return await this.findOne({ mentorId, date: new Date(date), startTime, endTime, paymentStatus: "completed" });
   }
@@ -32,7 +32,7 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
     endTime: string;
     amount: number;
   }): Promise<Stripe.Checkout.Session> {
-    console.log("createbookin repository", mentorId);
+    
 
     return await stripe.checkout.sessions.create({
       payment_method_types: ["card", "amazon_pay"],
@@ -70,7 +70,7 @@ export class BookingRepository extends BaseRepository<IBooking> implements IBook
   }
 
   async getBookingsByMentorId(mentorId: string): Promise<IBooking[]> {
-    console.log("getBookingsByMentorId");
+    
 
     return this.find({ mentorId: new mongoose.Types.ObjectId(mentorId) })
       .populate("userId", "name email image")

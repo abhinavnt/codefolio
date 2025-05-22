@@ -110,7 +110,7 @@ export function MentorReviews() {
   }
 
   const handleSubmit = async () => {
-    console.log('handlesubmit button newww',modalType);
+    
     
     if (!selectedReview) return
     const url = modalType === "complete"
@@ -121,7 +121,7 @@ export function MentorReviews() {
       theoryMarks: parseInt(theoryMarks),
       feedback,
     }
-    console.log('log url',url);
+    
     
     try {
       if (modalType === "complete") {

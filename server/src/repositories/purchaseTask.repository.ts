@@ -46,7 +46,7 @@ export class PurchaseTaskRepository extends BaseRepository<IPurchasedCourseTask>
     practicalMarks: number
   ): Promise<void> {
     const result = theoryMarks >= 5 && practicalMarks >= 5 ? "pass" : "fail";
-    console.log(result,"result from updatetask");
+    
     
     const update: any = {
       $set: {

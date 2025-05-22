@@ -16,7 +16,7 @@ import { EditCourse } from "@/components/admin/items/EditCourse"
 import { UserCourseTasks } from "@/components/admin/items/UsersCourseTask"
 
 export function AdminRoutes() {
-    console.log('admin routil kayritundllooo');
+    
     
   return (
     <Routes>

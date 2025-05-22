@@ -78,7 +78,7 @@ export function CourseTasks() {
         const tasksResponse = await axiosInstance.get(`/api/course/course-tasks/${courseId}`)
         const courseResponse = await axiosInstance.get(`/api/user/course/${courseId}`)
         setCourse(courseResponse.data.course)
-        console.log(courseResponse.data, "course from course response")
+        
 
         const sortedTasks = tasksResponse.data.sort((a: Task, b: Task) => a.order - b.order)
         setTasks(sortedTasks)
@@ -147,7 +147,7 @@ export function CourseTasks() {
   }
 
   const handleJoinMeet = (meetId: string) => {
-    console.log("Joining meet with ID:", meetId)
+    
 
     navigate(`/video-call/${meetId}`)
   }

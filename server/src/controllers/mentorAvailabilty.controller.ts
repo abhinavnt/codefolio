@@ -56,8 +56,8 @@ export class MentorAvailabilityController implements IMentorAvailabilityControll
 
   bookSlot = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { mentorId, userId, taskId, date, startTime, endTime } = req.body;
-    console.log(req.body, "log from reqbody");
-    console.log(mentorId, userId, taskId, date, startTime, endTime, "reqbody");
+    
+    
 
     const result = await this.mentorAvailability.bookTimeSlot(mentorId, date, startTime, endTime, userId, taskId);
 

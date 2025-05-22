@@ -30,8 +30,8 @@ export class AuthService implements IAuthService {
   ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {
-    console.log(name);
-    console.log("register servicil vannuu iam here for help you");
+    
+    
     try {
       const existingUser = await this.authRepository.findUserByEmail(email);
 
@@ -61,7 +61,7 @@ export class AuthService implements IAuthService {
 
       const userData = await RedisClient.get(`user_session:${email}`);
       if (!userData) throw new Error("User data not found Please register again");
-      console.log(userData, "from redis");
+      
 
       const { name, hashedPassword } = JSON.parse(userData);
 
@@ -73,7 +73,7 @@ export class AuthService implements IAuthService {
       const userRole = UserRole.USER;
 
       const accessToken = jwt.sign({ userId, role: userRole }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "30m" });
-      console.log("after access toke");
+      
       const refreshToken = jwt.sign({ userId, role: userRole }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: "7d" });
 
       await RedisClient.del(`otp:${email}`);
@@ -119,15 +119,15 @@ export class AuthService implements IAuthService {
   }
 
   async login(email: string, password: string, role: string): Promise<verifiedUer> {
-    console.log("login servicel kayri");
+    
     try {
       let user: IAdmin | IUser | null;
-      console.log("email", email);
+      
 
       if (role === "admin") user = await this.authRepository.findAdminByEmail(email);
       else user = await this.authRepository.findUserByEmail(email);
 
-      console.log("login servicel kayri 1", role, user);
+      
 
       if (!user) throw new Error("Invalid email address");
 
@@ -146,8 +146,8 @@ export class AuthService implements IAuthService {
 
       const refreshToken = jwt.sign({ userId, role: userRole }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: "7d" });
 
-      console.log("hei last und login servicesl");
-      console.log(user, "user from ath login service");
+      
+      
 
       return { accessToken, refreshToken, user: user as IUser };
     } catch (error) {
@@ -177,7 +177,7 @@ export class AuthService implements IAuthService {
       } else {
         user = await this.authRepository.findUserById(decoded.userId);
       }
-      console.log(user, "user get from refreshtoke");
+      
 
       if (!user) {
         throw new Error("cannot find user please try again");
@@ -193,11 +193,11 @@ export class AuthService implements IAuthService {
 
   async sendMagicLink(email: string): Promise<void> {
     try {
-      console.log("log from sendMagicLink");
+      
 
       const user = await this.authRepository.findUserByEmail(email);
 
-      console.log("user from sendmagic link", user);
+      
 
       if (!user) throw new Error("Invalid email address");
 
@@ -261,7 +261,7 @@ export class AuthService implements IAuthService {
       const userRole = UserRole.USER;
 
       const accessToken = jwt.sign({ userId, role: userRole }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "15m" });
-      console.log("after access toke");
+      
       const refreshToken = jwt.sign({ userId, role: userRole }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: "7d" });
 
       return { accessToken, refreshToken, user };

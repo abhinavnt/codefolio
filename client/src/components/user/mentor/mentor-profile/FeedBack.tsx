@@ -42,7 +42,7 @@ export function Feedback({ mentorId }: { mentorId: string }) {
           params: { page, limit, rating },
         });
         const newFeedback = response.data.feedback;
-        console.log(newFeedback, "new feedback from ");
+        
 
         if (page === 1) {
           setFeedback(newFeedback);

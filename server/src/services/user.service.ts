@@ -32,10 +32,10 @@ export class userService implements IUserService {
 
   async updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser> {
     try {
-      console.log("update service here");
+      
 
       const user = await this.userRepository.updateById(userId, updateData);
-      console.log(user);
+      
 
       if (!user) {
         throw new Error("cannot update user. please try again");
@@ -115,14 +115,14 @@ export class userService implements IUserService {
   }
 
   async getNotifications(userId: string): Promise<IUser["notifications"]> {
-    console.log("from getnotificatioon service");
+    
 
     return await this.userRepository.getNotification(userId);
   }
 
   async changePassword(userId: string, oldPass: string, newPass: string): Promise<Boolean | null> {
     try {
-      console.log("user serviceil kayritundd");
+      
 
       const user = await this.userRepository.findUserById(userId);
       if (!user) {
@@ -131,7 +131,7 @@ export class userService implements IUserService {
 
       const isPasswordMatch = await bcrypt.compare(oldPass, user.password);
 
-      console.log(isPasswordMatch, "ispasswordMatch");
+      
 
       if (!isPasswordMatch) {
         throw new Error("password not matching");
@@ -141,7 +141,7 @@ export class userService implements IUserService {
 
       const passwrdChanged = await this.userRepository.changePassword(user.id, hashedPassword);
 
-      console.log(passwrdChanged, "password changed from service");
+      
 
       return passwrdChanged;
     } catch (error: any) {

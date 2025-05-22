@@ -23,7 +23,7 @@ export const getUserProfile=async ()=>{
 
 export const updateProfile = async (formData: FormData, dispatch: AppDispatch) => {
     try {
-        console.log('profile update service', formData);
+        
 
         const response = await axiosInstance.put('/api/user/profile', formData, {
             withCredentials: true,
@@ -31,14 +31,14 @@ export const updateProfile = async (formData: FormData, dispatch: AppDispatch) =
                 'Content-Type': 'multipart/form-data'
             }
         });
-        console.log('response from update user', response);
+        
 
         dispatch(updateUser({ user: response.data.user }));
 
         return response
         
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 };
 
@@ -46,7 +46,7 @@ export const updateProfile = async (formData: FormData, dispatch: AppDispatch) =
 
 export const mentorReq=async(formData:FormData)=>{
 try {
-     console.log('going the request to backend');
+     
      
     const response = await axiosInstance.post('/api/user/mentor-request', formData, {
         withCredentials: true,
@@ -55,11 +55,11 @@ try {
         }
     });
 
-    console.log(response,'from the userService mentor request');
+    
     return response
 
 } catch (error) {
-    console.log(error);
+    console.error(error);
     
 }
 }

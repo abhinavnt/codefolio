@@ -55,7 +55,7 @@ export interface MentorState {
     'mentor/verify',
     async (_, { rejectWithValue }) => {
       try {
-        console.log('mentor verification slice from redux');
+        
         
         const response = await axiosInstance.post(`api/mentor/verify`, {}, {withCredentials: true,});
         return response.data.data; // Assuming this returns the mentor object

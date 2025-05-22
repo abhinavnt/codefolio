@@ -194,9 +194,7 @@ export function AddCourse() {
         formData.append("price", coursePrice)
         formData.append("duration", courseDuration)
 
-        console.log(courseImage, "courseImage")
         if (courseImage) {
-          console.log("course image appended to formdata")
           formData.append("image", courseImage)
         }
 
@@ -207,13 +205,13 @@ export function AddCourse() {
         formData.append("courseRequirements", JSON.stringify(courseRequirements))
         formData.append("status",status)
         for (const [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`)
+          
         }
 
         const response = await addNewCourse(formData)
 
         if (response) {
-          console.log("Course submission response:", response.data)
+          
           toast.success("course add success")
         }
         return response
