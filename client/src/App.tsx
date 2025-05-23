@@ -41,19 +41,19 @@ function App() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const { status } = useAppSelector((state) => state.mentor);
 
-   // Initialize notification socket
+  // Initialize notification socket
   useSocket();
 
   useEffect(() => {
     const fetchUser = async () => {
 
       const urlParams = new URLSearchParams(window.location.search);
-            const authStatus = urlParams.get('auth');
+      const authStatus = urlParams.get('auth');
 
-            if (authStatus === 'success') {
-              localStorage.setItem("isAuthenticated", "true");
-              window.history.replaceState({}, document.title, window.location.pathname);
-          }
+      if (authStatus === 'success') {
+        localStorage.setItem("isAuthenticated", "true");
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
 
       const storedAuth = localStorage.getItem("isAuthenticated");
       if (storedAuth) {
@@ -87,13 +87,13 @@ function App() {
 
               <Route path="/reset-password" element={<LazyResetPasswordPage />} />
               <Route path="/" element={<Home />} />
-              <Route path="/courses/:id" element={<CourseDetails />} />
-              <Route path="/courses" element={<LazyCourseDisplay />} />
 
 
 
               {/* Protected routes of users */}
               <Route element={<ProtectedRoute role="user" />}>
+                <Route path="/courses/:id" element={<CourseDetails />} />
+                <Route path="/courses" element={<LazyCourseDisplay />} />
                 <Route path="/profile" element={<LazyUserProfile />} />
                 <Route path="/mentor-application" element={<LazyMentorApplicationPage />} />
                 <Route path="/mentors" element={<Mentors />} />
@@ -104,18 +104,18 @@ function App() {
                 <Route path="/mentor/:username" element={<MentorProfilePage />} />
                 <Route path="/mentor-verify" element={<MentorLoadingPage />} />
                 {/* <Route path="/mentor" element={<MentorDashboardPage/>}/> */}
-                <Route path="/mentor"element={status === 'succeeded' ? (<MentorDashboardPage />) : ( <Navigate to="/mentor-verify" replace /> )}/>
-                <Route path="/booking/success" element={<BookingSuccess/>}/>
-                <Route path="/course-tasks/:courseId" element={<EnrolledCourseTask/>}/>
+                <Route path="/mentor" element={status === 'succeeded' ? (<MentorDashboardPage />) : (<Navigate to="/mentor-verify" replace />)} />
+                <Route path="/booking/success" element={<BookingSuccess />} />
+                <Route path="/course-tasks/:courseId" element={<EnrolledCourseTask />} />
                 <Route path="/video-call/:bookingId" element={<VideoCall />} />
               </Route>
 
-              <Route path="/about" element={<About/>}/>
+              <Route path="/about" element={<About />} />
 
               {/* <Route path="/admin/login" element={<AdminLogin/>}/> */}
               <Route path="/admin/*" element={<AdminRoutes />} />
 
-             
+
 
 
 

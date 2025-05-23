@@ -145,7 +145,7 @@ export class AuthController implements IAuthController {
 
   handleGoogleUser = async (req: Request, res: Response): Promise<void> => {
     if (!req.user) {
-      return res.redirect("http://localhost:5173");
+      return res.redirect(process.env.CLIENT_URL||"http://codefolio.myvnc.com");
     }
 
     const googleProfile = req.user as unknown as Profile;
@@ -171,6 +171,6 @@ export class AuthController implements IAuthController {
 
     
 
-    res.redirect("http://localhost:5173/?auth=success");
+    res.redirect("https://codefolio.myvnc.com/?auth=success");
   };
 }
