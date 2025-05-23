@@ -39,10 +39,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Step 6: Build and push Docker images
-      # - name: Build and push Docker images
-      #   run: |
-      #     docker-compose -f docker-compose.prod.yaml build
-      #     docker-compose -f docker-compose.prod.yaml push
+      - name: Build and push Docker images
+        run: |
+          docker-compose -f docker-compose.prod.yaml build
+          docker-compose -f docker-compose.prod.yaml push
 
       # Step: Configure AWS credentials
       - name: Configure AWS credentials
@@ -59,7 +59,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --instance-ids "${{ secrets.SSM_INSTANCE_ID }}" \
             --comment "CI/CD Deployment" \
-            --parameters commands="cd /home/ubuntu && docker-compose up -d" \
+            --parameters commands="cd /home/ubuntu && docker-compose down && docker container prune -f && docker image prune -a -f && docker-compose up -d" \
             --query "Command.CommandId" \
             --output text)
 
