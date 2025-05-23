@@ -1,0 +1,25 @@
+services:
+  backend:
+    image: abhinavnt777/server:latest
+    pull_policy: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    image: abhinavnt777/client:latest
+    pull_policy: always
+    ports:
+      - "443:443"
+      - "80:80"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
