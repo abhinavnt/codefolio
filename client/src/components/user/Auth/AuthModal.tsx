@@ -186,7 +186,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
             <div className="max-w-md mx-auto">
               <div className="flex border-b mb-8">
                 <button
-                  className={`pb-2 px-4 text-lg font-medium ${
+                  className={`pb-2 px-4 cursor-pointer text-lg font-medium ${
                     activeTab === "signin" ? "text-[#20B486] border-b-2 border-[#20B486]" : "text-gray-600"
                   }`}
                   onClick={() => setActiveTab("signin")}
@@ -194,7 +194,7 @@ export default function AuthModal({ isOpen, onClose, initialTab = "signup" }: Au
                   Sign In
                 </button>
                 <button
-                  className={`pb-2 px-4 text-lg font-medium ${
+                  className={`pb-2 px-4 cursor-pointer text-lg font-medium ${
                     activeTab === "signup" ? "text-[#20B486] border-b-2 border-[#20B486]" : "text-gray-600"
                   }`}
                   onClick={() => setActiveTab("signup")}
