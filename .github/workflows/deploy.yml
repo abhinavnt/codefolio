@@ -47,7 +47,6 @@ jobs:
       # Step 7: Deploy using AWS SSM
       - name: Deploy using AWS SSM
         id: deploy
-        uses: aws-actions/aws-cli-action@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
