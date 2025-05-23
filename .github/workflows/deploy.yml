@@ -59,7 +59,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --instance-ids "${{ secrets.SSM_INSTANCE_ID }}" \
             --comment "CI/CD Deployment" \
-            --parameters commands="cd /home/ubuntu && docker-compose pull && docker-compose up -d" \
+            --parameters commands="cd /home/ubuntu && docker-compose up -d" \
             --query "Command.CommandId" \
             --output text)
 
