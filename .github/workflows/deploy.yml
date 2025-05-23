@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Trigger pipeline on push to main branch
+      - main # Trigger pipeline on push to main branch
 
 jobs:
   build-and-deploy:
@@ -44,31 +44,47 @@ jobs:
           docker-compose -f docker-compose.prod.yaml build
           docker-compose -f docker-compose.prod.yaml push
 
-      # Step 7: Deploy to EC2
-      - name: Deploy to EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      # Step 7: Deploy using AWS SSM
+      - name: Deploy using AWS SSM
+        id: deploy
+        uses: aws-actions/aws-cli-action@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
         run: |
-          # Save SSH key to a file
-          echo "$EC2_SSH_KEY" > ssh_key.pem
-          chmod 600 ssh_key.pem
+          # Send the deployment command
+          command_id=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --instance-ids "${{ secrets.SSM_INSTANCE_ID }}" \
+            --comment "CI/CD Deployment" \
+            --parameters commands="cd /home/ubuntu && docker-compose -f docker-compose.prod.yaml pull && docker-compose -f docker-compose.prod.yaml up -d" \
+            --query "Command.CommandId" \
+            --output text)
 
-          # Copy docker-compose.prod.yaml to EC2
-          scp -i ssh_key.pem -o StrictHostKeyChecking=no docker-compose.prod.yaml $EC2_USER@$EC2_HOST:/home/$EC2_USER/docker-compose.prod.yaml
+          echo "Command ID: $command_id"
 
-          # SSH into EC2 and execute deployment commands
-          ssh -i ssh_key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
-            # Stop and remove existing containers
-            sudo docker-compose -f /home/$EC2_USER/docker-compose.prod.yaml down
+          # Wait and check command status
+          for i in {1..10}; do
+            status=$(aws ssm list-command-invocations \
+              --command-id "$command_id" \
+              --details \
+              --query "CommandInvocations[0].Status" \
+              --output text)
+              
+            echo "Current status: $status"
+            
+            if [[ "$status" == "Success" ]]; then
+              echo "✅ Deployment successful."
+              exit 0
+            elif [[ "$status" == "Failed" || "$status" == "Cancelled" || "$status" == "TimedOut" ]]; then
+              echo "❌ Deployment failed with status: $status"
+              exit 1
+            else
+              echo "⏳ Still running... Retrying in 5s"
+              sleep 5
+            fi
+          done
 
-            # Remove all old images
-            docker images -q | sort -u | xargs -I {} docker rmi -f {} || true
-
-            # Pull and run the new images
-            sudo docker-compose -f /home/$EC2_USER/docker-compose.prod.yaml up -d
-          EOF
-
-          # Clean up SSH key
-          rm ssh_key.pem
+          echo "❌ Deployment timed out waiting for success status."
+          exit 1
