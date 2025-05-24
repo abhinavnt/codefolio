@@ -35,16 +35,16 @@ export default function CourseCard({ course }: CourseCardProps) {
         </p>
 
         <div className="mt-auto flex items-center justify-between">
-          <div className="flex items-center gap-1">
+          {/* <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             <span className="text-sm font-medium">{course.rating}</span>
             <span className="text-xs text-muted-foreground">
               ({course.enrolledStudents.length})
             </span>
-          </div>
+          </div> */}
 
           <div className="flex items-center gap-1">
-            <Users className="h-4 w-4 text-muted-foreground" />
+            {/* <Users className="h-4 w-4 text-muted-foreground" /> */}
             {/* <span className="text-xs text-muted-foreground">
               {course.description}
             </span> */}
