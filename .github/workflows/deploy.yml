@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main # Trigger pipeline on push to main branch
+      - main
 
 jobs:
   build-and-deploy:
@@ -41,8 +41,8 @@ jobs:
       # Step 6: Build and push Docker images
       - name: Build and push Docker images
         run: |
-          docker-compose -f docker-compose.prod.yaml build
-          docker-compose -f docker-compose.prod.yaml push
+          docker-compose -f docker-compose-prod.yaml build
+          docker-compose -f docker-compose-prod.yaml push
 
       # Step: Configure AWS credentials
       - name: Configure AWS credentials
