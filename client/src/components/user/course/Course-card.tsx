@@ -1,4 +1,3 @@
-import { Star, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Course } from "@/types/course";
 import { Button } from "@/components/ui/button";
