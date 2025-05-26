@@ -14,11 +14,27 @@ export class MentorReqRepository implements IMentorReqRepository {
     return MentorRequest.findOne({ username });
   }
 
-  async getMentorApplicationRequest(page: number, limit: number): Promise<{ mentorRequests: IMentorRequest[]; total: number }> {
+  async getMentorApplicationRequest(
+    page: number,
+    limit: number,
+    search: string,
+    status: string
+  ): Promise<{ mentorRequests: IMentorRequest[]; total: number }> {
     const skip = (page - 1) * limit;
-    const requests = await MentorRequest.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
 
-    const total = await MentorRequest.countDocuments();
+    let query: any = {};
+
+    if (search) {
+      query.$or = [{ name: { $regex: search, $options: "i" } }, { email: { $regex: search, $options: "i" } }];
+    }
+
+    if (status !== "all") {
+      query.status = { $regex: `^${status}$`, $options: "i" };
+    }
+
+    const requests = await MentorRequest.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
+    const total = await MentorRequest.countDocuments(query);
 
     return { mentorRequests: requests, total };
   }

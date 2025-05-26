@@ -1,11 +1,9 @@
-
-
-import { useEffect, useState } from "react"
-import { Search, Calendar } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useEffect, useState } from "react";
+import { Search, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -14,11 +12,11 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
-} from "@/components/ui/dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -27,94 +25,112 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import { getMentorApplicationRequest, updateMentorApplicationStatus } from "@/services/adminService"
-import { toast } from "sonner"
+} from "@/components/ui/pagination";
+import { getMentorApplicationRequest, updateMentorApplicationStatus } from "@/services/adminService";
+import { toast } from "sonner";
 
 interface IMentorRequest {
-  _id: string
-  userId: string
-  profileImage?: string
-  name: string
-  username: string
-  email: string
-  phoneNumber: string
-  dateOfBirth: string
-  yearsOfExperience: number
-  currentCompany: string
-  currentRole: string
-  durationAtCompany: string
-  resume: string
-  technicalSkills: string[]
-  primaryLanguage: string
-  bio: string
-  linkedin?: string
-  github?: string
-  twitter?: string
-  instagram?: string
-  status: string
-  createdAt: string
+  _id: string;
+  userId: string;
+  profileImage?: string;
+  name: string;
+  username: string;
+  email: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  yearsOfExperience: number;
+  currentCompany: string;
+  currentRole: string;
+  durationAtCompany: string;
+  resume: string;
+  technicalSkills: string[];
+  primaryLanguage: string;
+  bio: string;
+  linkedin?: string;
+  github?: string;
+  twitter?: string;
+  instagram?: string;
+  status: string;
+  createdAt: string;
 }
 
 export function MentorRequests() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedRequest, setSelectedRequest] = useState<IMentorRequest | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [mentorRequests, setMentorRequests] = useState<IMentorRequest[]>([])
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalItems, setTotalItems] = useState(0)
-  const [itemsPerPage] = useState(5)
-  const [rejectionReason, setRejectionReason] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedRequest, setSelectedRequest] = useState<IMentorRequest | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [mentorRequests, setMentorRequests] = useState<IMentorRequest[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage] = useState(5);
+  const [rejectionReason, setRejectionReason] = useState("");
 
+  // Add debounced search term state
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
+  // Debouncing effect for search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300); // Wait 300ms after typing stops
+
+    return () => {
+      clearTimeout(handler); // Clear timeout if searchTerm changes before delay
+    };
+  }, [searchTerm]);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchTerm, statusFilter]);
+
+  // Fetch data with search and status filters
   useEffect(() => {
     const fetchMentorRequests = async () => {
       try {
-        const { mentorApplications, total, totalPages } = await getMentorApplicationRequest(currentPage, itemsPerPage)
-        setMentorRequests(mentorApplications)
-        setTotalPages(totalPages)
-        setTotalItems(total)
+        const { mentorApplications, total, totalPages } = await getMentorApplicationRequest(
+          currentPage,
+          itemsPerPage,
+          debouncedSearchTerm,
+          statusFilter
+        );
+        setMentorRequests(mentorApplications);
+        setTotalPages(totalPages);
+        setTotalItems(total);
       } catch (error) {
-        toast.error("Something went wrong")
+        toast.error("Something went wrong");
       }
-    }
-    fetchMentorRequests()
-  }, [currentPage, itemsPerPage])
+    };
+    fetchMentorRequests();
+  }, [currentPage, itemsPerPage, debouncedSearchTerm, statusFilter]);
 
-  // Filter requests based on search term and status filter
-  const filteredRequests = mentorRequests.filter((request) => {
-    const matchesSearch =
-      request.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || request.status.toLowerCase() === statusFilter.toLowerCase()
-    return matchesSearch && matchesStatus
-  })
-
-  const indexOfFirstDisplay = (currentPage - 1) * itemsPerPage + 1
-  const indexOfLastDisplay = Math.min(currentPage * itemsPerPage, totalItems)
+  const indexOfFirstDisplay = (currentPage - 1) * itemsPerPage + 1;
+  const indexOfLastDisplay = Math.min(currentPage * itemsPerPage, totalItems);
 
   const handleViewDetails = (request: IMentorRequest) => {
-    setSelectedRequest(request)
-  }
+    setSelectedRequest(request);
+  };
 
   const handleStatusChange = async (requestId: string, newStatus: string, message?: string) => {
     try {
-      await updateMentorApplicationStatus(requestId, newStatus, message)
-      setMentorRequests((prev) => prev.map((req) => (req._id === requestId ? { ...req, status: newStatus } : req)))
+      await updateMentorApplicationStatus(requestId, newStatus, message);
+      setMentorRequests((prev) =>
+        prev.map((req) => (req._id === requestId ? { ...req, status: newStatus } : req))
+      );
 
       if (selectedRequest && selectedRequest._id === requestId) {
-        setSelectedRequest({ ...selectedRequest, status: newStatus })
+        setSelectedRequest({ ...selectedRequest, status: newStatus });
       }
 
-      toast.success(`Application status updated to ${newStatus}`)
+      toast.success(`Application status updated to ${newStatus}`);
     } catch (error) {
-      toast.error("Failed to update status")
+      toast.error("Failed to update status");
     }
-  }
+  };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
+    setCurrentPage(page);
+  };
 
   return (
     <div className="space-y-6">
@@ -167,14 +183,14 @@ export function MentorRequests() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredRequests.length === 0 ? (
+                {mentorRequests.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-6">
                       No applications found. Try adjusting your filters.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredRequests.map((request) => (
+                  mentorRequests.map((request) => (
                     <TableRow key={request._id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
@@ -428,8 +444,8 @@ export function MentorRequests() {
                                             <Button
                                               variant="destructive"
                                               onClick={() => {
-                                                handleStatusChange(selectedRequest._id, "Rejected", rejectionReason)
-                                                setRejectionReason("")
+                                                handleStatusChange(selectedRequest._id, "Rejected", rejectionReason);
+                                                setRejectionReason("");
                                               }}
                                               disabled={!rejectionReason.trim()}
                                             >
@@ -463,7 +479,7 @@ export function MentorRequests() {
                                                   handleStatusChange(
                                                     selectedRequest._id,
                                                     "Approved",
-                                                    "Congratulations! Your mentor application has been approved.",
+                                                    "Congratulations! Your mentor application has been approved."
                                                   )
                                                 }
                                               >
@@ -498,7 +514,7 @@ export function MentorRequests() {
                                                 handleStatusChange(
                                                   selectedRequest._id,
                                                   "Pending",
-                                                  "Your application status has been reset to pending for further review.",
+                                                  "Your application status has been reset to pending for further review."
                                                 )
                                               }
                                             >
@@ -543,23 +559,23 @@ export function MentorRequests() {
                         {page}
                       </PaginationLink>
                     </PaginationItem>
-                  )
+                  );
                 }
                 if (page === 2 && currentPage > 3) {
                   return (
                     <PaginationItem key="ellipsis-start">
                       <PaginationEllipsis />
                     </PaginationItem>
-                  )
+                  );
                 }
                 if (page === totalPages - 1 && currentPage < totalPages - 2) {
                   return (
                     <PaginationItem key="ellipsis-end">
                       <PaginationEllipsis />
                     </PaginationItem>
-                  )
+                  );
                 }
-                return null
+                return null;
               })}
 
               <PaginationItem>
@@ -573,6 +589,5 @@ export function MentorRequests() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-

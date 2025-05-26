@@ -3,7 +3,6 @@ import type React from "react"
 
 import { useState } from "react"
 import { Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -51,8 +50,6 @@ export interface DataTableProps {
     onFilterChange: (filterId: string, value: string) => void
     renderActions: (item: any) => React.ReactNode
     renderDetails?: (item: any) => React.ReactNode
-    addButtonText?: string
-    onAddButtonClick?: () => void
     getItemIdentifier: (item: any) => string
     getItemName: (item: any) => string
     getItemEmail: (item: any) => string
@@ -75,8 +72,6 @@ export function DataTable({
     onSearch,
     onFilterChange,
     renderActions,
-    addButtonText,
-    onAddButtonClick,
     getItemIdentifier,
     getItemName,
     getItemEmail,
@@ -97,7 +92,6 @@ export function DataTable({
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-                {addButtonText && onAddButtonClick && <Button onClick={onAddButtonClick}>{addButtonText}</Button>}
             </div>
 
             <Card>

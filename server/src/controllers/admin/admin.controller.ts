@@ -15,12 +15,15 @@ import { ParsedQs } from "qs";
 @injectable()
 export class AdminController implements IAdminController {
   constructor(@inject(TYPES.AdminService) private adminService: IAdminService) {}
+
   //get all mentor requests
   getMentorApplicationsRequest = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
+    const search = (req.query.search as string) || "";
+    const status = (req.query.status as string) || "all";
 
-    const { mentorRequests, total } = await this.adminService.getMentorApplicationRequest(page, limit);
+    const { mentorRequests, total } = await this.adminService.getMentorApplicationRequest(page, limit, search, status);
 
     res.status(200).json({ mentorApplications: mentorRequests, total, currentPage: page, totalPages: Math.ceil(total / limit) });
   });
@@ -29,7 +32,6 @@ export class AdminController implements IAdminController {
   updateMentorApplicationStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { requestId } = req.params;
     const { status, message } = req.body;
-    
 
     const updatedRequest = await this.adminService.updateMentorApplicationStatus(requestId, status, message);
     res.status(200).json({ mentorApplication: updatedRequest });
@@ -39,7 +41,6 @@ export class AdminController implements IAdminController {
   getAllUsers = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    
 
     const { allUsers, total } = await this.adminService.getAllUsers(page, limit);
 
@@ -67,7 +68,6 @@ export class AdminController implements IAdminController {
   toggleMentorStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const status = req.query.status as string;
-    
 
     const mentor = await this.adminService.toggleMentorStatus(id, status);
     res.status(200).json(mentor);
