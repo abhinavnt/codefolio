@@ -27,11 +27,11 @@ export function MentorCard({ mentor }: MentorCardProps) {
           alt={mentor.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
         />
-        {mentor.expertise && (
+        {/* {mentor.expertise && (
           <Badge className="absolute top-3 left-3 bg-emerald-500 hover:bg-emerald-600 text-white border-0 z-20 shadow-md">
             {mentor.expertise}
           </Badge>
-        )}
+        )} */}
       </div>
 
       {/* Content area */}

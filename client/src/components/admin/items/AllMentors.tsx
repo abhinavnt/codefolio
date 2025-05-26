@@ -49,10 +49,7 @@ export function AllMentors() {
   const [totalPages, setTotalPages] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
   const itemsPerPage = 5
-  const [blockConfirmOpen, setBlockConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<{ mentorId: string; newStatus: "active" | "inactive" } | null>(
-    null,
-  )
+ 
 
   useEffect(() => {
     const fetchMentors = async () => {
@@ -210,8 +207,6 @@ export function AllMentors() {
       onSearch={handleSearch}
       onFilterChange={handleFilterChange}
       renderActions={renderActions}
-      addButtonText="Add New Mentor"
-      onAddButtonClick={() => console.log("Add new mentor")}
       getItemIdentifier={(mentor) => mentor._id}
       getItemName={(mentor) => mentor.name}
       getItemEmail={(mentor) => mentor.email}
