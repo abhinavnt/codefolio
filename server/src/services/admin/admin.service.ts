@@ -26,9 +26,10 @@ export class adminService implements IAdminService {
   ) {}
 
   //get all mentor application
-  async getMentorApplicationRequest(page: number = 1, limit: number = 10): Promise<{ mentorRequests: IMentorRequest[]; total: number }> {
+  async getMentorApplicationRequest(page: number = 1, limit: number = 10,search: string = '',
+  status: string = 'all'): Promise<{ mentorRequests: IMentorRequest[]; total: number }> {
     try {
-      const { mentorRequests, total } = await this.mentorReqRepository.getMentorApplicationRequest(page, limit);
+      const { mentorRequests, total } = await this.mentorReqRepository.getMentorApplicationRequest(page, limit,search,status);
       return { mentorRequests, total };
     } catch (error) {
       throw new Error("Error when fetching mentor applications");
