@@ -44,11 +44,11 @@ export function MentorCard({ mentor }: MentorCardProps) {
         <div className="mt-auto space-y-4">
           {/* Stats row */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5  px-2.5 py-1 rounded-full">
+            {/* <div className="flex items-center gap-1.5  px-2.5 py-1 rounded-full">
               <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
               <span className="text-sm font-medium">{mentor.rating.toFixed(1)}</span>
               <span className="text-xs text-muted-foreground">({mentor.reviews})</span>
-            </div>
+            </div> */}
 
             <div className="flex items-center gap-1.5  px-2.5 py-1 rounded-full">
               <Award className="h-4 w-4 text-emerald-500" />
