@@ -92,15 +92,15 @@ export function Feedback({ mentorId }: { mentorId: string }) {
         <div className="space-y-6">
           {feedback.length > 0 ? (
             feedback.map((item) => (
-              <div key={item._id} className="flex gap-4">
+              <div key={item?._id} className="flex gap-4">
                 <Avatar>
-                  <AvatarImage src={item.userId.profileImageUrl} alt={item.userId.name} />
-                  <AvatarFallback>{item.userId.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={item.userId?.profileImageUrl} alt="U" />
+                  <AvatarFallback>{item.userId?.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{item.userId.name}</span>
-                    <span className="text-xs text-muted-foreground">{formatTime(item.createdAt)}</span>
+                    <span className="font-medium">{item.userId?.name}</span>
+                    <span className="text-xs text-muted-foreground">{formatTime(item?.createdAt)}</span>
                   </div>
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
@@ -121,7 +121,7 @@ export function Feedback({ mentorId }: { mentorId: string }) {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-sm">{item.feedback}</p>
+                  <p className="text-sm">{item?.feedback}</p>
                 </div>
               </div>
             ))

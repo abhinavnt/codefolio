@@ -1,4 +1,3 @@
-"use client";
 
 import { useState, useEffect } from "react";
 import { Search, Calendar } from "lucide-react";
@@ -7,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -172,27 +170,27 @@ export function EnrolledUsers() {
                         <div className="flex items-center space-x-3">
                           <Avatar className="hidden sm:flex">
                             <AvatarFallback>
-                              {course.userId.name
+                              {course?.userId?.name
                                 .split(" ")
                                 .map((n) => n[0])
                                 .join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{course.userId.name}</div>
-                            <div className="text-sm text-muted-foreground">{course.userId.email}</div>
+                            <div className="font-medium">{course?.userId?.name}</div>
+                            <div className="text-sm text-muted-foreground">{course?.userId?.email}</div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">{course.courseData.title}</TableCell>
+                      <TableCell className="hidden md:table-cell">{course?.courseData?.title}</TableCell>
                       <TableCell className="hidden md:table-cell">
                         <div className="flex items-center">
                           <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                          {new Date(course.paymentDetails.paymentDate).toISOString().split("T")[0]}
+                          {new Date(course?.paymentDetails?.paymentDate).toISOString().split("T")[0]}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Link to={`/admin/user-course-tasks/${course.userId._id}/${course.courseId}`}>
+                        <Link to={`/admin/user-course-tasks/${course?.userId?._id}/${course?.courseId}`}>
                           <Button variant="outline" size="sm">
                             View Details
                           </Button>
