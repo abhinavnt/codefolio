@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 // Get MongoDB connection string from command-line argument
-const uri = process.argv[3] || "mongodb://localhost:27017/Codefolio";
+const uri = process.argv[3] || "mongodb+srv://codefolio777:R3xHoYBsS41yqpnz@cluster0.bg37sgh.mongodb.net/Codefolio?retryWrites=true&w=majority";
 
 // Get user ID to delete from command-line argument
 const userId = process.argv[2];
