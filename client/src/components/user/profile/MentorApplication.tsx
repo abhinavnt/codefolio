@@ -151,25 +151,28 @@ const MentorApplicationPage: React.FC = () => {
     if (selectedProfileImage) formData.append("profileImage", selectedProfileImage)
     if (resume) formData.append("resume", resume)
 
-    for (const [key, value] of formData.entries()) {
-      
-    }
+    
 
     try {
       setLoading(true)
       const response = await mentorReq(formData)
-      
+
       if (response?.status === 201) {
         setLoading(false)
         toast.success("request submited done")
         setTimeout(() => {
           navigate("/profile")
-        }, 1500)
+        }, 1000)
       } else {
         setLoading(false)
-        toast.error("somthing went wrong when submiting")
+        toast.error(response?.data.message || "An error occurred while submitting the request")
       }
-    } catch (error) {}
+    } catch (error: any) {
+      setLoading(false);
+      // Log the error for debugging and show a user-friendly message
+      console.error("Error in mentorReq:", error);
+      toast.error(error.message || "An unexpected error occurred");
+    }
   }
 
   const handleProfileImageChange = (e: ChangeEvent<HTMLInputElement>) => {

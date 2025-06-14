@@ -214,7 +214,6 @@ export function ProfileSettings() {
       setFormChanged(false)
       setProfileImageFile(null)
       setResumeFile(null)
-      toast.success("Profile updated successfully!")
     } catch (err) {
       console.error("Failed to update profile:", err)
       toast.error("Failed to update profile. Please try again.")

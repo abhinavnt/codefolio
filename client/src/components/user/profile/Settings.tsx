@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useEffect, useState } from "react"
 import { Upload } from "lucide-react"
@@ -134,7 +132,7 @@ export function Settings() {
       const response = await updateProfile(formData, dispatch)
       
       if (response) {
-        toast.success("Profile updated successfully")
+        // toast.success("Profile updated successfully")
       }
     } catch (error) {
       toast.error("Error updating profile. Please try again!")
@@ -152,10 +150,11 @@ export function Settings() {
   const handlePasswordChange = async (data: any) => {
     
     const response = await changePassword(data)
+    
     if (response) {
       toast.success("Password updated")
     } else {
-      toast.error("something went wrong on password update")
+      toast.error("Old password is wrong")
       
     }
     setOpenPasswordDialog(false)
